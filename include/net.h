@@ -340,7 +340,7 @@ struct icmp_hdr {
 			ushort	id;
 			ushort	sequence;
 		} echo;
-		ulong	gateway;
+		u32	gateway;
 		struct {
 			ushort	unused;
 			ushort	mtu;
@@ -608,9 +608,9 @@ static inline IPaddr_t NetReadIP(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline ulong NetReadLong(ulong *from)
+static inline u32 NetReadLong(u32 *from)
 {
-	ulong l;
+	u32 l;
 
 	memcpy((void *)&l, (void *)from, sizeof(l));
 	return l;
@@ -629,9 +629,9 @@ static inline void NetCopyIP(void *to, void *from)
 }
 
 /* copy ulong */
-static inline void NetCopyLong(ulong *to, ulong *from)
+static inline void NetCopyLong(u32 *to, u32 *from)
 {
-	memcpy((void *)to, (void *)from, sizeof(ulong));
+	memcpy((void *)to, (void *)from, sizeof(u32));
 }
 
 /**
