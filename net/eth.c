@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2015 Renesas Electronics Corporation
  * (C) Copyright 2001-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -381,8 +382,10 @@ int eth_init(bd_t *bis)
 	struct eth_device *old_current, *dev;
 
 	if (!eth_current) {
-		puts("No ethernet found.\n");
-		return -1;
+		if (!eth_initialize(bis)) {
+			puts("No ethernet found.\n");
+			return -1;
+		}
 	}
 
 	/* Sync environment with network devices */
