@@ -12,6 +12,7 @@
 
 #include <asm/arch/rcar_gen3.h>
 
+#define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_EDITENV
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_MEMORY
