@@ -341,6 +341,7 @@ static int ravb_phy_config(struct ravb_dev *eth)
 	int ret = 0;
 	struct eth_device *dev = eth->dev;
 	struct phy_device *phydev;
+	int reg;
 
 	phydev = phy_connect(
 			miiphy_get_dev_by_name(dev->name),
@@ -353,8 +354,13 @@ static int ravb_phy_config(struct ravb_dev *eth)
 	/* 10BASE is not supported for Ethernet AVB MAC */
 	phydev->supported &= ~(SUPPORTED_10baseT_Full
 			       | SUPPORTED_10baseT_Half);
+	/* workaround: 1000 BASE is not supported for rcar_gen3 */
 	phydev->supported &= ~(SUPPORTED_1000baseT_Half
 			       | SUPPORTED_1000baseT_Full);
+	reg = phy_read(phydev, -1, 0x09);
+	reg &= ~((1ul << 9) | (1ul << 8));
+	phy_write(phydev, -1, 0x09, reg);
+
 	phy_config(phydev);
 
 	return ret;
