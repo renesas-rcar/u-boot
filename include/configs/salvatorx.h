@@ -16,6 +16,10 @@
 
 #include "rcar-gen3-common.h"
 
+/* Cache Definitions */
+#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_SYS_ICACHE_OFF
+
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE
 #define CONFIG_CONS_SCIF2
