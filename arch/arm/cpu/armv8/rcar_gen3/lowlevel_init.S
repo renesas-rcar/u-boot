@@ -68,6 +68,8 @@ ENTRY(lowlevel_init)
 
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
+	bl      s_init
+
 	/*
 	 * Enable SMP bit
 	 */
