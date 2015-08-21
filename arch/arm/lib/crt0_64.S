@@ -87,6 +87,7 @@ zero_gd:
 	ldr	x18, [x18, #GD_BD]		/* x18 <- gd->bd */
 	sub	x18, x18, #GD_SIZE		/* new GD is below bd */
 
+#ifndef CONFIG_RCAR_GEN3
 	adr	lr, relocation_return
 	ldr	x9, [x18, #GD_RELOC_OFF]	/* x9 <- gd->reloc_off */
 	add	lr, lr, x9	/* new return address after relocation */
@@ -94,6 +95,7 @@ zero_gd:
 	b	relocate_code
 
 relocation_return:
+#endif
 
 /*
  * Set up final (full) environment
