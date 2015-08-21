@@ -99,6 +99,7 @@ ENTRY(_main)
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
 	ldr	x18, [x18, #GD_NEW_GD]		/* x18 <- gd->new_gd */
 
+#ifndef CONFIG_RCAR_GEN3
 	adr	lr, relocation_return
 #if CONFIG_POSITION_INDEPENDENT
 	/* Add in link-vs-runtime offset */
@@ -114,6 +115,7 @@ ENTRY(_main)
 	b	relocate_code
 
 relocation_return:
+#endif
 
 /*
  * Set up final (full) environment
