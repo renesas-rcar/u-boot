@@ -70,13 +70,6 @@ ENTRY(lowlevel_init)
 
 	bl      s_init
 
-	/*
-	 * Enable SMP bit
-	 */
-	mrs	x0, S3_1_c15_c2_1
-	orr	x0, x0, #0x40	/* SMP bit */
-	msr	S3_1_c15_c2_1, x0
-
 2:
 	mov	lr, x29			/* Restore LR */
 	ret
