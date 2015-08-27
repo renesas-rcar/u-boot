@@ -16,6 +16,7 @@
 #define EHCI_OFFSET	0x100		/* offset: 0100H */
 #define EHCI_SIZE	0x100
 #define AHB_OFFSET	0x200
+#define USB_CORE_OFFSET	0x300
 
 #define EHCI_USBCMD	(EHCI_OFFSET + 0x0020)
 
@@ -42,10 +43,11 @@
 #define MAX_BURST_LEN_INCR4	(2 << 0)
 #define MAX_BURST_LEN_SINGLE	(3 << 0)
 
-#define SMSTPCR7        0xE615014C
-#define SMSTPCR701      (1 << 1)	/* EHCI2 */
-#define SMSTPCR702      (1 << 2)	/* EHCI1 */
-#define SMSTPCR703      (1 << 3)	/* EHCI0 */
+#define SMSTPCR7	0xE615014C
+#define SMSTPCR701	(1 << 1)	/* EHCI2 */
+#define SMSTPCR702	(1 << 2)	/* EHCI1 */
+#define SMSTPCR703	(1 << 3)	/* EHCI0 */
+#define SMSTPCR704	(1 << 4)	/* HSUSB */
 
 /* Init AHB master and slave functions of the host logic */
 #define AHB_BUS_CTR_INIT 0
@@ -72,6 +74,15 @@ struct rmobile_ehci_reg {
 	u32 dummy[9];
 	u32 configflag;		/* configflag */
 	u32 portsc;		/* portsc */
+};
+
+struct usb_core_reg {
+	u32 revid;
+	u32 regen_cg_ctrl;
+	u32 spd_ctrl;
+	u32 spd_rsm_timset;
+	u32 oc_timset;
+	u32 sbrn_fladj_pw;
 };
 
 #endif /* __EHCI_RCAR_H__ */
