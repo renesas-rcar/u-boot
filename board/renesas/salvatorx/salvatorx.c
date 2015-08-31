@@ -45,7 +45,8 @@ void s_init(void)
 
 #define TMU0_MSTP125	(1 << 25)		/* secure */
 #define TMU1_MSTP124	(1 << 24)		/* non-secure */
-#define SCIF1_MSTP206	(1 << 6)		/* SCIF0 is GPIO */
+#define SCIF2_MSTP310	(1 << 10)
+#define ETHERAVB_MSTP812	(1 << 12)
 #define SD0_MSTP314	(1 << 14)
 #define SD1_MSTP313	(1 << 13)
 #define SD2_MSTP312	(1 << 12)		/* either MMC0 */
@@ -67,8 +68,10 @@ int board_early_init_f(void)
 {
 	/* TMU0,1 */		/* which use ? */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
-	/* SCIF1 */
-	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIF1_MSTP206);
+	/* SCIF2 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
+	/* EHTERAVB */
+	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
