@@ -43,6 +43,7 @@ void s_init(void)
 	writel(0xFFFFFFFF, CPGWPR);
 }
 
+#define GSX_MSTP112	(1 << 12)		/* 3DG */
 #define TMU0_MSTP125	(1 << 25)		/* secure */
 #define TMU1_MSTP124	(1 << 24)		/* non-secure */
 #define SCIF2_MSTP310	(1 << 10)
@@ -86,6 +87,10 @@ int board_early_init_f(void)
 #define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting Mask Register */
 #define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
 #define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
+
+/* SYSC */
+#define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status register 2(3DG) */
+#define	SYSC_PWRONCR2	0xE618010C	/* -/W 32 Power resume control register 2 (3DG) */
 
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
@@ -143,6 +148,14 @@ int board_init(void)
 	gpio_set_value(GPIO_GP_2_10, 1);
 	udelay(1);
 #endif
+
+	/* GSX: force power and clock supply */
+	writel(0x0000001F, SYSC_PWRONCR2);
+	while (readl(SYSC_PWRSR2) != 0x000003E0)
+		mdelay(20);
+
+	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
+
 	return 0;
 }
 
