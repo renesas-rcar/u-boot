@@ -91,6 +91,38 @@ int board_init(void)
 	/* Init PFC controller */
 	r8a7795_pinmux_init();
 
+#ifdef CONFIG_RAVB
+	/* EtherAVB Enable */
+
+	/* GPSR2 */
+	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
+	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
+	gpio_request(GPIO_GFN_AVB_LINK, NULL);
+	gpio_request(GPIO_GFN_AVB_PHY_INT, NULL);
+	gpio_request(GPIO_GFN_AVB_MAGIC, NULL);
+	gpio_request(GPIO_GFN_AVB_MDC, NULL);
+
+	/* IPSR0 */
+	gpio_request(GPIO_IFN_AVB_MDC, NULL);
+	gpio_request(GPIO_IFN_AVB_MAGIC, NULL);
+	gpio_request(GPIO_IFN_AVB_PHY_INT, NULL);
+	gpio_request(GPIO_IFN_AVB_LINK, NULL);
+	gpio_request(GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
+	gpio_request(GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
+	/* IPSR1 */
+	gpio_request(GPIO_FN_AVB_AVTP_PPS, NULL);
+	/* IPSR2 */
+	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
+	/* IPSR3 */
+	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+	/* AVB_PHY_RST */
+	gpio_request(GPIO_GP_2_10, NULL);
+	gpio_direction_output(GPIO_GP_2_10, 0);
+	mdelay(20);
+	gpio_set_value(GPIO_GP_2_10, 1);
+	udelay(1);
+#endif
 	return 0;
 }
 
@@ -113,6 +145,9 @@ int board_eth_init(bd_t *bis)
 	val = enetaddr[4] << 8 | enetaddr[5];
 	writel(val, MALR);
 
+#ifdef CONFIG_RAVB
+	ret = ravb_initialize(bis);
+#endif
 	return ret;
 }
 
