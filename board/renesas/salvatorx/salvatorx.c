@@ -82,9 +82,17 @@ int board_early_init_f(void)
 	return 0;
 }
 
+/* PFC.h */
+#define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting Mask Register */
+#define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
+#define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
+
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
+#ifdef CONFIG_RAVB
+	u32 val;
+#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
@@ -115,6 +123,18 @@ int board_init(void)
 	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
 	/* IPSR3 */
 	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+	val = readl(PFC_DRVCTRL2);
+	val &= ~0x00000777;
+	val |=  0x00000333;
+	writel(~val, PFC_PMMR);
+	writel(val, PFC_DRVCTRL2);
+
+	val = readl(PFC_DRVCTRL3);
+	val &= ~0x77700000;
+	val |=  0x33300000;
+	writel(~val, PFC_PMMR);
+	writel(val, PFC_DRVCTRL3);
 
 	/* AVB_PHY_RST */
 	gpio_request(GPIO_GP_2_10, NULL);

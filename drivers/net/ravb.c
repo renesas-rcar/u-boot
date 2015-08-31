@@ -349,11 +349,13 @@ static int ravb_phy_config(struct ravb_dev *eth)
 		return -1;
 
 	eth->phydev = phydev;
-	phy_config(phydev);
 
 	/* 10BASE is not supported for Ethernet AVB MAC */
 	phydev->supported &= ~(SUPPORTED_10baseT_Full
 			       | SUPPORTED_10baseT_Half);
+	phydev->supported &= ~(SUPPORTED_1000baseT_Half
+			       | SUPPORTED_1000baseT_Full);
+	phy_config(phydev);
 
 	return ret;
 }
@@ -418,6 +420,9 @@ static int ravb_dmac_init(struct ravb_dev *eth)
 	/* FIFO size set */
 	ravb_write(eth, 0x00222210, TGC);
 
+	/* delay CLK: 2ns */
+	ravb_write(eth, 0x1ul << 14, APSR);
+
 	return ret;
 }
 
@@ -465,7 +470,9 @@ static int ravb_config(struct ravb_dev *eth, bd_t *bd)
 		ravb_write(eth, ECMR_CHG_DM | ECMR_RE | ECMR_TE, ECMR);
 	}
 
-	return ret;
+	phy_write(phy, 0x02, 0x04, 0x0070);
+	phy_write(phy, 0x02, 0x06, 0x0000);
+	phy_write(phy, 0x02, 0x08, 19<<5);
 
 err_phy_cfg:
 	return ret;
