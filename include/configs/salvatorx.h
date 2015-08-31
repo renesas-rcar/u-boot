@@ -58,7 +58,8 @@
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 
 /* Generic Interrupt Controller Definitions */
-#define GICD_BASE	(0xF1020000)
+#define GICD_BASE	(0xF1010000)
+#define GICC_BASE	(0xF1020000)
 #define CONFIG_GICV2
 
 /* USB */
