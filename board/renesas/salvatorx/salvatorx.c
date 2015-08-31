@@ -21,7 +21,6 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/rcar_gen3.h>
 #include <asm/arch/rcar-mstp.h>
-#include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
 

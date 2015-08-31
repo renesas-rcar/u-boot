@@ -3,9 +3,6 @@
  *	This file defines common function for R-Car Gen3
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
- * Based on board/renesas/rcar-gen2-common/common.c
- * Copyright (C) 2013 Renesas Electronics Corporation
- * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -32,10 +29,8 @@ static struct mstp_ctl mstptbl[] = {
 		RMSTPCR4, MSTP4_BITS, CONFIG_RMSTP4_ENA },
 	{ SMSTPCR5, MSTP5_BITS, CONFIG_SMSTP5_ENA,
 		RMSTPCR5, MSTP5_BITS, CONFIG_RMSTP5_ENA },
-/* under construction. address no information at UM rev0.2
 	{ SMSTPCR6, MSTP6_BITS, CONFIG_SMSTP6_ENA,
 		RMSTPCR6, MSTP6_BITS, CONFIG_RMSTP6_ENA },
-*/
 	{ SMSTPCR7, MSTP7_BITS, CONFIG_SMSTP7_ENA,
 		RMSTPCR7, MSTP7_BITS, CONFIG_RMSTP7_ENA },
 	{ SMSTPCR8, MSTP8_BITS, CONFIG_SMSTP8_ENA,

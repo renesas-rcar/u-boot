@@ -587,6 +587,12 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
+config RCAR_GEN3
+	bool "Renesas ARM SoCs R-Car Gen3"
+	select ARM64
+	help
+	  Support ARM64 Archtecture.
+
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
 	select CPU_V7
