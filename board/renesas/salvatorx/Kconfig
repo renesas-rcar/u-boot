@@ -1,0 +1,15 @@
+if TARGET_SALVATORX
+
+config SYS_SOC
+	default "rcar_gen3"
+
+config SYS_BOARD
+	default "salvatorx"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "salvatorx"
+
+endif
