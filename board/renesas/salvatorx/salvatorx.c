@@ -94,7 +94,7 @@ int board_init(void)
 	u32 val;
 #endif
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
 	/* Init PFC controller */
 	r8a7795_pinmux_init();
