@@ -95,14 +95,17 @@ int board_early_init_f(void)
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
-#ifdef CONFIG_RAVB
 	u32 val;
-#endif
+
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
 	/* Init PFC controller */
 	r8a7795_pinmux_init();
+
+	/* USB1 pull-up */
+	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;
+	writel(val, PFC_PUEN6);
 
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
