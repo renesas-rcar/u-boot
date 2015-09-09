@@ -1,6 +1,0 @@
-SALVATORX BOARD
-M:	foo <foo@renesas.com>
-S:	Maintained
-F:	board/renesas/salvatorx/
-F:	include/configs/salvatorx.h
-F:	configs/salvatorx_defconfig

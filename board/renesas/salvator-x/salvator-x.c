@@ -1,5 +1,5 @@
 /*
- * board/renesas/salvatorx/salvatorx.c
+ * board/renesas/salvator-x/salvator-x.c
  *     This file is Salvator-X board support.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
@@ -306,7 +306,7 @@ static const struct sh_serial_platdata serial_platdata = {
 	.clk_mode = EXT_CLK,
 };
 
-U_BOOT_DEVICE(salvatorx_serial1) = {
+U_BOOT_DEVICE(salvator_x_serial1) = {
 	.name = "serial_sh1",
 	.platdata = &serial_platdata,
 };
