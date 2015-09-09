@@ -10,7 +10,7 @@ if RCAR_GEN3
 choice
         prompt "Renesas ARM SoCs board select"
 
-config TARGET_SALVATORX
+config TARGET_SALVATOR_X
         bool "Salvator-X board"
 
 endchoice
@@ -20,9 +20,9 @@ config SYS_SOC
 
 config RMOBILE_EXTRAM_BOOT
         bool "Enable boot from RAM"
-        depends on TARGET_SALVATORX
+        depends on TARGET_SALVATOR_X
         default n
 
-source "board/renesas/salvatorx/Kconfig"
+source "board/renesas/salvator-x/Kconfig"
 
 endif

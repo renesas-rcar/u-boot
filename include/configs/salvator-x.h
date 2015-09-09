@@ -1,5 +1,5 @@
 /*
- * include/configs/salvatorx.h
+ * include/configs/salvator-x.h
  *     This file is Salvator-X board configuration.
  *
  * Copyright (C) 2015 Renesas Electronics Corporation
@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0+
  */
 
-#ifndef __SALVATORX_H
-#define __SALVATORX_H
+#ifndef __SALVATOR_X_H
+#define __SALVATOR_X_H
 
 #undef DEBUG
 #define CONFIG_R8A7795
@@ -77,4 +77,4 @@
 /* SDHI */
 #define CONFIG_SH_SDHI_FREQ		100000000
 
-#endif /* __SALVATORX_H */
+#endif /* __SALVATOR_X_H */
