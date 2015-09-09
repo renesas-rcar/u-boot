@@ -16,7 +16,7 @@ unsigned long get_tbclk(void)
 {
 	unsigned long cntfrq;
 	asm volatile("mrs %0, cntfrq_el0" : "=r" (cntfrq));
-#ifdef CONFIG_TARGET_SALVATORX
+#ifdef CONFIG_TARGET_SALVATOR_X
 	return cntfrq/2;
 #else
 	return cntfrq;
