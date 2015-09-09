@@ -53,7 +53,6 @@
 
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS		""
 
 #define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
@@ -101,5 +100,18 @@
 #define CONFIG_ENV_OFFSET	(CONFIG_ENV_ADDR)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_SYS_MONITOR_LEN)
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"fdt_high=0xffffffffffffffff\0"	\
+	"initrd_high=0xffffffffffffffff\0"
+
+#define CONFIG_BOOTARGS	\
+	"console=ttySC0,115200 rw root=/dev/nfs "	\
+	"nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
+
+#define CONFIG_BOOTCOMMAND	\
+	"tftp 0x48080000 Image; " \
+	"tftp 0x48000000 Image-r8a7795-salvator-x.dtb; " \
+	"booti 0x48080000 - 0x48000000"
 
 #endif	/* __RCAR_GEN3_COMMON_H */
