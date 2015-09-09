@@ -54,7 +54,7 @@ int ehci_hcd_stop(int index)
 	case 1:
 		setbits_le32(SMSTPCR7, SMSTPCR702);
 		break;
-#ifdef CONFIG_TARGET_SALVATORX
+#ifdef CONFIG_TARGET_SALVATOR_X
 	case 2:
 		setbits_le32(SMSTPCR7, SMSTPCR701);
 		break;
@@ -63,7 +63,7 @@ int ehci_hcd_stop(int index)
 		return -EINVAL;
 	}
 	val = readl(SMSTPCR7) & (SMSTPCR703 | SMSTPCR702 | SMSTPCR701);
-#ifdef CONFIG_TARGET_SALVATORX
+#ifdef CONFIG_TARGET_SALVATOR_X
 	if (val == (SMSTPCR703 | SMSTPCR702 | SMSTPCR701)) {
 #else
 	if (val == (SMSTPCR703 | SMSTPCR702)) {
@@ -90,7 +90,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	case 1:
 		clrbits_le32(SMSTPCR7, SMSTPCR702);
 		break;
-#ifdef CONFIG_TARGET_SALVATORX
+#ifdef CONFIG_TARGET_SALVATOR_X
 	case 2:
 		clrbits_le32(SMSTPCR7, SMSTPCR701);
 		break;
