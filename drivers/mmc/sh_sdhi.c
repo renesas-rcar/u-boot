@@ -3,7 +3,7 @@
  *
  * SD/MMC driver for Renesas rmobile ARM SoCs.
  *
- * Copyright (C) 2011,2013-2014 Renesas Electronics Corporation
+ * Copyright (C) 2011,2013-2015 Renesas Electronics Corporation
  * Copyright (C) 2014 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * Copyright (C) 2008-2009 Renesas Solutions Corp.
  *
@@ -457,6 +457,15 @@ static unsigned short sh_sdhi_set_cmd(struct sh_sdhi_host *host,
 		else /* SD_SWITCH */
 			opc = SDHI_SD_SWITCH;
 		break;
+#ifdef CONFIG_SH_SDHI_MMC
+	case MMC_CMD_SEND_OP_COND:
+		opc = SDHI_MMC_SEND_OP_COND;
+		break;
+	case MMC_CMD_SEND_EXT_CSD:
+		if (data)
+			opc = SDHI_MMC_SEND_EXT_CSD;
+		break;
+#endif
 	default:
 		break;
 	}
@@ -481,6 +490,9 @@ static unsigned short sh_sdhi_data_trans(struct sh_sdhi_host *host,
 	case MMC_CMD_READ_SINGLE_BLOCK:
 	case SDHI_SD_APP_SEND_SCR:
 	case SDHI_SD_SWITCH: /* SD_SWITCH */
+#ifdef CONFIG_SH_SDHI_MMC
+	case SDHI_MMC_SEND_EXT_CSD:
+#endif
 		ret = sh_sdhi_single_read(host, data);
 		break;
 	default:
@@ -616,12 +628,27 @@ static void sh_sdhi_set_ios(struct mmc *mmc)
 	if (ret)
 		return;
 
+#ifdef CONFIG_SH_SDHI_MMC
+	if (mmc->bus_width == 8)
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_8 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
+	else if (mmc->bus_width == 4)
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_4 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
+	else
+		sh_sdhi_writew(host, SDHI_OPTION,
+			       OPT_BUS_WIDTH_1 | (~OPT_BUS_WIDTH_M &
+			       sh_sdhi_readw(host, SDHI_OPTION)));
+#else
 	if (mmc->bus_width == 4)
 		sh_sdhi_writew(host, SDHI_OPTION, ~OPT_BUS_WIDTH_1 &
 			       sh_sdhi_readw(host, SDHI_OPTION));
 	else
 		sh_sdhi_writew(host, SDHI_OPTION, OPT_BUS_WIDTH_1 |
 			       sh_sdhi_readw(host, SDHI_OPTION));
+#endif
 
 	debug("clock = %d, buswidth = %d\n", mmc->clock, mmc->bus_width);
 }
