@@ -21,6 +21,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/rcar_gen3.h>
 #include <asm/arch/rcar-mstp.h>
+#include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
 
@@ -53,17 +54,18 @@ void s_init(void)
 #define SD2_MSTP312	(1 << 12)		/* either MMC0 */
 #define SD3_MSTP311	(1 << 11)		/* either MMC1 */
 
+#define SD0CKCR		0xE6150274
+#define SD1CKCR		0xE6150278
+#define SD2CKCR		0xE6150268
 #define SD3CKCR		0xE615026C
-#define SD_SRCFC_DIV1_DIV4	(0 << 2)
-#define SD_SRCFC_DIV2_DIV8	(1 << 2)
-#define SD_SRCFC_DIV4_DIV16	(2 << 2)
-#define SD_SRCFC_STOP_DIV32	(3 << 2)
-#define SD_SRCFC_STOP_DIV64	(4 << 2)
-#define SD_FC_DIV2		0
-#define SD_FC_DIV4		1
-#define SD_FC_DIV5		2
-#define SDH800_SD200		(SD_SRCFC_DIV1_DIV4 | SD_FC_DIV4)
-#define SDH400_SD200		(SD_SRCFC_DIV2_DIV8 | SD_FC_DIV2)
+#define SD_SRCFC_DIV1	(0 << 2)
+#define SD_SRCFC_DIV2	(1 << 2)
+#define SD_SRCFC_DIV4	(2 << 2)
+#define SD_SRCFC_DIV8	(3 << 2)
+#define SD_SRCFC_DIV16	(4 << 2)
+#define SD_FC_DIV2	(0 << 0)
+#define SD_FC_DIV4	(1 << 0)
+#define SDH200_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV4)
 
 int board_early_init_f(void)
 {
@@ -78,7 +80,10 @@ int board_early_init_f(void)
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 
-	writel(SDH800_SD200, SD3CKCR);
+	writel(SDH200_SD50, SD0CKCR);
+	writel(SDH200_SD50, SD1CKCR);
+	writel(SDH200_SD50, SD2CKCR);
+	writel(SDH200_SD50, SD3CKCR);
 
 	return 0;
 }
@@ -200,79 +205,68 @@ int board_mmc_init(bd_t *bis)
 {
 	int ret = -ENODEV;
 
-#if 0 /* gen3 */
-	/* MMC */
-	gpio_request(GPIO_GP_3_11, NULL);
-	gpio_request(GPIO_GP_3_10, NULL);
-	gpio_request(GPIO_GP_3_9, NULL);
-	gpio_request(GPIO_GP_3_8, NULL);
-
-	gpio_request(GPIO_GP_4_5, NULL);
-	gpio_request(GPIO_GP_4_4, NULL);
-	gpio_request(GPIO_GP_4_3, NULL);
-	gpio_request(GPIO_GP_4_2, NULL);
-	gpio_request(GPIO_GP_4_1, NULL);
-	gpio_request(GPIO_GP_4_0, NULL);
-	gpio_request(GPIO_GP_4_6, NULL);
-
-	ret = mmcif_mmc_init();
-#endif
-
 #ifdef CONFIG_SH_SDHI
 	/* SDHI0 */
 	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_DAT0, 1);
 	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_DAT1, 1);
 	gpio_request(GPIO_GFN_SD0_DAT2, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_DAT2, 1);
 	gpio_request(GPIO_GFN_SD0_DAT3, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_DAT3, 1);
 	gpio_request(GPIO_GFN_SD0_CLK, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_CLK, 1);
 	gpio_request(GPIO_GFN_SD0_CMD, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_CMD, 1);
 	gpio_request(GPIO_GFN_SD0_CD, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_CD, 1);
 	gpio_request(GPIO_GFN_SD0_WP, NULL);
-	gpio_direction_output(GPIO_GFN_SD0_WP, 1);
 
-	/* SDHI3 */
-	gpio_request(GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
-	gpio_direction_output(GPIO_FN_SD3_DAT0, 1);
-	gpio_request(GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
-	gpio_direction_output(GPIO_FN_SD3_DAT1, 1);
-	gpio_request(GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
-	gpio_direction_output(GPIO_FN_SD3_DAT2, 1);
-	gpio_request(GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
-	gpio_direction_output(GPIO_FN_SD3_DAT3, 1);
-	gpio_request(GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
-	gpio_direction_output(GPIO_FN_SD3_CLK, 1);
-	gpio_request(GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
-	gpio_direction_output(GPIO_FN_SD3_CMD, 1);
-	gpio_request(GPIO_FN_SD3_CD, NULL);	/* GP_4_15 */
-	gpio_direction_output(GPIO_FN_SD3_CD, 1);
-	gpio_request(GPIO_FN_SD3_WP, NULL);	/* GP_4_16 */
-	gpio_direction_output(GPIO_FN_SD3_WP, 1);
-
-	/* SDHI0 */
 	gpio_request(GPIO_GP_5_2, NULL);
 	gpio_request(GPIO_GP_5_1, NULL);
 	gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
 	gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
 
 	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
-			   SH_SDHI_QUIRK_16BIT_BUF);
+			   SH_SDHI_QUIRK_64BIT_BUF);
 	if (ret)
 		return ret;
 
-	/* SDHI 3 */
+	/* SDHI1/SDHI2 eMMC */
+	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD1_CLK, NULL);
+	gpio_request(GPIO_GFN_SD1_CMD, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD2_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD2_CLK, NULL);
+	gpio_request(GPIO_FN_SD2_CMD, NULL);
+
+	gpio_request(GPIO_GP_5_3, NULL);
+	gpio_request(GPIO_GP_5_9, NULL);
+	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
+	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
+			   SH_SDHI_QUIRK_64BIT_BUF);
+	if (ret)
+		return ret;
+
+	/* SDHI3 */
+	gpio_request(GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
+	gpio_request(GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
+	gpio_request(GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
+	gpio_request(GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
+	gpio_request(GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
+	gpio_request(GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
+	gpio_request(GPIO_FN_SD3_CD, NULL);	/* GP_4_15 */
+	gpio_request(GPIO_FN_SD3_WP, NULL);	/* GP_4_16 */
+
 	gpio_request(GPIO_GP_3_15, NULL);
 	gpio_request(GPIO_GP_3_14, NULL);
 	gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
 	gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
 
-	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2, 0);
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
+			   SH_SDHI_QUIRK_64BIT_BUF);
 #endif
 	return ret;
 }

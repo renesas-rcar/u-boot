@@ -75,6 +75,16 @@
 #define CONFIG_SMSTP4_ENA	0x00000180
 
 /* SDHI */
-#define CONFIG_SH_SDHI_FREQ		100000000
+#define CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SH_SDHI_FREQ	CLKDEV_HS_DATA
+#define CONFIG_SH_SDHI_MMC
+
+/* Environment in eMMC, at the end of 2nd "boot sector" */
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET               (-CONFIG_ENV_SIZE)
+#define CONFIG_SYS_MMC_ENV_DEV          1
+#define CONFIG_SYS_MMC_ENV_PART         2
 
 #endif /* __SALVATOR_X_H */
