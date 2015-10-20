@@ -525,8 +525,7 @@ err:
 
 static void ravb_stop(struct ravb_dev *eth)
 {
-	/* Setting the control will stop the Hardware process. */
-	ravb_write(eth, CCC_OPC_RESET, CCC);
+	/* Don't stop phy. mii/mdio command is using. */
 }
 
 static void ravb_halt(struct eth_device *dev)
@@ -593,6 +592,14 @@ err:
 /******* for bb_miiphy *******/
 int ravb_bb_init(struct bb_miiphy_bus *bus)
 {
+	struct ravb_dev *eth = bus->priv;
+	int ret;
+
+	ret = ravb_reset(eth);
+	if (ret)
+		return ret;
+	ravb_start(eth);
+
 	return 0;
 }
 
