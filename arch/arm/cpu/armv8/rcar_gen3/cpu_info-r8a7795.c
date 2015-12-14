@@ -9,7 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 
-#define PRR 0xFF000044
+#define PRR 0xFFF00044
 
 u32 rcar_get_cpu_type(void)
 {

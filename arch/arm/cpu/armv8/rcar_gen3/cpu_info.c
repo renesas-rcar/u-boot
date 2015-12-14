@@ -48,10 +48,20 @@ u32 rcar_get_cpu_rev_fraction(void)
 
 int print_cpuinfo(void)
 {
-	/* rcar_get_cpu_type() */
-	printf("CPU: Renesas Electronics CPU rev %d.%d\n",
-	       rcar_get_cpu_rev_integer(),
-		rcar_get_cpu_rev_fraction());
+	u32 product = rcar_get_cpu_type();
+	u32 rev_integer = rcar_get_cpu_rev_integer();
+	u32 rev_fraction = rcar_get_cpu_rev_fraction();
+
+	switch (product) {
+	case 0x4F:
+		printf("CPU: Renesas Electronics R8A7795 rev %d.%d\n",
+		       rev_integer, rev_fraction);
+		break;
+	case 0x52:
+		printf("CPU: Renesas Electronics R8A7796 rev %d.%d\n",
+		       rev_integer, rev_fraction);
+		break;
+	}
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
