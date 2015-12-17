@@ -203,6 +203,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 		working_fdt = newaddr;
+		env_set_hex("fdtaddr", (ulong)working_fdt);
 #ifdef CONFIG_OF_SYSTEM_SETUP
 	/* Call the board-specific fixup routine */
 	} else if (strncmp(argv[1], "sys", 3) == 0) {
