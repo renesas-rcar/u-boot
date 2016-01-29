@@ -2,7 +2,7 @@
  * include/configs/rcar-gen3-common.h
  *	This file is R-Car Gen3 common configuration file.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -104,7 +104,7 @@
 	"initrd_high=0xffffffffffffffff\0"
 
 #define CONFIG_BOOTARGS	\
-	"console=ttySC0,115200 rw root=/dev/nfs "	\
+	"root=/dev/nfs rw "	\
 	"nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
 
 #define CONFIG_BOOTCOMMAND	\
