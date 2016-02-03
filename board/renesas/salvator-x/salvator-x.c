@@ -2,7 +2,7 @@
  * board/renesas/salvator-x/salvator-x.c
  *     This file is Salvator-X board support.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -54,8 +54,8 @@ void s_init(void)
 #define SD2_MSTP312	(1 << 12)		/* either MMC0 */
 #define SD3_MSTP311	(1 << 11)		/* either MMC1 */
 
-#define SD0CKCR		0xE6150274
-#define SD1CKCR		0xE6150278
+#define SD0CKCR		0xE6150074
+#define SD1CKCR		0xE6150078
 #define SD2CKCR		0xE6150268
 #define SD3CKCR		0xE615026C
 #define SD_SRCFC_DIV1	(0 << 2)
