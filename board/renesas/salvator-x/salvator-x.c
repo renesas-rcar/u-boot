@@ -18,6 +18,7 @@
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/arch/prr_depend.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/rcar_gen3.h>
 #include <asm/arch/rcar-mstp.h>
@@ -70,6 +71,8 @@ void s_init(void)
 
 int board_early_init_f(void)
 {
+	rcar_prr_init();
+
 	/* TMU0,1 */		/* which use ? */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
 	/* SCIF2 */
