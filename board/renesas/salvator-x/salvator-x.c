@@ -59,17 +59,11 @@ void s_init(void)
 #define SD1CKCR		0xE6150078
 #define SD2CKCR		0xE6150268
 #define SD3CKCR		0xE615026C
-#define SD_SRCFC_DIV1	(0 << 2)
-#define SD_SRCFC_DIV2	(1 << 2)
-#define SD_SRCFC_DIV4	(2 << 2)
-#define SD_SRCFC_DIV8	(3 << 2)
-#define SD_SRCFC_DIV16	(4 << 2)
-#define SD_FC_DIV2	(0 << 0)
-#define SD_FC_DIV4	(1 << 0)
-#define SDH200_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV4)
 
 int board_early_init_f(void)
 {
+	int freq;
+
 	rcar_prr_init();
 
 	/* TMU0,1 */		/* which use ? */
@@ -83,10 +77,11 @@ int board_early_init_f(void)
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 
-	writel(SDH200_SD50, SD0CKCR);
-	writel(SDH200_SD50, SD1CKCR);
-	writel(SDH200_SD50, SD2CKCR);
-	writel(SDH200_SD50, SD3CKCR);
+	freq = rcar_get_sdhi_config_clk();
+	writel(freq, SD0CKCR);
+	writel(freq, SD1CKCR);
+	writel(freq, SD2CKCR);
+	writel(freq, SD3CKCR);
 
 	return 0;
 }

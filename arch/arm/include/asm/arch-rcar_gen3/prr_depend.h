@@ -9,3 +9,4 @@
  */
 void rcar_prr_init(void);
 int rcar_get_serial_config_clk(void);
+int rcar_get_sdhi_config_clk(void);
