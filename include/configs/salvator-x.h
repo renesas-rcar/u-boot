@@ -12,7 +12,6 @@
 
 #undef DEBUG
 #define CONFIG_R8A7795
-#define CONFIG_R8A7795_WS
 #define CONFIG_RCAR_BOARD_STRING "Salvator-X"
 
 #include "rcar-gen3-common.h"

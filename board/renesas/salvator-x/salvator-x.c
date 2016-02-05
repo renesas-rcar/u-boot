@@ -67,7 +67,6 @@ void s_init(void)
 #define SD_FC_DIV2	(0 << 0)
 #define SD_FC_DIV4	(1 << 0)
 #define SDH200_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV4)
-#define SDH100_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV2) /* R8A7795_WS only */
 
 int board_early_init_f(void)
 {
@@ -84,17 +83,10 @@ int board_early_init_f(void)
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 
-#ifdef CONFIG_R8A7795_WS
-	writel(SDH100_SD50, SD0CKCR);
-	writel(SDH100_SD50, SD1CKCR);
-	writel(SDH100_SD50, SD2CKCR);
-	writel(SDH100_SD50, SD3CKCR);
-#else
 	writel(SDH200_SD50, SD0CKCR);
 	writel(SDH200_SD50, SD1CKCR);
 	writel(SDH200_SD50, SD2CKCR);
 	writel(SDH200_SD50, SD3CKCR);
-#endif
 
 	return 0;
 }
