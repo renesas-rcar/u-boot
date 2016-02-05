@@ -1,6 +1,6 @@
 /*
  * SuperH SCIF device driver.
- * Copyright (C) 2013  Renesas Electronics Corporation
+ * Copyright (C) 2013,2016 Renesas Electronics Corporation
  * Copyright (C) 2007,2008,2010, 2014 Nobuhiro Iwamatsu
  * Copyright (C) 2002 - 2008  Paul Mundt
  *
@@ -15,6 +15,9 @@
 #include <serial.h>
 #include <linux/compiler.h>
 #include <dm/platform_data/serial_sh.h>
+#ifdef CONFIG_TARGET_SALVATOR_X
+#include <asm/arch/prr_depend.h>
+#endif
 #include "serial_sh.h"
 
 #if defined(CONFIG_CPU_SH7760) || \
@@ -251,8 +254,14 @@ static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	struct uart_port *port = &sh_sci;
+#ifdef CONFIG_TARGET_SALVATOR_X
+	int freq;
 
+	freq = rcar_get_serial_config_clk();
+	sh_serial_setbrg_generic(port, freq, gd->baudrate);
+#else
 	sh_serial_setbrg_generic(port, CONFIG_SH_SCIF_CLK_FREQ, gd->baudrate);
+#endif
 }
 
 static int sh_serial_init(void)

@@ -8,3 +8,4 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 void rcar_prr_init(void);
+int rcar_get_serial_config_clk(void);

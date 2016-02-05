@@ -47,3 +47,13 @@ void rcar_prr_init(void)
 	rcar_prr = readl(PRR);
 }
 
+/*
+ * for serial function
+ */
+int rcar_get_serial_config_clk(void)
+{
+	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
+		return CONFIG_SYS_CLK_FREQ;
+	else
+		return CONFIG_SH_SCIF_CLK_FREQ;
+}

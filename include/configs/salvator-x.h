@@ -25,7 +25,7 @@
 #define CONFIG_SCIF_CONSOLE
 #define CONFIG_CONS_SCIF2
 #define CONFIG_CONS_INDEX	2
-#define CONFIG_SH_SCIF_CLK_FREQ	CONFIG_SYS_CLK_FREQ
+#define CONFIG_SH_SCIF_CLK_FREQ        CONFIG_S3D2_CLK_FREQ
 
 /* [A] Hyper Flash */
 /* use to RPC(SPI Multi I/O Bus Controller) */
