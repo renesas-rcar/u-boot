@@ -61,11 +61,12 @@ int rcar_get_serial_config_clk(void)
 /*
  * for sd/mmc function
  */
+#define STP_HCK		(1 << 9)
 #define SD_SRCFC_DIV1	(0 << 2)
 #define SD_SRCFC_DIV2	(1 << 2)
-#define SD_SRCFC_DIV4	(2 << 2)
-#define SD_SRCFC_DIV8	(3 << 2)
-#define SD_SRCFC_DIV16	(4 << 2)
+#define SD_SRCFC_DIV4	((2 << 2) | STP_HCK)	/* SDnH stop */
+#define SD_SRCFC_DIV8	((3 << 2) | STP_HCK)	/* SDnH stop */
+#define SD_SRCFC_DIV16	((4 << 2) | STP_HCK)	/* SDnH stop */
 #define SD_FC_DIV2	(0 << 0)
 #define SD_FC_DIV4	(1 << 0)
 #define SDH200_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV4)
