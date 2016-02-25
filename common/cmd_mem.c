@@ -180,6 +180,12 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	*/
 	addr = simple_strtoul(argv[1], NULL, 16);
 	addr += base_address;
+#ifdef CONFIG_ARM
+	if (addr & (size-1)) {
+		printf("align error\n");
+		return 1;
+	}
+#endif
 
 	/* Get the value to write.
 	*/
