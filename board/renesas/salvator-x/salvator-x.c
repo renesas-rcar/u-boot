@@ -95,6 +95,9 @@ int board_early_init_f(void)
 #define	PFC_DRVCTRL7	0xE606031C	/* R/W 32 DRV control register7 */
 #define	PFC_DRVCTRL10	0xE6060328	/* R/W 32 DRV control register10 */
 #define	PFC_DRVCTRL11	0xE606032C	/* R/W 32 DRV control register11 */
+#define	PFC_DRVCTRL13	0xE6060334	/* R/W 32 DRV control register13 */
+#define	PFC_DRVCTRL15	0xE606033C	/* R/W 32 DRV control register15 */
+#define	PFC_DRVCTRL16	0xE6060340	/* R/W 32 DRV control register16 */
 
 /* SYSC */
 #define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status register 2(3DG) */
@@ -133,6 +136,10 @@ int board_init(void)
 	write_drvctrl(0x33333333, 0x77777777, (void *)PFC_DRVCTRL7);
 	write_drvctrl(0x00333333, 0x00777777, (void *)PFC_DRVCTRL10);
 	write_drvctrl(0x33000000, 0x77000000, (void *)PFC_DRVCTRL11);
+	/* SD(SD0/SD3) driveability */
+	write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
+	write_drvctrl(0x00000222, 0x00000777, (void *)PFC_DRVCTRL15);
+	write_drvctrl(0x22200000, 0x77700000, (void *)PFC_DRVCTRL16);
 
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
