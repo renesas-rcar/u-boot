@@ -166,17 +166,9 @@ int board_init(void)
 	/* IPSR3 */
 	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
 
-	val = readl(PFC_DRVCTRL2);
-	val &= ~0x00000777;
-	val |=  0x00000333;
-	writel(~val, PFC_PMMR);
-	writel(val, PFC_DRVCTRL2);
-
-	val = readl(PFC_DRVCTRL3);
-	val &= ~0x77700000;
-	val |=  0x33300000;
-	writel(~val, PFC_PMMR);
-	writel(val, PFC_DRVCTRL3);
+	/* EtherAVB */
+	write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
+	write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
 
 	/* AVB_PHY_RST */
 	gpio_request(GPIO_GP_2_10, NULL);
