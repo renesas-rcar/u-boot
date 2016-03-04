@@ -69,13 +69,13 @@ int rcar_get_serial_config_clk(void)
 #define SD_SRCFC_DIV16	((4 << 2) | STP_HCK)	/* SDnH stop */
 #define SD_FC_DIV2	(0 << 0)
 #define SD_FC_DIV4	(1 << 0)
-#define SDH200_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV4)
-#define SDH100_SD50	(SD_SRCFC_DIV4 | SD_FC_DIV2)
+#define SDH800_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV4)
+#define SDH400_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV2)
 
 int rcar_get_sdhi_config_clk(void)
 {
 	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
-		return SDH100_SD50;
+		return SDH400_SD200;
 	else
-		return SDH200_SD50;
+		return SDH800_SD200;
 }

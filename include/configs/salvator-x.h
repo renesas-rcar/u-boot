@@ -91,7 +91,7 @@
 #define CONFIG_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_SH_SDHI_FREQ	CLKDEV_HS_DATA
+#define CONFIG_SH_SDHI_FREQ	200000000
 #define CONFIG_SH_SDHI_MMC
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
