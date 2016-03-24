@@ -103,12 +103,13 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
 
 #ifdef CONFIG_ARM
+	x = width - 1;
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-	data = (const void *)((uint64_t)data & ~(width-1));
+	data = (const void *)((uint64_t)data & ~x);
 #else
-	data = (const void *)((uint32_t)data & ~(width-1));
+	data = (const void *)((uint32_t)data & ~x);
 #endif
-	addr &= ~(width-1);
+	addr &= ~x;
 #endif
 	while (count) {
 		uint thislinelen = linelen;
