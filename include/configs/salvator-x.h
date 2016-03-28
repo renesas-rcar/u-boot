@@ -81,12 +81,6 @@
 #define CONFIG_USB_EHCI_RCAR_GEN3
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 
-/* Module stop status bits */
-/* MFIS, SCIF1 */
-#define CONFIG_SMSTP2_ENA	0x00002040
-/* INTC-AP, IRQC */
-#define CONFIG_SMSTP4_ENA	0x00000180
-
 /* SDHI */
 #define CONFIG_MMC
 #define CONFIG_CMD_MMC
@@ -99,5 +93,13 @@
 #define CONFIG_ENV_OFFSET               (-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV          1
 #define CONFIG_SYS_MMC_ENV_PART         2
+
+/* Module clock supply/stop status bits */
+/* MFIS */
+#define CONFIG_SMSTP2_ENA	0x00002000
+/* serial(SCIF2) */
+#define CONFIG_SMSTP3_ENA	0x00000400
+/* INTC-AP, INTC-EX */
+#define CONFIG_SMSTP4_ENA	0x00000180
 
 #endif /* __SALVATOR_X_H */
