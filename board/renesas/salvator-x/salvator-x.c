@@ -349,3 +349,11 @@ U_BOOT_DEVICE(salvator_x_serial1) = {
 	.name = "serial_sh1",
 	.platdata = &serial_platdata,
 };
+
+#if defined(CONFIG_DISPLAY_BOARDINFO)
+int checkboard(void)
+{
+	printf("Board: %s\n", sysinfo.board_string);
+	return 0;
+}
+#endif
