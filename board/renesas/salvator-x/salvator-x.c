@@ -252,8 +252,6 @@ int board_mmc_init(bd_t *bis)
 	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
 	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
 	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
-	gpio_request(GPIO_GFN_SD1_CLK, NULL);
-	gpio_request(GPIO_GFN_SD1_CMD, NULL);
 	gpio_request(GPIO_GFN_SD2_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD2_DAT1, NULL);
 	gpio_request(GPIO_GFN_SD2_DAT2, NULL);
