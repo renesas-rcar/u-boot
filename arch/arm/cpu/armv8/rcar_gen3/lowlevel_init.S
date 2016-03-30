@@ -68,8 +68,6 @@ ENTRY(lowlevel_init)
 
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 
-	bl      s_init
-
 2:
 	mov	lr, x29			/* Restore LR */
 	ret
