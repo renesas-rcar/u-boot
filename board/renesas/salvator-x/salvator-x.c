@@ -46,8 +46,6 @@ void s_init(void)
 }
 
 #define GSX_MSTP112	(1 << 12)		/* 3DG */
-#define TMU0_MSTP125	(1 << 25)		/* secure */
-#define TMU1_MSTP124	(1 << 24)		/* non-secure */
 #define SCIF2_MSTP310	(1 << 10)
 #define ETHERAVB_MSTP812	(1 << 12)
 #define SD0_MSTP314	(1 << 14)
@@ -66,8 +64,6 @@ int board_early_init_f(void)
 
 	rcar_prr_init();
 
-	/* TMU0,1 */		/* which use ? */
-	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125 | TMU1_MSTP124);
 	/* SCIF2 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
 	/* EHTERAVB */
