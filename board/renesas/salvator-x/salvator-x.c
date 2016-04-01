@@ -28,7 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GSX_MSTP112	(1 << 12)		/* 3DG */
 #define SCIF2_MSTP310	(1 << 10)
 #define ETHERAVB_MSTP812	(1 << 12)
 #define SD0_MSTP314	(1 << 14)
@@ -156,13 +155,6 @@ int board_init(void)
 	gpio_set_value(GPIO_GP_2_10, 1);
 	udelay(1);
 #endif
-
-	/* GSX: force power and clock supply */
-	writel(0x0000001F, SYSC_PWRONCR2);
-	while (readl(SYSC_PWRSR2) != 0x000003E0)
-		mdelay(20);
-
-	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, GSX_MSTP112);
 
 	return 0;
 }
