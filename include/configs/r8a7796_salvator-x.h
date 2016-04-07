@@ -102,4 +102,23 @@
 /* INTC-AP, INTC-EX */
 #define CONFIG_SMSTP4_ENA	0x00000180
 
+/* ENV setting */
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_SECT_SIZE    (128 * 1024)
+#define CONFIG_ENV_SIZE         (CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND  (CONFIG_ENV_SIZE)
+
+#define CONFIG_EXTRA_ENV_SETTINGS       \
+	"fdt_high=0xffffffffffffffff\0" \
+	"initrd_high=0xffffffffffffffff\0"
+
+#define CONFIG_BOOTARGS \
+	"root=/dev/nfs rw "     \
+	"nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
+
+#define CONFIG_BOOTCOMMAND      \
+	"tftp 0x48080000 Image; " \
+	"tftp 0x48000000 Image-r8a7796-salvator-x.dtb; " \
+	"booti 0x48080000 - 0x48000000"
+
 #endif /* __SALVATOR_X_H */
