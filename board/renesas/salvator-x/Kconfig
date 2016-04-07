@@ -10,9 +10,17 @@ config SYS_VENDOR
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	default "r8a7795_salvator-x"
+	default "r8a7795_salvator-x" if R8A7795
+	default "r8a7796_salvator-x" if R8A7796
+
+choice
+	prompt "Select Target SoC"
 
 config R8A7795
 	bool "Renesas SoC R8A7795"
 
+config R8A7796
+	bool "Renesas SoC R8A7796"
+
+endchoice
 endif
