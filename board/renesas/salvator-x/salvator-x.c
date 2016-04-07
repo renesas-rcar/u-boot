@@ -102,7 +102,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
 	/* Init PFC controller */
-	r8a7795_pinmux_init();
+	pinmux_init();
 
 	/* USB1 pull-up */
 	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;

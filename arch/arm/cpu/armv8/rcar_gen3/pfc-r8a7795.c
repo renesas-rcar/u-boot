@@ -4836,7 +4836,7 @@ static struct pinmux_info r8a7795_pinmux_info = {
 	.gpio_data_size = ARRAY_SIZE(pinmux_data),
 };
 
-void r8a7795_pinmux_init(void)
+void pinmux_init(void)
 {
 	register_pinmux(&r8a7795_pinmux_info);
 }
