@@ -1,8 +1,9 @@
 /*
- * include/configs/salvator-x.h
+ * include/configs/r8a7795_salvator-x.h
  *     This file is Salvator-X board configuration.
+ *     CPU r8a7795.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -11,7 +12,6 @@
 #define __SALVATOR_X_H
 
 #undef DEBUG
-#define CONFIG_R8A7795
 #define CONFIG_RCAR_BOARD_STRING "Salvator-X"
 
 #include "rcar-gen3-common.h"

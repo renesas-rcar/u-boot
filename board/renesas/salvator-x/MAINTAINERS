@@ -2,5 +2,5 @@ SALVATOR_X BOARD
 M:	foo <foo@renesas.com>
 S:	Maintained
 F:	board/renesas/salvator-x/
-F:	include/configs/salvator-x.h
-F:	configs/salvator-x_defconfig
+F:	include/configs/r8a7795_salvator-x.h
+F:	configs/r8a7795_salvator-x_defconfig

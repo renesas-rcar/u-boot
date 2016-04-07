@@ -10,6 +10,9 @@ config SYS_VENDOR
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	default "salvator-x"
+	default "r8a7795_salvator-x"
+
+config R8A7795
+	bool "Renesas SoC R8A7795"
 
 endif
