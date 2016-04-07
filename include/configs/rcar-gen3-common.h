@@ -119,23 +119,4 @@
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
-/* ENV setting */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
-#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-	"fdt_high=0xffffffffffffffff\0"	\
-	"initrd_high=0xffffffffffffffff\0"
-
-#define CONFIG_BOOTARGS	\
-	"root=/dev/nfs rw "	\
-	"nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
-
-#define CONFIG_BOOTCOMMAND	\
-	"tftp 0x48080000 Image; " \
-	"tftp 0x48000000 Image-r8a7795-salvator-x.dtb; " \
-	"booti 0x48080000 - 0x48000000"
-
 #endif	/* __RCAR_GEN3_COMMON_H */
