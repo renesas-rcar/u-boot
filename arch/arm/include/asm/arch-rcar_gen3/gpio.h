@@ -12,6 +12,8 @@
 
 #if defined(CONFIG_R8A7795)
 #include "r8a7795-gpio.h"
+#elif defined(CONFIG_R8A7796)
+#include "r8a7796-gpio.h"
 #endif
 void pinmux_init(void);
 
