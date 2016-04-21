@@ -4811,6 +4811,7 @@ static struct pinmux_data_reg pinmux_data_regs[] = {
 		0, 0, 0, 0,
 		GP_7_3_DATA, GP_7_2_DATA, GP_7_1_DATA, GP_7_0_DATA }
 	},
+	{ },
 };
 
 static struct pinmux_info r8a7795_pinmux_info = {
