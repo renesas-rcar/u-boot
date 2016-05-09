@@ -13,6 +13,7 @@
 
 #undef DEBUG
 #define CONFIG_RCAR_BOARD_STRING "Salvator-X"
+#define CONFIG_RCAR_TARGET_STRING "r8a7796"
 
 #include "rcar-gen3-common.h"
 
