@@ -30,6 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SCIF2_MSTP310	(1 << 10)
 #define ETHERAVB_MSTP812	(1 << 12)
+#define DVFS_MSTP926	(1 << 26)
 #define SD0_MSTP314	(1 << 14)
 #define SD1_MSTP313	(1 << 13)
 #define SD2_MSTP312	(1 << 12)		/* either MMC0 */
@@ -61,6 +62,10 @@ int board_early_init_f(void)
 	writel(freq, SD2CKCR);
 	writel(freq, SD3CKCR);
 
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	/* DVFS for reset */
+	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+#endif
 	return 0;
 }
 
