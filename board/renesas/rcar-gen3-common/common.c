@@ -50,11 +50,9 @@ void arch_preboot_os(void)
 	/* stop TMU0 (secure) */
 	mstp_clrbits_le32(TMU_BASE + TSTR0, TMU_BASE + TSTR0, TSTR0_STR0);
 
-	/* Stop module clock */
+	/* Stop sys-module clock. Don't care rt-module clock. */
 	for (i = 0; i < ARRAY_SIZE(mstptbl); i++) {
 		mstp_setclrbits_le32((uintptr_t)mstptbl[i].s_addr,
 				     mstptbl[i].s_dis, mstptbl[i].s_ena);
-		mstp_setclrbits_le32((uintptr_t)mstptbl[i].r_addr,
-				     mstptbl[i].r_dis, mstptbl[i].r_ena);
 	}
 }
