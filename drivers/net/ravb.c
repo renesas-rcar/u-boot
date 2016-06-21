@@ -2,7 +2,7 @@
  * drivers/net/ravb.c
  *     This file is driver for Renesas Ethernet AVB.
  *
- * Copyright (C) 2015  Renesas Electronics Corporation
+ * Copyright (C) 2015-2016  Renesas Electronics Corporation
  *
  * Based on the SuperH Ethernet driver.
  *
@@ -526,6 +526,10 @@ err:
 static void ravb_stop(struct ravb_dev *eth)
 {
 	/* Don't stop phy. mii/mdio command is using. */
+
+	ravb_tx_desc_free(eth);
+	ravb_rx_desc_free(eth);
+	ravb_desc_bat_free(eth);
 }
 
 static void ravb_halt(struct eth_device *dev)
