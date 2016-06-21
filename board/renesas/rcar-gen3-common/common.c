@@ -13,9 +13,6 @@
 #include <asm/arch/rcar_gen3.h>
 #include <asm/arch/rcar-mstp.h>
 
-#define TSTR0		0x04
-#define TSTR0_STR0	0x01
-
 static struct mstp_ctl mstptbl[] = {
 	{ SMSTPCR0, MSTP0_BITS, CONFIG_SMSTP0_ENA,
 		RMSTPCR0, MSTP0_BITS, CONFIG_RMSTP0_ENA },
@@ -46,9 +43,6 @@ static struct mstp_ctl mstptbl[] = {
 void arch_preboot_os(void)
 {
 	int i;
-
-	/* stop TMU0 (secure) */
-	mstp_clrbits_le32(TMU_BASE + TSTR0, TMU_BASE + TSTR0, TSTR0_STR0);
 
 	/* Stop sys-module clock. Don't care rt-module clock. */
 	for (i = 0; i < ARRAY_SIZE(mstptbl); i++) {
