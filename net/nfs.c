@@ -131,7 +131,7 @@ dirname(char *path)
 /**************************************************************************
 RPC_ADD_CREDENTIALS - Add RPC authentication/verifier entries
 **************************************************************************/
-static long *rpc_add_credentials(long *p)
+static uint32_t *rpc_add_credentials(uint32_t *p)
 {
 	int hl;
 	int hostnamelen;
@@ -243,7 +243,7 @@ nfs_mount_req(char *path)
 	pathlen = strlen(path);
 
 	p = &(data[0]);
-	p = (uint32_t *)rpc_add_credentials((long *)p);
+	p = rpc_add_credentials(p);
 
 	*p++ = htonl(pathlen);
 	if (pathlen & 3)
@@ -271,7 +271,7 @@ nfs_umountall_req(void)
 		return;
 
 	p = &(data[0]);
-	p = (uint32_t *)rpc_add_credentials((long *)p);
+	p = rpc_add_credentials(p);
 
 	len = (uint32_t *)p - (uint32_t *)&(data[0]);
 
@@ -293,7 +293,7 @@ nfs_readlink_req(void)
 	int len;
 
 	p = &(data[0]);
-	p = (uint32_t *)rpc_add_credentials((long *)p);
+	p = rpc_add_credentials(p);
 
 	memcpy(p, filefh, NFS_FHSIZE);
 	p += (NFS_FHSIZE / 4);
@@ -317,7 +317,7 @@ nfs_lookup_req(char *fname)
 	fnamelen = strlen(fname);
 
 	p = &(data[0]);
-	p = (uint32_t *)rpc_add_credentials((long *)p);
+	p = rpc_add_credentials(p);
 
 	memcpy(p, dirfh, NFS_FHSIZE);
 	p += (NFS_FHSIZE / 4);
@@ -343,7 +343,7 @@ nfs_read_req(int offset, int readlen)
 	int len;
 
 	p = &(data[0]);
-	p = (uint32_t *)rpc_add_credentials((long *)p);
+	p = rpc_add_credentials(p);
 
 	memcpy(p, filefh, NFS_FHSIZE);
 	p += (NFS_FHSIZE / 4);
