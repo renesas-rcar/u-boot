@@ -120,9 +120,11 @@ int board_init(void)
 	write_drvctrl(0x00333333, 0x00777777, (void *)PFC_DRVCTRL10);
 	write_drvctrl(0x33000000, 0x77000000, (void *)PFC_DRVCTRL11);
 	/* SD(SD0/SD3) driveability */
-	write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
-	write_drvctrl(0x00000222, 0x00000777, (void *)PFC_DRVCTRL15);
-	write_drvctrl(0x22200000, 0x77700000, (void *)PFC_DRVCTRL16);
+	if (rcar_need_reconfig_sdhi_drvctrl()) {
+		write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
+		write_drvctrl(0x00000222, 0x00000777, (void *)PFC_DRVCTRL15);
+		write_drvctrl(0x22200000, 0x77700000, (void *)PFC_DRVCTRL16);
+	}
 
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */

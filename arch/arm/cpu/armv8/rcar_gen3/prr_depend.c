@@ -60,6 +60,15 @@ int rcar_get_serial_config_clk(void)
 		return CONFIG_SH_SCIF_CLK_FREQ;
 }
 
+int rcar_need_reconfig_sdhi_drvctrl(void)
+{
+	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10) ||
+					!RCAR_PRR_CHK_CUT(H3, WS11)))
+		return 1;
+	else
+		return 0;
+}
+
 /*
  * for sd/mmc function
  */
