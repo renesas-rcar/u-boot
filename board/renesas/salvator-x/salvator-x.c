@@ -314,18 +314,6 @@ void reset_cpu(ulong addr)
 #endif
 }
 
-static const struct sh_serial_platdata serial_platdata = {
-	.base = SCIF1_BASE,
-	.type = PORT_SCIF,
-	.clk = 14745600,		/* 0xE10000 */
-	.clk_mode = EXT_CLK,
-};
-
-U_BOOT_DEVICE(salvator_x_serial1) = {
-	.name = "serial_sh1",
-	.platdata = &serial_platdata,
-};
-
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 int checkboard(void)
 {
