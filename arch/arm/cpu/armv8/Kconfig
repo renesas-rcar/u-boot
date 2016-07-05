@@ -13,6 +13,9 @@ choice
 config TARGET_SALVATOR_X
         bool "Salvator-X board"
 
+config TARGET_ULCB
+        bool "ULCB board"
+
 endchoice
 
 choice
@@ -30,5 +33,6 @@ config SYS_SOC
         default "rcar_gen3"
 
 source "board/renesas/salvator-x/Kconfig"
+source "board/renesas/ulcb/Kconfig"
 
 endif
