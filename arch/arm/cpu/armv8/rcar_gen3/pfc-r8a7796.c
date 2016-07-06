@@ -236,7 +236,7 @@ enum {
 	GFN_SD0_CLK,
 
 	/* GPSR4 */
-	FN_SD3_DS,
+	GFN_SD3_DS,
 	GFN_SD3_DAT7,
 	GFN_SD3_DAT6,
 	GFN_SD3_DAT5,
@@ -1379,7 +1379,7 @@ enum {
 	SD0_CLK_GMARK,
 
 	/* GPSR4 */
-	SD3_DS_MARK,
+	SD3_DS_GMARK,
 	SD3_DAT7_GMARK,
 	SD3_DAT6_GMARK,
 	SD3_DAT5_GMARK,
@@ -2401,7 +2401,7 @@ static pinmux_enum_t pinmux_data[] = {
 	PINMUX_DATA(SD0_CLK_GMARK, GFN_SD0_CLK),
 
 	/* GPSR4 */
-	PINMUX_DATA(SD3_DS_MARK, FN_SD3_DS),
+	PINMUX_DATA(SD3_DS_GMARK, GFN_SD3_DS),
 	PINMUX_DATA(SD3_DAT7_GMARK, GFN_SD3_DAT7),
 	PINMUX_DATA(SD3_DAT6_GMARK, GFN_SD3_DAT6),
 	PINMUX_DATA(SD3_DAT5_GMARK, GFN_SD3_DAT5),
@@ -2577,7 +2577,7 @@ static struct pinmux_gpio pinmux_gpios[] = {
 	GPIO_GFN(SD0_CLK),
 
 	/* GPSR4 */
-	GPIO_FN(SD3_DS),
+	GPIO_GFN(SD3_DS),
 	GPIO_GFN(SD3_DAT7),
 	GPIO_GFN(SD3_DAT6),
 	GPIO_GFN(SD3_DAT5),
@@ -3680,7 +3680,7 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0,
 		0, 0,
 		0, 0,
-		GP_4_17_FN, GPIO_FN_SD3_DS,
+		GP_4_17_FN, GFN_SD3_DS,
 		GP_4_16_FN, GFN_SD3_DAT7,
 
 		GP_4_15_FN, GFN_SD3_DAT6,
