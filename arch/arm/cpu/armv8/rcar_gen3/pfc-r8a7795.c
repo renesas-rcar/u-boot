@@ -3380,7 +3380,7 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0,
 		0, 0,
 		0, 0,
-		GP_4_17_FN, GPIO_FN_SD3_DS,
+		GP_4_17_FN, FN_SD3_DS,
 		GP_4_16_FN, GFN_SD3_DAT7,
 
 		GP_4_15_FN, GFN_SD3_DAT6,
