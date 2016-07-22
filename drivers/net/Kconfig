@@ -1,0 +1,9 @@
+menu "Network Device Support"
+
+config RAVB_1000BASE
+	bool "Renesas Ethernet AVB support 1000Base"
+	default n if R8A7795
+	default y if R8A7796
+	depends on RCAR_GEN3
+
+endmenu
