@@ -1174,10 +1174,6 @@ enum {
 	FN_I2C_SEL_3_1,
 	FN_I2C_SEL_0_0,
 	FN_I2C_SEL_0_1,
-	FN_SEL_VSP_0,
-	FN_SEL_VSP_1,
-	FN_SEL_VSP_2,
-	FN_SEL_VSP_3,
 	FN_SEL_VIN4_0,
 	FN_SEL_VIN4_1,
 
@@ -4458,8 +4454,7 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		FN_SEL_PWM1_1,
 		}
 	},
-	{ PINMUX_CFG_REG_VAR("MOD_SEL2", 0xE6060508, 32,
-				1, 1, 1, 26, 2, 1) {
+	{ PINMUX_CFG_REG("MOD_SEL2", 0xE6060508, 32, 1) {
 		/* I2C_SEL_5 [1] */
 		FN_I2C_SEL_5_0,
 		FN_I2C_SEL_5_1,
@@ -4469,12 +4464,38 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		/* I2C_SEL_0 [1] */
 		FN_I2C_SEL_0_0,
 		FN_I2C_SEL_0_1,
-		/* reserved [26] */
-		/* SEL_VSP [2] */
-		FN_SEL_VSP_0,
-		FN_SEL_VSP_1,
-		FN_SEL_VSP_2,
-		FN_SEL_VSP_3,
+		/* reserved [28..24] */
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		/* reserved [23..16] */
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		/* reserved [15..8] */
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		/* reserved [7..1] */
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
+		0, 0,
 		/* SEL_VIN4 [1] */
 		FN_SEL_VIN4_0,
 		FN_SEL_VIN4_1,
