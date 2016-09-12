@@ -15,6 +15,17 @@ config TARGET_SALVATOR_X
 
 endchoice
 
+choice
+	prompt "Select Target SoC"
+
+config R8A7795
+	bool "Renesas SoC R8A7795"
+
+config R8A7796
+	bool "Renesas SoC R8A7796"
+
+endchoice
+
 config SYS_SOC
         default "rcar_gen3"
 
