@@ -188,6 +188,7 @@
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
+#define EXT_CSD_GENERIC_CMD6_TIME	248	/* RO */
 
 /*
  * EXT_CSD field definitions
@@ -304,6 +305,7 @@ struct mmc_ops {
 	int (*init)(struct mmc *mmc);
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
+	int (*card_busy)(struct mmc *mmc);
 };
 
 struct mmc_config {
@@ -338,6 +340,7 @@ struct mmc {
 	u8 part_support;
 	u8 part_attr;
 	u8 wr_rel_set;
+	u8 generic_cmd6_time;
 	char part_config;
 	char part_num;
 	uint tran_speed;
