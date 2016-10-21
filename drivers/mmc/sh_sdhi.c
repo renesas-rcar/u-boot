@@ -708,10 +708,18 @@ static int sh_sdhi_initialize(struct mmc *mmc)
 	return ret;
 }
 
+static int sh_sdhi_card_busy(struct mmc *mmc)
+{
+	struct sh_sdhi_host *host = mmc_priv(mmc);
+
+	return !(sh_sdhi_readw(host, SDHI_INFO2) & INFO2_SDDAT0);
+}
+
 static const struct mmc_ops sh_sdhi_ops = {
 	.send_cmd       = sh_sdhi_send_cmd,
 	.set_ios        = sh_sdhi_set_ios,
 	.init           = sh_sdhi_initialize,
+	.card_busy      = sh_sdhi_card_busy,
 };
 
 #ifdef CONFIG_RCAR_GEN3
