@@ -70,7 +70,8 @@ int board_early_init_f(void)
 }
 
 /* PFC.h */
-#define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting Mask Register */
+#define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting
+					   Mask Register */
 #define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
 #define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
 #define	PFC_DRVCTRL5	0xE6060314	/* R/W 32 DRV control register5 */
@@ -83,8 +84,10 @@ int board_early_init_f(void)
 #define	PFC_DRVCTRL16	0xE6060340	/* R/W 32 DRV control register16 */
 
 /* SYSC */
-#define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status register 2(3DG) */
-#define	SYSC_PWRONCR2	0xE618010C	/* -/W 32 Power resume control register 2 (3DG) */
+#define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
+						  register2(3DG) */
+#define	SYSC_PWRONCR2	0xE618010C	/* -/W 32 Power resume control
+						  register2(3DG) */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -128,7 +131,75 @@ int board_init(void)
 
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
+#if defined(CONFIG_R8A7795)
+	if (rcar_is_legacy()) {
+		/* GPSR2 */
+		gpio_request(ES_GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
+		gpio_request(ES_GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
+		gpio_request(ES_GPIO_GFN_AVB_LINK, NULL);
+		gpio_request(ES_GPIO_GFN_AVB_PHY_INT, NULL);
+		gpio_request(ES_GPIO_GFN_AVB_MAGIC, NULL);
+		gpio_request(ES_GPIO_GFN_AVB_MDC, NULL);
 
+		/* IPSR0 */
+		gpio_request(ES_GPIO_IFN_AVB_MDC, NULL);
+		gpio_request(ES_GPIO_IFN_AVB_MAGIC, NULL);
+		gpio_request(ES_GPIO_IFN_AVB_PHY_INT, NULL);
+		gpio_request(ES_GPIO_IFN_AVB_LINK, NULL);
+		gpio_request(ES_GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
+		gpio_request(ES_GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
+		/* IPSR1 */
+		gpio_request(ES_GPIO_FN_AVB_AVTP_PPS, NULL);
+		/* IPSR2 */
+		gpio_request(ES_GPIO_FN_AVB_AVTP_MATCH_B, NULL);
+		/* IPSR3 */
+		gpio_request(ES_GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+		/* EtherAVB */
+		write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
+		write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
+
+		/* AVB_PHY_RST */
+		gpio_request(ES_GPIO_GP_2_10, NULL);
+		gpio_direction_output(ES_GPIO_GP_2_10, 0);
+		mdelay(20);
+		gpio_set_value(ES_GPIO_GP_2_10, 1);
+		udelay(1);
+	} else {
+		/* GPSR2 */
+		gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
+		gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
+		gpio_request(GPIO_GFN_AVB_LINK, NULL);
+		gpio_request(GPIO_GFN_AVB_PHY_INT, NULL);
+		gpio_request(GPIO_GFN_AVB_MAGIC, NULL);
+		gpio_request(GPIO_GFN_AVB_MDC, NULL);
+
+		/* IPSR0 */
+		gpio_request(GPIO_IFN_AVB_MDC, NULL);
+		gpio_request(GPIO_IFN_AVB_MAGIC, NULL);
+		gpio_request(GPIO_IFN_AVB_PHY_INT, NULL);
+		gpio_request(GPIO_IFN_AVB_LINK, NULL);
+		gpio_request(GPIO_IFN_AVB_AVTP_MATCH_A, NULL);
+		gpio_request(GPIO_IFN_AVB_AVTP_CAPTURE_A, NULL);
+		/* IPSR1 */
+		gpio_request(GPIO_FN_AVB_AVTP_PPS, NULL);
+		/* IPSR2 */
+		gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
+		/* IPSR3 */
+		gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
+
+		/* EtherAVB */
+		write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
+		write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
+
+		/* AVB_PHY_RST */
+		gpio_request(GPIO_GP_2_10, NULL);
+		gpio_direction_output(GPIO_GP_2_10, 0);
+		mdelay(20);
+		gpio_set_value(GPIO_GP_2_10, 1);
+		udelay(1);
+	}
+#elif defined(CONFIG_R8A7796)
 	/* GPSR2 */
 	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
 	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
@@ -163,6 +234,7 @@ int board_init(void)
 	udelay(1);
 #endif
 
+#endif
 	return 0;
 }
 
@@ -205,6 +277,136 @@ int board_mmc_init(bd_t *bis)
 	int ret = -ENODEV;
 
 #ifdef CONFIG_SH_SDHI
+
+#if defined(CONFIG_R8A7795)
+	if (rcar_is_legacy()) {
+		/* SDHI0 */
+		gpio_request(ES_GPIO_GFN_SD0_DAT0, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_DAT1, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_DAT2, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_DAT3, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_CLK, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_CMD, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_CD, NULL);
+		gpio_request(ES_GPIO_GFN_SD0_WP, NULL);
+
+		gpio_request(ES_GPIO_GP_5_2, NULL);
+		gpio_request(ES_GPIO_GP_5_1, NULL);
+		/* power on */
+		gpio_direction_output(ES_GPIO_GP_5_2, 1);
+		/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(ES_GPIO_GP_5_1, 1);
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+		if (ret)
+			return ret;
+
+		/* SDHI1/SDHI2 eMMC */
+		gpio_request(ES_GPIO_GFN_SD1_DAT0, NULL);
+		gpio_request(ES_GPIO_GFN_SD1_DAT1, NULL);
+		gpio_request(ES_GPIO_GFN_SD1_DAT2, NULL);
+		gpio_request(ES_GPIO_GFN_SD1_DAT3, NULL);
+		gpio_request(ES_GPIO_GFN_SD2_DAT0, NULL);
+		gpio_request(ES_GPIO_GFN_SD2_DAT1, NULL);
+		gpio_request(ES_GPIO_GFN_SD2_DAT2, NULL);
+		gpio_request(ES_GPIO_GFN_SD2_DAT3, NULL);
+		gpio_request(ES_GPIO_GFN_SD2_CLK, NULL);
+		gpio_request(ES_GPIO_FN_SD2_CMD, NULL);
+
+		gpio_request(ES_GPIO_GP_5_3, NULL);
+		gpio_request(ES_GPIO_GP_5_9, NULL);
+		/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(ES_GPIO_GP_5_3, 0);
+		gpio_direction_output(ES_GPIO_GP_5_9, 0);
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+		if (ret)
+			return ret;
+
+		/* SDHI3 */
+		gpio_request(ES_GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
+		gpio_request(ES_GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
+		gpio_request(ES_GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
+		gpio_request(ES_GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
+		gpio_request(ES_GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
+		gpio_request(ES_GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
+		gpio_request(ES_GPIO_FN_SD3_CD, NULL);	/* GP_4_15 */
+		gpio_request(ES_GPIO_FN_SD3_WP, NULL);	/* GP_4_16 */
+
+		gpio_request(ES_GPIO_GP_3_15, NULL);
+		gpio_request(ES_GPIO_GP_3_14, NULL);
+		/* power on */
+		gpio_direction_output(ES_GPIO_GP_3_15, 1);
+		/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(ES_GPIO_GP_3_14, 1);
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+	} else {
+		/* SDHI0 */
+		gpio_request(GPIO_GFN_SD0_DAT0, NULL);
+		gpio_request(GPIO_GFN_SD0_DAT1, NULL);
+		gpio_request(GPIO_GFN_SD0_DAT2, NULL);
+		gpio_request(GPIO_GFN_SD0_DAT3, NULL);
+		gpio_request(GPIO_GFN_SD0_CLK, NULL);
+		gpio_request(GPIO_GFN_SD0_CMD, NULL);
+		gpio_request(GPIO_GFN_SD0_CD, NULL);
+		gpio_request(GPIO_GFN_SD0_WP, NULL);
+
+		gpio_request(GPIO_GP_5_2, NULL);
+		gpio_request(GPIO_GP_5_1, NULL);
+		gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
+		gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+		if (ret)
+			return ret;
+
+		/* SDHI1/SDHI2 eMMC */
+		gpio_request(GPIO_GFN_SD1_DAT0, NULL);
+		gpio_request(GPIO_GFN_SD1_DAT1, NULL);
+		gpio_request(GPIO_GFN_SD1_DAT2, NULL);
+		gpio_request(GPIO_GFN_SD1_DAT3, NULL);
+		gpio_request(GPIO_GFN_SD2_DAT0, NULL);
+		gpio_request(GPIO_GFN_SD2_DAT1, NULL);
+		gpio_request(GPIO_GFN_SD2_DAT2, NULL);
+		gpio_request(GPIO_GFN_SD2_DAT3, NULL);
+		gpio_request(GPIO_GFN_SD2_CLK, NULL);
+		gpio_request(GPIO_GFN_SD2_CMD, NULL);
+
+		gpio_request(GPIO_GP_5_3, NULL);
+		gpio_request(GPIO_GP_5_9, NULL);
+		gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+		if (ret)
+			return ret;
+
+		/* SDHI3 */
+		gpio_request(GPIO_GFN_SD3_DAT0, NULL);	/* GP_4_9 */
+		gpio_request(GPIO_GFN_SD3_DAT1, NULL);	/* GP_4_10 */
+		gpio_request(GPIO_GFN_SD3_DAT2, NULL);	/* GP_4_11 */
+		gpio_request(GPIO_GFN_SD3_DAT3, NULL);	/* GP_4_12 */
+		gpio_request(GPIO_GFN_SD3_CLK, NULL);	/* GP_4_7 */
+		gpio_request(GPIO_GFN_SD3_CMD, NULL);	/* GP_4_8 */
+		/* IPSR10 */
+		gpio_request(GPIO_FN_SD3_CD, NULL);
+		gpio_request(GPIO_FN_SD3_WP, NULL);
+
+		gpio_request(GPIO_GP_3_15, NULL);
+		gpio_request(GPIO_GP_3_14, NULL);
+		gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
+		gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
+
+		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
+				   SH_SDHI_QUIRK_64BIT_BUF);
+	}
+#elif defined(CONFIG_R8A7796)
 	/* SDHI0 */
 	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
@@ -264,6 +466,8 @@ int board_mmc_init(bd_t *bis)
 
 	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
 			   SH_SDHI_QUIRK_64BIT_BUF);
+#endif
+
 #endif
 	return ret;
 }
