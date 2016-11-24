@@ -49,6 +49,16 @@ void rcar_prr_init(void)
 	rcar_prr = readl(PRR);
 }
 
+int rcar_is_legacy(void)
+{
+	if ((RCAR_PRR_IS_PRODUCT(H3) &&
+		(!RCAR_PRR_CHK_CUT(H3, WS10) || !RCAR_PRR_CHK_CUT(H3, WS11))) ||
+		(RCAR_PRR_IS_PRODUCT(M3) && !RCAR_PRR_CHK_CUT(M3, ES10)))
+		return 1;
+	else
+		return 0;
+}
+
 /*
  * for serial function
  */
