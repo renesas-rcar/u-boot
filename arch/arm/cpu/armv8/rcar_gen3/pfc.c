@@ -14,7 +14,10 @@
 void pinmux_init(void)
 {
 #if defined(CONFIG_R8A7795)
-	r8a7795_pinmux_init();
+	if (rcar_is_legacy())
+		r8a7795_es_pinmux_init();
+	else
+		r8a7795_pinmux_init();
 #elif defined(CONFIG_R8A7796)
 	r8a7796_pinmux_init();
 #endif
