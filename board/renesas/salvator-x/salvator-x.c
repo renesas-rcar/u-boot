@@ -72,9 +72,6 @@ int board_early_init_f(void)
 /* PFC.h */
 #define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting
 					   Mask Register */
-#define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
-#define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
-
 /* SYSC */
 #define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
 						  register2(3DG) */
@@ -134,10 +131,6 @@ int board_init(void)
 		/* IPSR3 */
 		gpio_request(ES_GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
 
-		/* EtherAVB */
-		write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
-		write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
-
 		/* AVB_PHY_RST */
 		gpio_request(ES_GPIO_GP_2_10, NULL);
 		gpio_direction_output(ES_GPIO_GP_2_10, 0);
@@ -166,10 +159,6 @@ int board_init(void)
 		gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
 		/* IPSR3 */
 		gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
-
-		/* EtherAVB */
-		write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
-		write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
 
 		/* AVB_PHY_RST */
 		gpio_request(GPIO_GP_2_10, NULL);
@@ -200,10 +189,6 @@ int board_init(void)
 	gpio_request(GPIO_FN_AVB_AVTP_MATCH_B, NULL);
 	/* IPSR3 */
 	gpio_request(GPIO_FN_AVB_AVTP_CAPTURE_B, NULL);
-
-	/* EtherAVB */
-	write_drvctrl(0x00000333, 0x00000777, (void *)PFC_DRVCTRL2);
-	write_drvctrl(0x33300000, 0x77700000, (void *)PFC_DRVCTRL3);
 
 	/* AVB_PHY_RST */
 	gpio_request(GPIO_GP_2_10, NULL);
