@@ -70,8 +70,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-/* PFC */
-#define PFC_PMMR	0xE6060000
 #define PFC_DRVCTRL5	0xE6060314
 #define PFC_DRVCTRL6	0xE6060318
 #define PFC_DRVCTRL7	0xE606031C
@@ -79,17 +77,6 @@ int board_early_init_f(void)
 #define PFC_DRVCTRL11	0xE606032C
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static void write_drvctrl(u32 value, u32 modify_bit, void *reg)
-{
-	u32 val;
-
-	val = readl(reg);
-	val &= ~modify_bit;
-	val |= value;
-	writel(~val, PFC_PMMR);
-	writel(val, reg);
-}
 
 int board_init(void)
 {
