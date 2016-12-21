@@ -69,9 +69,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-/* PFC.h */
-#define	PFC_PMMR	0xE6060000	/* R/W 32 LSI Multiplexed Pin Setting
-					   Mask Register */
 /* SYSC */
 #define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
 						  register2(3DG) */
@@ -79,17 +76,6 @@ int board_early_init_f(void)
 						  register2(3DG) */
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static void write_drvctrl(u32 value, u32 modify_bit, void *reg)
-{
-	u32 val;
-
-	val = readl(reg);
-	val &= ~modify_bit;
-	val |= value;
-	writel(~val, PFC_PMMR);
-	writel(val, reg);
-}
 
 int board_init(void)
 {
