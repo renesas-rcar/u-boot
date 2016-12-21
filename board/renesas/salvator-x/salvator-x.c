@@ -74,11 +74,6 @@ int board_early_init_f(void)
 					   Mask Register */
 #define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
 #define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
-#define	PFC_DRVCTRL5	0xE6060314	/* R/W 32 DRV control register5 */
-#define	PFC_DRVCTRL6	0xE6060318	/* R/W 32 DRV control register6 */
-#define	PFC_DRVCTRL7	0xE606031C	/* R/W 32 DRV control register7 */
-#define	PFC_DRVCTRL10	0xE6060328	/* R/W 32 DRV control register10 */
-#define	PFC_DRVCTRL11	0xE606032C	/* R/W 32 DRV control register11 */
 #define	PFC_DRVCTRL13	0xE6060334	/* R/W 32 DRV control register13 */
 #define	PFC_DRVCTRL15	0xE606033C	/* R/W 32 DRV control register15 */
 #define	PFC_DRVCTRL16	0xE6060340	/* R/W 32 DRV control register16 */
@@ -116,12 +111,6 @@ int board_init(void)
 	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;
 	writel(val, PFC_PUEN6);
 
-	/* Luminance controls */
-	write_drvctrl(0x00003333, 0x00007777, (void *)PFC_DRVCTRL5);
-	write_drvctrl(0x33330000, 0x77770000, (void *)PFC_DRVCTRL6);
-	write_drvctrl(0x33333333, 0x77777777, (void *)PFC_DRVCTRL7);
-	write_drvctrl(0x00333333, 0x00777777, (void *)PFC_DRVCTRL10);
-	write_drvctrl(0x33000000, 0x77000000, (void *)PFC_DRVCTRL11);
 	/* SD(SD0/SD3) driveability */
 	if (rcar_need_reconfig_sdhi_drvctrl()) {
 		write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
