@@ -74,9 +74,6 @@ int board_early_init_f(void)
 					   Mask Register */
 #define	PFC_DRVCTRL2	0xE6060308	/* R/W 32 DRV control register2 */
 #define	PFC_DRVCTRL3	0xE606030C	/* R/W 32 DRV control register3 */
-#define	PFC_DRVCTRL13	0xE6060334	/* R/W 32 DRV control register13 */
-#define	PFC_DRVCTRL15	0xE606033C	/* R/W 32 DRV control register15 */
-#define	PFC_DRVCTRL16	0xE6060340	/* R/W 32 DRV control register16 */
 
 /* SYSC */
 #define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
@@ -110,13 +107,6 @@ int board_init(void)
 	/* USB1 pull-up */
 	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;
 	writel(val, PFC_PUEN6);
-
-	/* SD(SD0/SD3) driveability */
-	if (rcar_need_reconfig_sdhi_drvctrl()) {
-		write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
-		write_drvctrl(0x00000222, 0x00000777, (void *)PFC_DRVCTRL15);
-		write_drvctrl(0x22200000, 0x77700000, (void *)PFC_DRVCTRL16);
-	}
 
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
