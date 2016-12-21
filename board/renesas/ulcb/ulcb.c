@@ -70,12 +70,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#define PFC_DRVCTRL5	0xE6060314
-#define PFC_DRVCTRL6	0xE6060318
-#define PFC_DRVCTRL7	0xE606031C
-#define PFC_DRVCTRL10	0xE6060328
-#define PFC_DRVCTRL11	0xE606032C
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
