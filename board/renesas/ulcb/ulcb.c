@@ -79,9 +79,6 @@ int board_early_init_f(void)
 #define PFC_DRVCTRL7	0xE606031C
 #define PFC_DRVCTRL10	0xE6060328
 #define PFC_DRVCTRL11	0xE606032C
-#define PFC_DRVCTRL13	0xE6060334
-#define PFC_DRVCTRL15	0xE606033C
-#define PFC_DRVCTRL16	0xE6060340
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -109,13 +106,6 @@ int board_init(void)
 	/* USB1 pull-up */
 	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;
 	writel(val, PFC_PUEN6);
-
-	/* SD(SD0/SD3) driveability */
-	if (rcar_need_reconfig_sdhi_drvctrl()) {
-		write_drvctrl(0x00222222, 0x00777777, (void *)PFC_DRVCTRL13);
-		write_drvctrl(0x00000222, 0x00000777, (void *)PFC_DRVCTRL15);
-		write_drvctrl(0x22200000, 0x77700000, (void *)PFC_DRVCTRL16);
-	}
 
 #ifdef CONFIG_RAVB
 #if defined(CONFIG_R8A7795)
