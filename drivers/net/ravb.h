@@ -2,7 +2,7 @@
  * drivers/net/ravb.h
  *     This file is driver for Renesas Ethernet AVB.
  *
- * Copyright (C) 2015  Renesas Electronics Corporation
+ * Copyright (C) 2015-2017  Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -121,6 +121,7 @@ struct ravb_rxdesc {
 #define RX_QUEUE	(4)
 
 #define RFLR_RFL_MIN	0x05EE	/* Recv Frame length 1518 byte */
+#define RX_DESC_STUFF ARCH_DMA_MINALIGN / sizeof(struct ravb_rxdesc)
 
 struct ravb_dev {
 	struct ravb_desc *desc_bat_alloc;

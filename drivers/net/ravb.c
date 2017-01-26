@@ -2,7 +2,7 @@
  * drivers/net/ravb.c
  *     This file is driver for Renesas Ethernet AVB.
  *
- * Copyright (C) 2015-2016  Renesas Electronics Corporation
+ * Copyright (C) 2015-2017  Renesas Electronics Corporation
  *
  * Based on the SuperH Ethernet driver.
  *
@@ -112,9 +112,9 @@ int ravb_recv(struct eth_device *dev)
 		desc->dt = DT_FEMPTY;
 		ravb_flush_dcache((uintptr_t)desc, sizeof(struct ravb_rxdesc));
 		/* Point to the next descriptor */
-		eth->rx_desc_cur++;
+		eth->rx_desc_cur += RX_DESC_STUFF;
 		if (eth->rx_desc_cur >=
-		    eth->rx_desc_base + NUM_RX_DESC)
+		    eth->rx_desc_base + NUM_RX_DESC * RX_DESC_STUFF)
 			eth->rx_desc_cur = eth->rx_desc_base;
 		desc = eth->rx_desc_cur;
 		ravb_invalidate_dcache((uintptr_t)desc, sizeof(struct ravb_rxdesc));
@@ -227,7 +227,7 @@ err:
 static int ravb_rx_desc_init(struct ravb_dev *eth)
 {
 	int i , ret = 0;
-	u32 alloc_desc_size = (NUM_RX_DESC + 1) * sizeof(struct ravb_rxdesc);
+	u32 alloc_desc_size = (NUM_RX_DESC + 1) * ARCH_DMA_MINALIGN;
 	u32 alloc_buf_size = NUM_RX_DESC * MAX_BUF_SIZE;
 	struct ravb_rxdesc *cur_rx_desc;
 	struct ravb_desc *desc;
@@ -236,7 +236,7 @@ static int ravb_rx_desc_init(struct ravb_dev *eth)
 	/* Allocate rx descriptors. They must be aligned to size of struct */
 	/* ravb_rxdesc. */
 	eth->rx_desc_base =
-		memalign(sizeof(struct ravb_rxdesc), alloc_desc_size);
+		memalign(ARCH_DMA_MINALIGN, alloc_desc_size);
 	if (!eth->rx_desc_base) {
 		printf(CARDNAME ": memalign failed\n");
 		ret = -ENOMEM;
@@ -258,12 +258,20 @@ static int ravb_rx_desc_init(struct ravb_dev *eth)
 
 	/* Initialize all descriptors */
 	memset(eth->rx_desc_base, 0x0, alloc_desc_size);
-	for (cur_rx_desc = eth->rx_desc_base,
-	     rx_buf = eth->rx_buf_base, i = 0;
-	     i < NUM_RX_DESC; cur_rx_desc++, rx_buf += MAX_BUF_SIZE, i++) {
+
+	cur_rx_desc = eth->rx_desc_base;
+	rx_buf = eth->rx_buf_base;
+	for (i = 0; i < NUM_RX_DESC; i++) {
 		cur_rx_desc->dt = DT_FEMPTY;
 		cur_rx_desc->ds = MAX_BUF_SIZE;
 		cur_rx_desc->dptr = (uintptr_t)rx_buf;
+		cur_rx_desc++;
+
+		cur_rx_desc->dt = DT_LINKFIX;
+		cur_rx_desc->dptr = (uintptr_t)eth->rx_desc_base +
+			(ARCH_DMA_MINALIGN * (i + 1));
+		rx_buf += MAX_BUF_SIZE;
+		cur_rx_desc += RX_DESC_STUFF - 1;
 	}
 	/* Mark the end of the descriptors */
 	cur_rx_desc->dt = DT_LINKFIX;
