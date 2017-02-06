@@ -3,7 +3,7 @@
  *     This file is ULCB board configuration.
  *     CPU r8a7795.
  *
- * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016-2017 Renesas Electronics Corporation
  * Copyright (C) 2016 Cogent Embedded, Inc.
  *
  * SPDX-License-Identifier: GPL-2.0+
@@ -17,10 +17,6 @@
 #define CONFIG_RCAR_TARGET_STRING "r8a7795"
 
 #include "rcar-gen3-common.h"
-
-/* Cache Definitions */
-#define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_ICACHE_OFF
 
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE
