@@ -64,7 +64,6 @@ reset:
 1:	msr	vbar_el1, x0
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
-	isb
 0:
 
 	/* Apply ARM core specific erratas */
