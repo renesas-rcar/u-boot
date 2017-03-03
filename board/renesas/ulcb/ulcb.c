@@ -189,8 +189,10 @@ int board_eth_init(bd_t *bis)
 	u32 val;
 	unsigned char enetaddr[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		printf("<ethaddr> not configured\n");
 		return ret;
+	}
 
 	/* Set Mac address */
 	val = enetaddr[0] << 24 | enetaddr[1] << 16 |
