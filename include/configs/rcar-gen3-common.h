@@ -11,25 +11,15 @@
 #define __RCAR_GEN3_COMMON_H
 
 #include <asm/arch/rcar_gen3.h>
+#include <config_distro_defaults.h>
 
-#define CONFIG_CMD_BOOTI
-#define CONFIG_CMD_EDITENV
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_MEMORY
+/* Flash not used from u-boot */
+#define CONFIG_SYS_NO_FLASH
+#include <config_cmd_default.h>
+
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_SDRAM
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 
 #define CONFIG_SYS_THUMB_BUILD
@@ -37,24 +27,15 @@
 
 #define CONFIG_REMAKE_ELF
 
-/* boot option */
-#define CONFIG_SUPPORT_RAW_INITRD
-
 /* Support File sytems */
 #define CONFIG_FAT_WRITE
-#define CONFIG_DOS_PARTITION
-#define CONFIG_SUPPORT_VFAT
-#define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_VERSION_VARIABLE
 #undef	CONFIG_SHOW_BOOT_PROGRESS
@@ -72,7 +53,6 @@
 #undef  CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #undef  CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
