@@ -99,4 +99,21 @@
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"fdt_high=0xffffffffffffffff\0" \
+	"initrd_high=0xffffffffffffffff\0" \
+	"fdt_addr_r=0x48000000\0" \
+	"pxefile_addr_r=0x48000000\0" \
+	"kernel_addr_r=0x48080000\0" \
+	"scriptaddr=0x49000000\0" \
+	"ramdisk_addr_r=0x49100000\0" \
+
+/* Default boot targets, SD first, then eMMC, USB and network */
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
 #endif	/* __RCAR_GEN3_COMMON_H */

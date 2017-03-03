@@ -104,17 +104,12 @@
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
+/* Use the default distribution boot commands */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"fdt_high=0xffffffffffffffff\0" \
-	"initrd_high=0xffffffffffffffff\0"
+	"fdtfile=renesas/r8a7796-h3ulcb.dtb\0" \
+	ENV_MEM_LAYOUT_SETTINGS \
+	BOOTENV
 
-#define CONFIG_BOOTARGS \
-	"root=/dev/nfs rw " \
-	"nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
-
-#define CONFIG_BOOTCOMMAND \
-	"tftp 0x48080000 Image; " \
-	"tftp 0x48000000 Image-r8a7795-h3ulcb.dtb; " \
-	"booti 0x48080000 - 0x48000000"
+#include <config_distro_bootcmd.h>
 
 #endif /* __H3ULCB_H */
