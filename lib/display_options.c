@@ -102,6 +102,15 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 	if (linelen < 1)
 		linelen = DEFAULT_LINE_LENGTH_BYTES / width;
 
+#ifdef CONFIG_ARM
+	x = width - 1;
+#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+	data = (const void *)((uint64_t)data & ~x);
+#else
+	data = (const void *)((uint32_t)data & ~x);
+#endif
+	addr &= ~x;
+#endif
 	while (count) {
 		uint thislinelen = linelen;
 		printf("%08lx:", addr);

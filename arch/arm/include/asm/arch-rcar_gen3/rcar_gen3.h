@@ -2,7 +2,7 @@
  * arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
  *	This file defines cpu-related function.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,6 +12,8 @@
 #if defined(CONFIG_RCAR_GEN3)
  #if defined(CONFIG_R8A7795)
  #include <asm/arch/r8a7795.h>
+ #elif defined(CONFIG_R8A7796)
+ #include <asm/arch/r8a7796.h>
  #else
  #error "SOC Name not defined"
  #endif

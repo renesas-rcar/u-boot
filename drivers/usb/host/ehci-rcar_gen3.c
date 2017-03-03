@@ -28,6 +28,7 @@ static u32 usb_base_address[] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0A0000,	/* USB1 (EHCI) */
 	0xEE0C0000,	/* USB2 (EHCI) */
+	0xEE0E0000,	/* USB3 (EHCI) */
 };
 
 int ehci_hcd_stop(int index)
@@ -54,22 +55,26 @@ int ehci_hcd_stop(int index)
 	case 1:
 		setbits_le32(SMSTPCR7, SMSTPCR702);
 		break;
-#ifdef CONFIG_TARGET_SALVATOR_X
 	case 2:
 		setbits_le32(SMSTPCR7, SMSTPCR701);
 		break;
-#endif
+	case 3:
+		setbits_le32(SMSTPCR7, SMSTPCR700);
+		break;
 	default:
 		return -EINVAL;
 	}
+#if defined(CONFIG_R8A7795)
 	val = readl(SMSTPCR7) & (SMSTPCR703 | SMSTPCR702 | SMSTPCR701);
-#ifdef CONFIG_TARGET_SALVATOR_X
-	if (val == (SMSTPCR703 | SMSTPCR702 | SMSTPCR701)) {
-#else
-	if (val == (SMSTPCR703 | SMSTPCR702)) {
-#endif
+	if (val == (SMSTPCR703 | SMSTPCR702 | SMSTPCR701))
 		setbits_le32(SMSTPCR7, SMSTPCR704);
-	}
+#elif defined(CONFIG_R8A7796)
+	val = readl(SMSTPCR7) & (SMSTPCR703 | SMSTPCR702);
+	if (val == (SMSTPCR703 | SMSTPCR702))
+		setbits_le32(SMSTPCR7, SMSTPCR704);
+#else
+#error unknown cpu type
+#endif
 	return 0;
 }
 
@@ -90,11 +95,12 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	case 1:
 		clrbits_le32(SMSTPCR7, SMSTPCR702);
 		break;
-#ifdef CONFIG_TARGET_SALVATOR_X
 	case 2:
 		clrbits_le32(SMSTPCR7, SMSTPCR701);
 		break;
-#endif
+	case 3:
+		clrbits_le32(SMSTPCR7, SMSTPCR700);
+		break;
 	default:
 		return -EINVAL;
 	}

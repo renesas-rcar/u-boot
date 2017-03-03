@@ -205,6 +205,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 		working_fdt = newaddr;
+		setenv_hex("fdtaddr", (ulong)working_fdt);
 
 	/*
 	 * Make a new node

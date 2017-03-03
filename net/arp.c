@@ -96,12 +96,12 @@ void ArpRequest(void)
 	arp_raw_request(NetOurIP, NetEtherNullAddr, NetArpWaitReplyIP);
 }
 
-void ArpTimeoutCheck(void)
+int ArpTimeoutCheck(void)
 {
 	ulong t;
 
 	if (!NetArpWaitPacketIP)
-		return;
+		return 0;
 
 	t = get_timer(0);
 
@@ -118,6 +118,8 @@ void ArpTimeoutCheck(void)
 			ArpRequest();
 		}
 	}
+
+	return 1;
 }
 
 void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)

@@ -1,8 +1,8 @@
 /*
- * arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7795.c
+ * arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7796.c
  *	This file defines cpu information funstions.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

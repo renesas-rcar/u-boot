@@ -1,0 +1,8 @@
+ULCB BOARD
+M:	Cogent Embedded, Inc. <source@cogentembedded.com>
+S:	Maintained
+F:	board/renesas/ulcb/
+F:	include/configs/h3ulcb.h
+F:	include/configs/m3ulcb.h
+F:	configs/h3ulcb_defconfig
+F:	configs/m3ulcb_defconfig

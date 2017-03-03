@@ -25,7 +25,7 @@ void ArpInit(void);
 void ArpRequest(void);
 void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
 	IPaddr_t targetIP);
-void ArpTimeoutCheck(void);
+int ArpTimeoutCheck(void);
 void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len);
 
 #endif /* __ARP_H__ */

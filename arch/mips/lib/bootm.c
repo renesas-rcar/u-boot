@@ -96,7 +96,9 @@ static void boot_setup_fdt(bootm_headers_t *images)
 	debug("## setup FDT\n");
 
 	fdt_chosen(images->ft_addr, 1);
+#ifdef CONFIG_ARCH_FIXUP_FDT
 	fdt_fixup_memory_banks(images->ft_addr, &mem_start, &mem_size, 1);
+#endif
 	fdt_fixup_ethernet(images->ft_addr);
 	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end, 1);
 

@@ -2,7 +2,7 @@
  * arch/arm/include/asm/arch-rcar_gen3/ehci-rcar.h
  *	This file is USB-related definitions.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2016 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -44,10 +44,12 @@
 #define MAX_BURST_LEN_SINGLE	(3 << 0)
 
 #define SMSTPCR7	0xE615014C
+#define SMSTPCR700	(1 << 1)	/* EHCI3 */
 #define SMSTPCR701	(1 << 1)	/* EHCI2 */
 #define SMSTPCR702	(1 << 2)	/* EHCI1 */
 #define SMSTPCR703	(1 << 3)	/* EHCI0 */
 #define SMSTPCR704	(1 << 4)	/* HSUSB */
+#define SMSTPCR705	(1 << 5)	/* HSUSB3 */
 
 /* Init AHB master and slave functions of the host logic */
 #define AHB_BUS_CTR_INIT 0

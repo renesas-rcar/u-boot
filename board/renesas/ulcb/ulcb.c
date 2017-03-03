@@ -1,8 +1,9 @@
 /*
- * board/renesas/salvator-x/salvator-x.c
- *     This file is Salvator-X board support.
+ * board/renesas/ulcb/ulcb.c
+ *     This file is ULCB board support.
  *
- * Copyright (C) 2015-2016 Renesas Electronics Corporation
+ * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016 Cogent Embedded, Inc.
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -33,8 +34,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DVFS_MSTP926	(1 << 26)
 #define SD0_MSTP314	(1 << 14)
 #define SD1_MSTP313	(1 << 13)
-#define SD2_MSTP312	(1 << 12)		/* either MMC0 */
-#define SD3_MSTP311	(1 << 11)		/* either MMC1 */
+#define SD2_MSTP312	(1 << 12)
+#define SD3_MSTP311	(1 << 11)
 
 #define SD0CKCR		0xE6150074
 #define SD1CKCR		0xE6150078
@@ -53,8 +54,8 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
-	/* SDHI0, 3 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+	/* SDHI0 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
 
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
@@ -68,12 +69,6 @@ int board_early_init_f(void)
 #endif
 	return 0;
 }
-
-/* SYSC */
-#define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
-						  register2(3DG) */
-#define	SYSC_PWRONCR2	0xE618010C	/* -/W 32 Power resume control
-						  register2(3DG) */
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,7 +87,6 @@ int board_init(void)
 	writel(val, PFC_PUEN6);
 
 #ifdef CONFIG_RAVB
-	/* EtherAVB Enable */
 #if defined(CONFIG_R8A7795)
 	if (rcar_is_legacy()) {
 		/* GPSR2 */
@@ -183,21 +177,22 @@ int board_init(void)
 	gpio_set_value(GPIO_GP_2_10, 1);
 	udelay(1);
 #endif
-
 #endif
 	return 0;
 }
 
-#define MAHR 0xE68005C0
-#define MALR 0xE68005C8
+#define MAHR	0xE68005C0
+#define MALR	0xE68005C8
 int board_eth_init(bd_t *bis)
 {
 	int ret = -ENODEV;
 	u32 val;
 	unsigned char enetaddr[6];
 
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		printf("<ethaddr> not configured\n");
 		return ret;
+	}
 
 	/* Set Mac address */
 	val = enetaddr[0] << 24 | enetaddr[1] << 16 |
@@ -213,12 +208,9 @@ int board_eth_init(bd_t *bis)
 	return ret;
 }
 
-/* Salvator-X has KSZ9031RNX */
-/* Tri-color dual-LED mode(Pin 41 pull-down) */
+/* ULCB has KSZ9031RNX */
 int board_phy_config(struct phy_device *phydev)
 {
-	/* hardware use default(Tri-color:0) setting. */
-
 	return 0;
 }
 
@@ -227,7 +219,6 @@ int board_mmc_init(bd_t *bis)
 	int ret = -ENODEV;
 
 #ifdef CONFIG_SH_SDHI
-
 #if defined(CONFIG_R8A7795)
 	if (rcar_is_legacy()) {
 		/* SDHI0 */
@@ -242,17 +233,15 @@ int board_mmc_init(bd_t *bis)
 
 		gpio_request(ES_GPIO_GP_5_2, NULL);
 		gpio_request(ES_GPIO_GP_5_1, NULL);
-		/* power on */
-		gpio_direction_output(ES_GPIO_GP_5_2, 1);
-		/* 1: 3.3V, 0: 1.8V */
-		gpio_direction_output(ES_GPIO_GP_5_1, 1);
+		gpio_direction_output(ES_GPIO_GP_5_2, 1); /* power on */
+		gpio_direction_output(ES_GPIO_GP_5_1, 1); /* 1: 3.3V, 0: 1.8V */
 
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 		if (ret)
 			return ret;
 
-		/* SDHI1/SDHI2 eMMC */
+		/* SDHI1/SDHI2, eMMC */
 		gpio_request(ES_GPIO_GFN_SD1_DAT0, NULL);
 		gpio_request(ES_GPIO_GFN_SD1_DAT1, NULL);
 		gpio_request(ES_GPIO_GFN_SD1_DAT2, NULL);
@@ -266,33 +255,10 @@ int board_mmc_init(bd_t *bis)
 
 		gpio_request(ES_GPIO_GP_5_3, NULL);
 		gpio_request(ES_GPIO_GP_5_9, NULL);
-		/* 1: 3.3V, 0: 1.8V */
-		gpio_direction_output(ES_GPIO_GP_5_3, 0);
-		gpio_direction_output(ES_GPIO_GP_5_9, 0);
+		gpio_direction_output(ES_GPIO_GP_5_3, 0); /* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(ES_GPIO_GP_5_9, 0); /* 1: 3.3V, 0: 1.8V */
 
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
-				   SH_SDHI_QUIRK_64BIT_BUF);
-		if (ret)
-			return ret;
-
-		/* SDHI3 */
-		gpio_request(ES_GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
-		gpio_request(ES_GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
-		gpio_request(ES_GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
-		gpio_request(ES_GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
-		gpio_request(ES_GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
-		gpio_request(ES_GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
-		gpio_request(ES_GPIO_FN_SD3_CD, NULL);	/* GP_4_15 */
-		gpio_request(ES_GPIO_FN_SD3_WP, NULL);	/* GP_4_16 */
-
-		gpio_request(ES_GPIO_GP_3_15, NULL);
-		gpio_request(ES_GPIO_GP_3_14, NULL);
-		/* power on */
-		gpio_direction_output(ES_GPIO_GP_3_15, 1);
-		/* 1: 3.3V, 0: 1.8V */
-		gpio_direction_output(ES_GPIO_GP_3_14, 1);
-
-		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 	} else {
 		/* SDHI0 */
@@ -307,15 +273,15 @@ int board_mmc_init(bd_t *bis)
 
 		gpio_request(GPIO_GP_5_2, NULL);
 		gpio_request(GPIO_GP_5_1, NULL);
-		gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
-		gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(GPIO_GP_5_2, 1); /* power on */
+		gpio_direction_output(GPIO_GP_5_1, 1); /* 1: 3.3V, 0: 1.8V */
 
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 		if (ret)
 			return ret;
 
-		/* SDHI1/SDHI2 eMMC */
+		/* SDHI1/SDHI2, eMMC */
 		gpio_request(GPIO_GFN_SD1_DAT0, NULL);
 		gpio_request(GPIO_GFN_SD1_DAT1, NULL);
 		gpio_request(GPIO_GFN_SD1_DAT2, NULL);
@@ -329,31 +295,10 @@ int board_mmc_init(bd_t *bis)
 
 		gpio_request(GPIO_GP_5_3, NULL);
 		gpio_request(GPIO_GP_5_9, NULL);
-		gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
-		gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(GPIO_GP_5_3, 0); /* 1: 3.3V, 0: 1.8V */
+		gpio_direction_output(GPIO_GP_5_9, 0); /* 1: 3.3V, 0: 1.8V */
 
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
-				   SH_SDHI_QUIRK_64BIT_BUF);
-		if (ret)
-			return ret;
-
-		/* SDHI3 */
-		gpio_request(GPIO_GFN_SD3_DAT0, NULL);	/* GP_4_9 */
-		gpio_request(GPIO_GFN_SD3_DAT1, NULL);	/* GP_4_10 */
-		gpio_request(GPIO_GFN_SD3_DAT2, NULL);	/* GP_4_11 */
-		gpio_request(GPIO_GFN_SD3_DAT3, NULL);	/* GP_4_12 */
-		gpio_request(GPIO_GFN_SD3_CLK, NULL);	/* GP_4_7 */
-		gpio_request(GPIO_GFN_SD3_CMD, NULL);	/* GP_4_8 */
-		/* IPSR10 */
-		gpio_request(GPIO_FN_SD3_CD, NULL);
-		gpio_request(GPIO_FN_SD3_WP, NULL);
-
-		gpio_request(GPIO_GP_3_15, NULL);
-		gpio_request(GPIO_GP_3_14, NULL);
-		gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
-		gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
-
-		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 	}
 #elif defined(CONFIG_R8A7796)
@@ -369,15 +314,15 @@ int board_mmc_init(bd_t *bis)
 
 	gpio_request(GPIO_GP_5_2, NULL);
 	gpio_request(GPIO_GP_5_1, NULL);
-	gpio_direction_output(GPIO_GP_5_2, 1);	/* power on */
-	gpio_direction_output(GPIO_GP_5_1, 1);	/* 1: 3.3V, 0: 1.8V */
+	gpio_direction_output(GPIO_GP_5_2, 1); /* power on */
+	gpio_direction_output(GPIO_GP_5_1, 1); /* 1: 3.3V, 0: 1.8V */
 
 	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
 			   SH_SDHI_QUIRK_64BIT_BUF);
 	if (ret)
 		return ret;
 
-	/* SDHI1/SDHI2 eMMC */
+	/* SDHI1/SDHI2, eMMC */
 	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
 	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
@@ -391,33 +336,12 @@ int board_mmc_init(bd_t *bis)
 
 	gpio_request(GPIO_GP_5_3, NULL);
 	gpio_request(GPIO_GP_5_9, NULL);
-	gpio_direction_output(GPIO_GP_5_3, 0);	/* 1: 3.3V, 0: 1.8V */
-	gpio_direction_output(GPIO_GP_5_9, 0);	/* 1: 3.3V, 0: 1.8V */
+	gpio_direction_output(GPIO_GP_5_3, 0); /* 1: 3.3V, 0: 1.8V */
+	gpio_direction_output(GPIO_GP_5_9, 0); /* 1: 3.3V, 0: 1.8V */
 
 	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
 			   SH_SDHI_QUIRK_64BIT_BUF);
-	if (ret)
-		return ret;
-
-	/* SDHI3 */
-	gpio_request(GPIO_FN_SD3_DAT0, NULL);	/* GP_4_9 */
-	gpio_request(GPIO_FN_SD3_DAT1, NULL);	/* GP_4_10 */
-	gpio_request(GPIO_FN_SD3_DAT2, NULL);	/* GP_4_11 */
-	gpio_request(GPIO_FN_SD3_DAT3, NULL);	/* GP_4_12 */
-	gpio_request(GPIO_FN_SD3_CLK, NULL);	/* GP_4_7 */
-	gpio_request(GPIO_FN_SD3_CMD, NULL);	/* GP_4_8 */
-	gpio_request(GPIO_FN_SD3_CD, NULL);	/* GP_4_15 */
-	gpio_request(GPIO_FN_SD3_WP, NULL);	/* GP_4_16 */
-
-	gpio_request(GPIO_GP_3_15, NULL);
-	gpio_request(GPIO_GP_3_14, NULL);
-	gpio_direction_output(GPIO_GP_3_15, 1);	/* power on */
-	gpio_direction_output(GPIO_GP_3_14, 1);	/* 1: 3.3V, 0: 1.8V */
-
-	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
-			   SH_SDHI_QUIRK_64BIT_BUF);
 #endif
-
 #endif
 	return ret;
 }

@@ -1,0 +1,16 @@
+if TARGET_ULCB
+
+config SYS_SOC
+	default "rcar_gen3"
+
+config SYS_BOARD
+	default "ulcb"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "h3ulcb" if R8A7795
+	default "m3ulcb" if R8A7796
+
+endif

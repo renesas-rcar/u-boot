@@ -3,7 +3,7 @@
  *
  * SD/MMC driver for Renesas rmobile ARM SoCs.
  *
- * Copyright (C) 2011,2013-2015 Renesas Electronics Corporation
+ * Copyright (C) 2011,2013-2016 Renesas Electronics Corporation
  * Copyright (C) 2014 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * Copyright (C) 2008-2009 Renesas Solutions Corp.
  *
@@ -594,8 +594,6 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 			break;
 	}
 
-	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
-
 	host->wait_int = 0;
 	sh_sdhi_writew(host, SDHI_INFO1_MASK,
 		       ~INFO1M_RESP_END & sh_sdhi_readw(host, SDHI_INFO1_MASK));
@@ -604,6 +602,8 @@ static int sh_sdhi_start_cmd(struct sh_sdhi_host *host,
 		       INFO2M_END_ERROR | INFO2M_TIMEOUT |
 		       INFO2M_RESP_TIMEOUT | INFO2M_ILA) &
 		       sh_sdhi_readw(host, SDHI_INFO2_MASK));
+
+	sh_sdhi_writew(host, SDHI_CMD, (unsigned short)(opc & CMD_MASK));
 
 	time = sh_sdhi_wait_interrupt_flag(host);
 	if (!time)
@@ -708,10 +708,18 @@ static int sh_sdhi_initialize(struct mmc *mmc)
 	return ret;
 }
 
+static int sh_sdhi_card_busy(struct mmc *mmc)
+{
+	struct sh_sdhi_host *host = mmc_priv(mmc);
+
+	return !(sh_sdhi_readw(host, SDHI_INFO2) & INFO2_SDDAT0);
+}
+
 static const struct mmc_ops sh_sdhi_ops = {
 	.send_cmd       = sh_sdhi_send_cmd,
 	.set_ios        = sh_sdhi_set_ios,
 	.init           = sh_sdhi_initialize,
+	.card_busy      = sh_sdhi_card_busy,
 };
 
 #ifdef CONFIG_RCAR_GEN3

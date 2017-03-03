@@ -457,6 +457,26 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	return err;
 }
 
+static void mmc_switch_card_busy(struct mmc *mmc)
+{
+	int timeout;
+	uint start;
+
+	/* If the value of generic_cmd6_time is 0x00,
+	 * the maximum of the generic_cmd6_time is set. */
+	timeout = mmc->generic_cmd6_time ? mmc->generic_cmd6_time * 10 : 2550;
+	start = get_timer(0);
+	do {
+		if (mmc->cfg->ops->card_busy) {
+			if (!mmc->cfg->ops->card_busy(mmc))
+				break;
+		} else {
+			udelay(1000);
+			break;
+		}
+		udelay(1000);
+	} while (get_timer(start) < timeout);
+}
 
 static int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 {
@@ -471,6 +491,10 @@ static int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 				 (value << 8);
 
 	ret = mmc_send_cmd(mmc, &cmd, NULL);
+
+	/* Needs delay after switch to HS mode */
+	if (index == EXT_CSD_HS_TIMING)
+		mmc_switch_card_busy(mmc);
 
 	/* Waiting for the ready status */
 	if (!ret)
@@ -1310,6 +1334,8 @@ static int mmc_startup(struct mmc *mmc)
 			* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 
 		mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
+
+		mmc->generic_cmd6_time = ext_csd[EXT_CSD_GENERIC_CMD6_TIME];
 	}
 
 	err = mmc_set_capacity(mmc, mmc->part_num);

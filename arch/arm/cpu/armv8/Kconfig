@@ -13,16 +13,26 @@ choice
 config TARGET_SALVATOR_X
         bool "Salvator-X board"
 
+config TARGET_ULCB
+        bool "ULCB board"
+
+endchoice
+
+choice
+	prompt "Select Target SoC"
+
+config R8A7795
+	bool "Renesas SoC R8A7795"
+
+config R8A7796
+	bool "Renesas SoC R8A7796"
+
 endchoice
 
 config SYS_SOC
         default "rcar_gen3"
 
-config RMOBILE_EXTRAM_BOOT
-        bool "Enable boot from RAM"
-        depends on TARGET_SALVATOR_X
-        default n
-
 source "board/renesas/salvator-x/Kconfig"
+source "board/renesas/ulcb/Kconfig"
 
 endif
