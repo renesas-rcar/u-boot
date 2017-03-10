@@ -383,13 +383,6 @@ const struct rcar_sysinfo sysinfo = {
 	CONFIG_RCAR_BOARD_STRING
 };
 
-void reset_cpu(ulong addr)
-{
-#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
-	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
-#endif
-}
-
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 int checkboard(void)
 {

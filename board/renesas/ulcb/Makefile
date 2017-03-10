@@ -7,4 +7,4 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 
-obj-y	:= ulcb.o ../rcar-gen3-common/common.o
+obj-y	:= ulcb.o ../rcar-gen3-common/common.o cpld.o
