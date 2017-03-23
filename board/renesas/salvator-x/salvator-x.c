@@ -69,11 +69,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-/* SYSC */
-#define	SYSC_PWRSR2	0xE6180100	/* R/- 32 Power status
-						  register2(3DG) */
-#define	SYSC_PWRONCR2	0xE618010C	/* -/W 32 Power resume control
-						  register2(3DG) */
 
 DECLARE_GLOBAL_DATA_PTR;
 
