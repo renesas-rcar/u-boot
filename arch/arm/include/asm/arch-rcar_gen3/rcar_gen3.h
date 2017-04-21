@@ -2,7 +2,7 @@
  * arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
  *	This file defines cpu-related function.
  *
- * Copyright (C) 2015-2016 Renesas Electronics Corporation
+ * Copyright (C) 2015-2017 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -26,6 +26,7 @@
 u32 rcar_get_cpu_type(void);
 u32 rcar_get_cpu_rev_integer(void);
 u32 rcar_get_cpu_rev_fraction(void);
+void board_cleanup_preboot_os(void);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_RCAR_GEN3_H */
