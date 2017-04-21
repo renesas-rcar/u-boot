@@ -69,6 +69,22 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void board_cleanup_preboot_os(void)
+{
+	/* Stop the used sys-module clocks */
+	/* EHTERAVB */
+	mstp_setbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
+	/* eMMC */
+	mstp_setbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	/* SDHI0, 3 */
+	mstp_setbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	/* DVFS for reset */
+	mstp_setbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+#endif
+	/* Supply SCIF2 (don't stop SCIF2_MSTP310) */
+}
+
 int board_init(void)
 {
 	u32 val;
