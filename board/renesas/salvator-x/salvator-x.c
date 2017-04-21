@@ -69,9 +69,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-
-DECLARE_GLOBAL_DATA_PTR;
-
 int board_init(void)
 {
 	u32 val;
