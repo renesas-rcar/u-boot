@@ -33,8 +33,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DVFS_MSTP926	(1 << 26)
 #define SD0_MSTP314	(1 << 14)
 #define SD1_MSTP313	(1 << 13)
-#define SD2_MSTP312	(1 << 12)		/* either MMC0 */
-#define SD3_MSTP311	(1 << 11)		/* either MMC1 */
+#define SD2_MSTP312	(1 << 12)	/* either MMC0 */
+#define SD3_MSTP311	(1 << 11)	/* either MMC1 */
+#define GPIO2_MSTP910	(1 << 10)	/* GPIO2: includes assignment of AVB */
+#define GPIO3_MSTP909	(1 << 9)	/* GPIO3: includes assignment of SDHI3 */
+#define GPIO5_MSTP907	(1 << 7)	/* GPIO5: includes assignment of SDHI0/1/2 */
+#define GPIO6_MSTP906	(1 << 6)	/* GPIO6: includes assignment of USB */
 
 #define SD0CKCR		0xE6150074
 #define SD1CKCR		0xE6150078
@@ -55,7 +59,21 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
-
+#if defined(CONFIG_R8A7795)
+	if (rcar_is_legacy()) {
+		mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+				  GPIO2_MSTP910 | GPIO3_MSTP909 |
+				  GPIO5_MSTP907);
+	} else {
+		mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+				  GPIO2_MSTP910 | GPIO3_MSTP909 |
+				  GPIO5_MSTP907 | GPIO6_MSTP906);
+	}
+#elif defined(CONFIG_R8A7796)
+	mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+			  GPIO2_MSTP910 | GPIO3_MSTP909 |
+			  GPIO5_MSTP907 | GPIO6_MSTP906);
+#endif
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
 	writel(freq, SD1CKCR);
@@ -81,6 +99,21 @@ void board_cleanup_preboot_os(void)
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
 	mstp_setbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+#endif
+#if defined(CONFIG_R8A7795)
+	if (rcar_is_legacy()) {
+		mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+				  GPIO2_MSTP910 | GPIO3_MSTP909 |
+				  GPIO5_MSTP907);
+	} else {
+		mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+				  GPIO2_MSTP910 | GPIO3_MSTP909 |
+				  GPIO5_MSTP907 | GPIO6_MSTP906);
+	}
+#elif defined(CONFIG_R8A7796)
+	mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+			  GPIO2_MSTP910 | GPIO3_MSTP909 |
+			  GPIO5_MSTP907 | GPIO6_MSTP906);
 #endif
 	/* Supply SCIF2 (don't stop SCIF2_MSTP310) */
 }
