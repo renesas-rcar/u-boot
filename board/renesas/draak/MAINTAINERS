@@ -1,0 +1,6 @@
+DRAAK BOARD
+M:	foo <foo@renesas.com>
+S:	Maintained
+F:	board/renesas/draak/
+F:	include/configs/r8a77995_draak.h
+F:	configs/r8a77995_draak_defconfig
