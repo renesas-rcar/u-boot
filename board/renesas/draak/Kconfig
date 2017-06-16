@@ -1,0 +1,15 @@
+if TARGET_DRAAK
+
+config SYS_SOC
+	default "rcar_gen3"
+
+config SYS_BOARD
+	default "draak"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "r8a77995_draak" if R8A77995
+
+endif
