@@ -150,7 +150,7 @@ static ulong load_serial(long offset)
 		case SREC_DATA3:
 		case SREC_DATA4:
 		    store_addr = addr + offset;
-#if defined(CONFIG_TARGET_SALVATOR_X) || defined(CONFIG_TARGET_ULCB)
+#if defined(CONFIG_TARGET_SALVATOR_X) || defined(CONFIG_TARGET_ULCB) || defined(CONFIG_TARGET_DRAAK)
 		    if ((store_addr >= CONFIG_SYS_TEXT_BASE) &&
 				(store_addr <= CONFIG_SYS_INIT_SP_ADDR)) {
 			printf("Program area is can't over write(0x%08lX)\n",

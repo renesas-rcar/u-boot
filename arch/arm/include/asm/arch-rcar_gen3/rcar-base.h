@@ -79,7 +79,14 @@
 #define CONFIG_SYS_SH_SDHI3_BASE	0xEE160000
 
 /* PFC */
+#define PFC_PUEN0       0xE6060400
+#define PFC_PUEN1       0xE6060404
+#define PFC_PUEN2       0xE6060408
+#define PFC_PUEN3       0xE606040C
+#define PFC_PUEN4       0xE6060410
+#define PFC_PUEN5       0xE6060414
 #define PFC_PUEN6       0xE6060418
+
 #define PUEN_USB1_OVC   (1 << 2)
 #define PUEN_USB1_PWEN  (1 << 1)
 

@@ -2,7 +2,7 @@
  * drivers/usb/host/ehci-rcar_gen3.
  * 	This file is EHCI HCD (Host Controller Driver) for USB.
  *
- * Copyright (C) 2015 Renesas Electronics Corporation
+ * Copyright (C) 2015-2017 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
@@ -71,6 +71,10 @@ int ehci_hcd_stop(int index)
 #elif defined(CONFIG_R8A7796)
 	val = readl(SMSTPCR7) & (SMSTPCR703 | SMSTPCR702);
 	if (val == (SMSTPCR703 | SMSTPCR702))
+		setbits_le32(SMSTPCR7, SMSTPCR704);
+#elif defined(CONFIG_R8A77995)
+	val = readl(SMSTPCR7) & (SMSTPCR703);
+	if (val == SMSTPCR703)
 		setbits_le32(SMSTPCR7, SMSTPCR704);
 #else
 #error unknown cpu type
