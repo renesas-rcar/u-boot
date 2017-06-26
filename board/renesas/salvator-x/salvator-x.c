@@ -52,25 +52,25 @@ int board_early_init_f(void)
 	rcar_prr_init();
 
 	/* SCIF2 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
 	/* EHTERAVB */
-	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 #if defined(CONFIG_R8A7795)
 	if (rcar_is_legacy()) {
-		mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+		mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907);
 	} else {
-		mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+		mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907 | GPIO6_MSTP906);
 	}
 #elif defined(CONFIG_R8A7796)
-	mstp_clrbits_le32(MSTPSR9, SMSTPCR9,
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 |
 			  GPIO5_MSTP907 | GPIO6_MSTP906);
 #endif
@@ -82,7 +82,7 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
-	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
@@ -91,27 +91,27 @@ void board_cleanup_preboot_os(void)
 {
 	/* Stop the used sys-module clocks */
 	/* EHTERAVB */
-	mstp_setbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_setbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
-	mstp_setbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	mstp_setbits_le32(SMSTPCR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
-	mstp_setbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+	mstp_setbits_le32(SMSTPCR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
-	mstp_setbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
 #endif
 #if defined(CONFIG_R8A7795)
 	if (rcar_is_legacy()) {
-		mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+		mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907);
 	} else {
-		mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+		mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907 | GPIO6_MSTP906);
 	}
 #elif defined(CONFIG_R8A7796)
-	mstp_setbits_le32(MSTPSR9, SMSTPCR9,
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 |
 			  GPIO5_MSTP907 | GPIO6_MSTP906);
 #endif
