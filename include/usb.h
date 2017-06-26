@@ -423,6 +423,7 @@ struct usb_hub_device {
 	struct usb_hub_descriptor desc;
 };
 
+void usb_stor_reset(void);
 int usb_hub_probe(struct usb_device *dev, int ifnum);
 void usb_hub_reset(void);
 int hub_port_reset(struct usb_device *dev, int port,

@@ -129,6 +129,9 @@ int usb_stop(void)
 	if (usb_started) {
 		asynch_allowed = 1;
 		usb_started = 0;
+#ifdef CONFIG_USB_STORAGE
+		usb_stor_reset();
+#endif
 		usb_hub_reset();
 
 		for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
