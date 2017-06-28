@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <asm/arch/prr_depend.h>
+#include <asm/arch/rcar-mstp.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 
@@ -23,6 +24,9 @@
 #define MOSI	GPIO_GP_6_7
 #define MISO	GPIO_GP_6_10
 #endif
+
+#define GP2_MSTP910   (1 << 10)
+#define GP6_MSTP906   (1 << 6)
 
 #define CPLD_ADDR_MODE		0x00 /* RW */
 #define CPLD_ADDR_MUX		0x02 /* RW */
@@ -102,6 +106,9 @@ static void cpld_init(void)
 	val = readl(PFC_PUEN5);
 	val |= PUEN_SSI_SDATA4;
 	writel(val, PFC_PUEN5);
+
+	/* GPIO2, GPIO6 for reset */
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, GP6_MSTP906 | GP2_MSTP910);
 
 	gpio_request(SCLK, NULL);
 	gpio_request(SSTBZ, NULL);
