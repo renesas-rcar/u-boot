@@ -2,13 +2,15 @@
  * arch/arm/include/asm/arch-rcar_gen3/ehci-rcar.h
  *	This file is USB-related definitions.
  *
- * Copyright (C) 2015-2016 Renesas Electronics Corporation
+ * Copyright (C) 2015-2017 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __EHCI_RCAR_H__
 #define __EHCI_RCAR_H__
+
+#include <asm/types.h>
 
 /* Register offset */
 #define OHCI_OFFSET	0x00
