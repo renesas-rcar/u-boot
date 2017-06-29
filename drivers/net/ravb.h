@@ -420,7 +420,7 @@ static const u16 ravb_offset_rcar_gen2[RAVB_MAX_REGISTER_OFFSET] = {
 	[TIS] = 0x037C,
 	[ISS] = 0x0380,
 	[GCCR] = 0x0390,
-	[GMTT] 0x0394,
+	[GMTT] = 0x0394,
 	[GPTC] = 0x0398,
 	[GTI] = 0x039C,
 	[GTO0] = 0x03A0,
