@@ -49,13 +49,13 @@ int board_early_init_f(void)
 	rcar_prr_init();
 
 	/* SCIF2 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SCIF2_MSTP310);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
 	/* EHTERAVB */
-	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
 	/* eMMC */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0 */
-	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
+	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD0_MSTP314);
 
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
@@ -65,7 +65,7 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
-	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
