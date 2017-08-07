@@ -3,7 +3,7 @@
  * This file is a description of a function that depends on
  * the version of the product.
  *
- * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016-2017 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
@@ -11,17 +11,21 @@
 #include <common.h>
 #include <asm/io.h>
 
-#define PRR				(0xfff00044ul) /* Product Register */
+#define PRR			(0xfff00044ul) /* Product Register */
+#define MODEMR			(0xE6160060ul) /* Mode Monitor Register */
+#define MD12MASK		(0x00001000ul) /* MD12(bit12) MASK */
 
 /* PRR PRODUCT for RCAR */
 #define PRR_PRODUCT_RCAR_H3		(0x4f00ul)
 #define PRR_PRODUCT_RCAR_M3		(0x5200ul)
+#define PRR_PRODUCT_RCAR_D3		(0x5800ul)
 #define PRR_PRODUCT_MASK		(0x7f00ul)
 
 /* PRR PRODUCT and CUT for RCAR */
 #define PRR_PRODUCT_CUT_RCAR_H3_WS10	(PRR_PRODUCT_RCAR_H3   | 0x00ul)
 #define PRR_PRODUCT_CUT_RCAR_H3_WS11	(PRR_PRODUCT_RCAR_H3   | 0x01ul)
 #define PRR_PRODUCT_CUT_RCAR_M3_ES10	(PRR_PRODUCT_RCAR_M3   | 0x00ul)
+#define PRR_PRODUCT_CUT_RCAR_D3_ES10	(PRR_PRODUCT_RCAR_D3   | 0x00ul)
 #define PRR_PRODUCT_CUT_MASK		(PRR_PRODUCT_MASK      | 0xfful)
 
 #define RCAR_PRR_INIT()			rcar_prr_init()
@@ -33,6 +37,9 @@
 		rcar_prr_check_product_cut(PRR_PRODUCT_CUT_RCAR_##a##_##b)
 
 static u32 rcar_prr = 0xffffffff;
+#if defined(CONFIG_R8A77995)
+static u32 rcar_modemr = 0x00000000;
+#endif
 
 static int rcar_prr_compare_product(u32 id)
 {
@@ -64,10 +71,18 @@ int rcar_is_legacy(void)
  */
 int rcar_get_serial_config_clk(void)
 {
+#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796)
 	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
 		return CONFIG_SYS_CLK_FREQ;
 	else
 		return CONFIG_SH_SCIF_CLK_FREQ;
+#elif defined(CONFIG_R8A77995)
+	rcar_modemr = readl(MODEMR);
+	if ((rcar_modemr & MD12MASK) != 0)
+		return CONFIG_SH_SCIF_SSCG_CLK_FREQ;
+	else
+		return CONFIG_SH_SCIF_CLEAN_CLK_FREQ;
+#endif
 }
 
 int rcar_need_reconfig_sdhi_drvctrl(void)

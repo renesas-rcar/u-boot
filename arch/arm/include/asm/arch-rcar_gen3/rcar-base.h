@@ -73,6 +73,12 @@
 #define CONFIG_SYS_I2C_SH_BASE0	0xE60B0000
 
 /* PFC */
+#define PFC_PUEN0       0xE6060400
+#define PFC_PUEN1       0xE6060404
+#define PFC_PUEN2       0xE6060408
+#define PFC_PUEN3       0xE606040C
+#define PFC_PUEN4       0xE6060410
+#define PFC_PUEN5       0xE6060414
 #define PFC_PUEN6       0xE6060418
 #define PUEN_USB1_OVC   (1 << 2)
 #define PUEN_USB1_PWEN  (1 << 1)
