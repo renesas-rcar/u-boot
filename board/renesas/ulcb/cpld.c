@@ -35,7 +35,6 @@
 #define CPLD_ADDR_VERSION	0xFF /* R */
 
 /* LSI pin pull-up control */
-#define PFC_PUEN5		0xe6060414
 #define PUEN_SSI_SDATA4		(1 << 17)
 
 static int cpld_initialized;
