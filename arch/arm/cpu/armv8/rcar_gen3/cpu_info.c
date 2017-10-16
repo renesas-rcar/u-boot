@@ -73,6 +73,14 @@ int print_cpuinfo(void)
 			       CONFIG_RCAR_TARGET_STRING);
 		}
 		break;
+	case 0x55:
+		printf("CPU: Renesas Electronics R8A77965 rev %d.%d\n",
+		       rev_integer, rev_fraction);
+		if (strcmp(CONFIG_RCAR_TARGET_STRING, "r8a77965")) {
+			printf("Warning: this code supports only %s\n",
+			       CONFIG_RCAR_TARGET_STRING);
+		}
+		break;
 	}
 	return 0;
 }
