@@ -69,7 +69,7 @@ int board_early_init_f(void)
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907 | GPIO6_MSTP906);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 |
 			  GPIO5_MSTP907 | GPIO6_MSTP906);
@@ -110,7 +110,7 @@ void board_cleanup_preboot_os(void)
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907 | GPIO6_MSTP906);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 |
 			  GPIO5_MSTP907 | GPIO6_MSTP906);
@@ -203,7 +203,7 @@ int board_init(void)
 		gpio_set_value(GPIO_GP_2_10, 1);
 		udelay(1);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	/* GPSR2 */
 	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
 	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
@@ -406,7 +406,7 @@ int board_mmc_init(bd_t *bis)
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 2,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	/* SDHI0 */
 	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD0_DAT1, NULL);

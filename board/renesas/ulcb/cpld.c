@@ -18,7 +18,7 @@
 #define SSTBZ	(rcar_is_legacy() ? ES_GPIO_GP_2_3 : GPIO_GP_2_3)
 #define MOSI	(rcar_is_legacy() ? ES_GPIO_GP_6_7 : GPIO_GP_6_7)
 #define MISO	(rcar_is_legacy() ? ES_GPIO_GP_6_10 : GPIO_GP_6_10)
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 #define SCLK	GPIO_GP_6_8
 #define SSTBZ	GPIO_GP_2_3
 #define MOSI	GPIO_GP_6_7

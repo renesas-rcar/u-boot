@@ -2,7 +2,7 @@
  * board/renesas/ulcb/ulcb.c
  *     This file is ULCB board support.
  *
- * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016-2017 Renesas Electronics Corporation
  * Copyright (C) 2016 Cogent Embedded, Inc.
  *
  * SPDX-License-Identifier: GPL-2.0+
@@ -147,7 +147,7 @@ int board_init(void)
 		gpio_set_value(GPIO_GP_2_10, 1);
 		udelay(1);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	/* GPSR2 */
 	gpio_request(GPIO_GFN_AVB_AVTP_CAPTURE_A, NULL);
 	gpio_request(GPIO_GFN_AVB_AVTP_MATCH_A, NULL);
@@ -299,7 +299,7 @@ int board_mmc_init(bd_t *bis)
 		ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 1,
 				   SH_SDHI_QUIRK_64BIT_BUF);
 	}
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A7796X)
 	/* SDHI0 */
 	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
 	gpio_request(GPIO_GFN_SD0_DAT1, NULL);

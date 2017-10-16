@@ -97,7 +97,7 @@
 #define PHYS_SDRAM_4_SIZE		((unsigned long)0x40000000)
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_1_SIZE
-#elif defined(CONFIG_R8A7796)
+#elif defined(CONFIG_R8A77960)
 #define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			(0x40000000 + DRAM_RSV_SIZE)	/* legacy */
 #define PHYS_SDRAM_1_SIZE		((unsigned long)(0x80000000 - DRAM_RSV_SIZE))
