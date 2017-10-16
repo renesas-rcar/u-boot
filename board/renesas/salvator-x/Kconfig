@@ -12,5 +12,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "r8a7795_salvator-x" if R8A7795
 	default "r8a7796_salvator-x" if R8A77960
+	default "r8a77965_salvator-x" if R8A77965
 
 endif
