@@ -3,7 +3,7 @@
  * This file is a description of a function that depends on
  * the version of the product.
  *
- * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016-2017 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
@@ -16,6 +16,11 @@
 /* PRR PRODUCT for RCAR */
 #define PRR_PRODUCT_RCAR_H3		(0x4f00ul)
 #define PRR_PRODUCT_RCAR_M3		(0x5200ul)
+#define PRR_PRODUCT_RCAR_V3M		(0x5400ul)
+#define PRR_PRODUCT_RCAR_M3N		(0x5500ul)
+#define PRR_PRODUCT_RCAR_V3H		(0x5600ul)
+#define PRR_PRODUCT_RCAR_E3		(0x5700ul)
+#define PRR_PRODUCT_RCAR_D3		(0x5800ul)
 #define PRR_PRODUCT_MASK		(0x7f00ul)
 
 /* PRR PRODUCT and CUT for RCAR */
