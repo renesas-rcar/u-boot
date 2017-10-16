@@ -31,6 +31,10 @@ config R8A77960
 	bool "Renesas SoC R8A77960"
 	select R8A7796X
 
+config R8A77965
+	bool "Renesas SoC R8A77965"
+	select R8A7796X
+
 endchoice
 
 config SYS_SOC
