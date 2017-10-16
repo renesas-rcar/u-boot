@@ -12,6 +12,6 @@ obj-y += cpu_info.o
 obj-$(CONFIG_R8A7795) += lowlevel_init.o cpu_info-r8a7795.o \
 				pfc.o pfc-r8a7795.o pfc-r8a7795_es.o prr_depend.o \
 				board.o
-obj-$(CONFIG_R8A7796) += lowlevel_init.o cpu_info-r8a7796.o \
+obj-$(CONFIG_R8A7796X) += lowlevel_init.o cpu_info-r8a7796.o \
 				pfc.o pfc-r8a7796.o prr_depend.o \
 				board.o
