@@ -32,7 +32,6 @@ struct sh_sdhi_host {
 	unsigned long quirks;
 	unsigned char wait_int;
 	unsigned char sd_error;
-	unsigned char detect_waiting;
 };
 
 static inline void sh_sdhi_writeq(struct sh_sdhi_host *host, int reg, u64 val)
@@ -60,14 +59,6 @@ static void *mmc_priv(struct mmc *mmc)
 	return (void *)mmc->priv;
 }
 
-static void sh_sdhi_detect(struct sh_sdhi_host *host)
-{
-	sh_sdhi_writew(host, SDHI_OPTION,
-		       OPT_BUS_WIDTH_1 | sh_sdhi_readw(host, SDHI_OPTION));
-
-	host->detect_waiting = 0;
-}
-
 static int sh_sdhi_intr(void *dev_id)
 {
 	struct sh_sdhi_host *host = dev_id;
@@ -81,10 +72,6 @@ static int sh_sdhi_intr(void *dev_id)
 	/* CARD Insert */
 	if (state1 & INFO1_CARD_IN) {
 		sh_sdhi_writew(host, SDHI_INFO1, ~INFO1_CARD_IN);
-		if (!host->detect_waiting) {
-			host->detect_waiting = 1;
-			sh_sdhi_detect(host);
-		}
 		sh_sdhi_writew(host, SDHI_INFO1_MASK, INFO1M_RESP_END |
 			       INFO1M_ACCESS_END | INFO1M_CARD_IN |
 			       INFO1M_DATA3_CARD_RE | INFO1M_DATA3_CARD_IN);
@@ -93,10 +80,6 @@ static int sh_sdhi_intr(void *dev_id)
 	/* CARD Removal */
 	if (state1 & INFO1_CARD_RE) {
 		sh_sdhi_writew(host, SDHI_INFO1, ~INFO1_CARD_RE);
-		if (!host->detect_waiting) {
-			host->detect_waiting = 1;
-			sh_sdhi_detect(host);
-		}
 		sh_sdhi_writew(host, SDHI_INFO1_MASK, INFO1M_RESP_END |
 			       INFO1M_ACCESS_END | INFO1M_CARD_RE |
 			       INFO1M_DATA3_CARD_RE | INFO1M_DATA3_CARD_IN);
