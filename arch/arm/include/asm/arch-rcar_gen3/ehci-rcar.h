@@ -46,7 +46,7 @@
 #define MAX_BURST_LEN_SINGLE	(3 << 0)
 
 #define SMSTPCR7	0xE615014C
-#define SMSTPCR700	(1 << 1)	/* EHCI3 */
+#define SMSTPCR700	(1 << 0)	/* EHCI3 */
 #define SMSTPCR701	(1 << 1)	/* EHCI2 */
 #define SMSTPCR702	(1 << 2)	/* EHCI1 */
 #define SMSTPCR703	(1 << 3)	/* EHCI0 */
