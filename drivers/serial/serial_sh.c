@@ -15,7 +15,7 @@
 #include <serial.h>
 #include <linux/compiler.h>
 #include <dm/platform_data/serial_sh.h>
-#if defined(CONFIG_TARGET_SALVATOR_X) || defined(CONFIG_TARGET_ULCB)
+#if defined(CONFIG_RCAR_GEN3)
 #include <asm/arch/prr_depend.h>
 #endif
 #include "serial_sh.h"
@@ -254,7 +254,7 @@ static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	struct uart_port *port = &sh_sci;
-#if defined(CONFIG_TARGET_SALVATOR_X) || defined(CONFIG_TARGET_ULCB)
+#if defined(CONFIG_RCAR_GEN3)
 	int freq;
 
 	freq = rcar_get_serial_config_clk();
