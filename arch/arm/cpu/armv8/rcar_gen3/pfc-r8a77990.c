@@ -39,7 +39,7 @@
 	PORT_1(fn, pfx##21, sfx),				\
 	PORT_1(fn, pfx##22, sfx)
 
-#define CPU_32_PORT_26(fn, pfx, sfx)				\
+#define CPU_32_PORT_28(fn, pfx, sfx)				\
 	PORT_10(fn, pfx, sfx),					\
 	PORT_10(fn, pfx##1, sfx),				\
 	PORT_1(fn, pfx##20, sfx),				\
@@ -47,7 +47,9 @@
 	PORT_1(fn, pfx##22, sfx),				\
 	PORT_1(fn, pfx##23, sfx),				\
 	PORT_1(fn, pfx##24, sfx),				\
-	PORT_1(fn, pfx##25, sfx)
+	PORT_1(fn, pfx##25, sfx),				\
+	PORT_1(fn, pfx##26, sfx),				\
+	PORT_1(fn, pfx##27, sfx)
 
 #define CPU_32_PORT_16(fn, pfx, sfx)				\
 	PORT_10(fn, pfx, sfx),					\
@@ -71,7 +73,7 @@
 /* GP_0_0_DATA -> GP_6_13_DATA */
 /* except for GP0[18] - [31],
 		GP1[23] - [31],
-		GP2[26] - [31],
+		GP2[28] - [31],
 		GP3[16] - [31],
 		GP4[11] - [31],
 		GP5[20] - [31],
@@ -81,7 +83,7 @@
 #define CPU_ALL_PORT(fn, pfx, sfx)		\
 	CPU_32_PORT_18(fn, pfx##_0_, sfx),	\
 	CPU_32_PORT_23(fn, pfx##_1_, sfx),	\
-	CPU_32_PORT_26(fn, pfx##_2_, sfx),	\
+	CPU_32_PORT_28(fn, pfx##_2_, sfx),	\
 	CPU_32_PORT_16(fn, pfx##_3_, sfx),	\
 	CPU_32_PORT_11(fn, pfx##_4_, sfx),	\
 	CPU_32_PORT_20(fn, pfx##_5_, sfx),	\
@@ -182,6 +184,8 @@ enum {
 	GFN_A0,
 
 	/* GPSR2 */
+	FN_GPSR227,
+	FN_GPSR226,
 	GFN_EX_WAIT0,
 	GFN_RD_WRx,
 	GFN_RDx,
@@ -1048,6 +1052,8 @@ enum {
 	A0_GMARK,
 
 	/* GPSR2 */
+	GPSR227_MARK,
+	GPSR226_MARK,
 	EX_WAIT0_GMARK,
 	RD_WRx_GMARK,
 	RDx_GMARK,
@@ -1824,6 +1830,8 @@ static pinmux_enum_t pinmux_data[] = {
 	PINMUX_DATA(A0_GMARK, GFN_A0),
 
 	/* GPSR2 */
+	PINMUX_DATA(GPSR227_MARK, FN_GPSR227),
+	PINMUX_DATA(GPSR226_MARK, FN_GPSR226),
 	PINMUX_DATA(EX_WAIT0_GMARK, GFN_EX_WAIT0),
 	PINMUX_DATA(RD_WRx_GMARK, GFN_RD_WRx),
 	PINMUX_DATA(RDx_GMARK, GFN_RDx),
@@ -1974,6 +1982,8 @@ static struct pinmux_gpio pinmux_gpios[] = {
 	GPIO_GFN(A0),
 
 	/* GPSR2 */
+	GPIO_FN(GPSR227),
+	GPIO_FN(GPSR226),
 	GPIO_GFN(EX_WAIT0),
 	GPIO_GFN(RD_WRx),
 	GPIO_GFN(RDx),
@@ -2785,8 +2795,8 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0,
 		0, 0,
 		0, 0,
-		0, 0,
-		0, 0,
+		GP_2_27_FN, FN_GPSR227,
+		GP_2_26_FN, FN_GPSR226,
 		GP_2_25_FN, GFN_EX_WAIT0,
 		GP_2_24_FN, GFN_RD_WRx,
 
@@ -4018,8 +4028,8 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0,
 		0, 0,
 		0, 0,
-		0, 0,
-		0, 0,
+		GP_2_27_IN, GP_2_27_OUT,
+		GP_2_26_IN, GP_2_26_OUT,
 		GP_2_25_IN, GP_2_25_OUT,
 		GP_2_24_IN, GP_2_24_OUT,
 
@@ -4238,7 +4248,7 @@ static struct pinmux_data_reg pinmux_data_regs[] = {
 	},
 	{ PINMUX_DATA_REG("INDT2", 0xE6052008, 32) {
 		0, 0, 0, 0,
-		0, 0, GP_2_25_DATA, GP_2_24_DATA,
+		GP_2_27_DATA, GP_2_26_DATA, GP_2_25_DATA, GP_2_24_DATA,
 		GP_2_23_DATA, GP_2_22_DATA, GP_2_21_DATA, GP_2_20_DATA,
 		GP_2_19_DATA, GP_2_18_DATA, GP_2_17_DATA, GP_2_16_DATA,
 		GP_2_15_DATA, GP_2_14_DATA, GP_2_13_DATA, GP_2_12_DATA,
