@@ -86,6 +86,8 @@ int board_init(void)
 #ifdef CONFIG_RAVB
 	/* EtherAVB Enable */
 	/* GPSR2 */
+	gpio_request(GPIO_FN_GPSR227, NULL);
+	gpio_request(GPIO_FN_GPSR226, NULL);
 	gpio_request(GPIO_GFN_RDx, NULL);		/* 23 */
 	gpio_request(GPIO_FN_AVB_PHY_INT, NULL);	/* 21 */
 	gpio_request(GPIO_GFN_AVB_TXCREFCLK, NULL);	/* 20 */
