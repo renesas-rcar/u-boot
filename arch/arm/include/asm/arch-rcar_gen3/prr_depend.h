@@ -10,5 +10,6 @@
 void rcar_prr_init(void);
 int rcar_is_legacy(void);
 int rcar_get_serial_config_clk(void);
+int rcar_get_serial_config_clk_prr(void);
 int rcar_get_sdhi_config_clk(void);
 int rcar_need_reconfig_sdhi_drvctrl(void);

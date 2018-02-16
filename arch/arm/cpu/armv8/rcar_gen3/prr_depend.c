@@ -42,9 +42,6 @@
 		rcar_prr_check_product_cut(PRR_PRODUCT_CUT_RCAR_##a##_##b)
 
 static u32 rcar_prr = 0xffffffff;
-#if defined(CONFIG_R8A77995)
-static u32 rcar_modemr = 0x00000000;
-#endif
 
 static int rcar_prr_compare_product(u32 id)
 {
@@ -74,20 +71,12 @@ int rcar_is_legacy(void)
 /*
  * for serial function
  */
-int rcar_get_serial_config_clk(void)
+int rcar_get_serial_config_clk_prr(void)
 {
-#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X)
 	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
 		return CONFIG_SYS_CLK_FREQ;
 	else
 		return CONFIG_SH_SCIF_CLK_FREQ;
-#elif defined(CONFIG_R8A77995)
-	rcar_modemr = readl(MODEMR);
-	if ((rcar_modemr & MD12MASK) != 0)
-		return CONFIG_SH_SCIF_SSCG_CLK_FREQ;
-	else
-		return CONFIG_SH_SCIF_CLEAN_CLK_FREQ;
-#endif
 }
 
 int rcar_need_reconfig_sdhi_drvctrl(void)
