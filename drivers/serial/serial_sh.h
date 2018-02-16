@@ -227,7 +227,7 @@ struct uart_port {
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
 	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
-	defined(CONFIG_R8A77995)
+	defined(CONFIG_R8A77990) || defined(CONFIG_R8A77995)
 # define SCIF_ORER	0x0001
 # define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
 				/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
