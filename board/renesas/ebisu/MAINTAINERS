@@ -1,0 +1,6 @@
+EBISU BOARD
+M:	foo <foo@renesas.com>
+S:	Maintained
+F:	board/renesas/ebisu/
+F:	include/configs/r8a77990_ebisu.h
+F:	configs/r8a77990_ebisu_defconfig

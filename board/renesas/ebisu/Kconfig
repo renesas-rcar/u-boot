@@ -1,0 +1,15 @@
+if TARGET_EBISU
+
+config SYS_SOC
+	default "rcar_gen3"
+
+config SYS_BOARD
+	default "ebisu"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "r8a77990_ebisu" if R8A77990
+
+endif
