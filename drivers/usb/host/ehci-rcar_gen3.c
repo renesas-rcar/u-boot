@@ -76,6 +76,10 @@ int ehci_hcd_stop(int index)
 	val = readl(SMSTPCR7) & (SMSTPCR703);
 	if (val == SMSTPCR703)
 		setbits_le32(SMSTPCR7, SMSTPCR704);
+#elif defined(CONFIG_R8A77990)
+	val = readl(SMSTPCR7) & (SMSTPCR703);
+	if (val == SMSTPCR703)
+		setbits_le32(SMSTPCR7, SMSTPCR704);
 #else
 #error unknown cpu type
 #endif
