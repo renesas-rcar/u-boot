@@ -152,6 +152,36 @@ int board_mmc_init(bd_t *bis)
 {
 	int ret = -ENODEV;
 
+	/* Peripheral function */
+	gpio_request(GPIO_GFN_SD1_WP, NULL);
+	gpio_request(GPIO_GFN_SD1_CD, NULL);
+	gpio_request(GPIO_GFN_SD0_WP, NULL);
+	gpio_request(GPIO_GFN_SD0_CD, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD1_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD1_CMD, NULL);
+	gpio_request(GPIO_GFN_SD1_CLK, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD0_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD0_CMD, NULL);
+	gpio_request(GPIO_GFN_SD0_CLK, NULL);
+
+	gpio_request(GPIO_GFN_SD3_DS, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT7, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT6, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT5, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT4, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT3, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT2, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT1, NULL);
+	gpio_request(GPIO_GFN_SD3_DAT0, NULL);
+	gpio_request(GPIO_GFN_SD3_CMD, NULL);
+	gpio_request(GPIO_GFN_SD3_CLK, NULL);
+
 	/* eMMC */
 	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI3_BASE, 0,
 			   SH_SDHI_QUIRK_64BIT_BUF);
