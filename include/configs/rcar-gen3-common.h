@@ -2,7 +2,7 @@
  * include/configs/rcar-gen3-common.h
  *	This file is R-Car Gen3 common configuration file.
  *
- * Copyright (C) 2015-2017 Renesas Electronics Corporation
+ * Copyright (C) 2015-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -111,6 +111,12 @@
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			(0x40000000 + DRAM_RSV_SIZE)	/* legacy */
 #define PHYS_SDRAM_1_SIZE		((unsigned long)(0x80000000 - DRAM_RSV_SIZE))
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_1_SIZE
+#elif defined(CONFIG_R8A77990)
+#define CONFIG_NR_DRAM_BANKS		1
+#define PHYS_SDRAM_1			(0x40000000 + DRAM_RSV_SIZE)	/* legacy */
+#define PHYS_SDRAM_1_SIZE		((unsigned long)(0x40000000 - DRAM_RSV_SIZE))
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_1_SIZE
 #elif defined(CONFIG_R8A77995)

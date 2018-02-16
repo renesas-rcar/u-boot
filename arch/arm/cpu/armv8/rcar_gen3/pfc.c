@@ -1,9 +1,9 @@
 /*
  * arch/arm/cpu/armv8/rcar_gen3/pfc.c
- *     This file is r8a7795/r8a7796/r8a77995 processor support
+ *     This file is r8a7795/r8a7796/r8a77990/r8a77995 processor support
  *       - PFC hardware block.
  *
- * Copyright (C) 2016-2017 Renesas Electronics Corporation
+ * Copyright (C) 2016-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,6 +21,8 @@ void pinmux_init(void)
 		r8a7795_pinmux_init();
 #elif defined(CONFIG_R8A7796X)
 	r8a7796_pinmux_init();
+#elif defined(CONFIG_R8A77990)
+	r8a77990_pinmux_init();
 #elif defined(CONFIG_R8A77995)
 	r8a77995_pinmux_init();
 #endif

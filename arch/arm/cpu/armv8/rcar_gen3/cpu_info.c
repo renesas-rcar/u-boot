@@ -2,7 +2,7 @@
  * arch/arm/cpu/armv8/cpu_info.c
  *	This file defines cpu-related functions.
  *
- * Copyright (C) 2015-2017 Renesas Electronics Corporation
+ * Copyright (C) 2015-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -77,6 +77,14 @@ int print_cpuinfo(void)
 		printf("CPU: Renesas Electronics R8A77965 rev %d.%d\n",
 		       rev_integer, rev_fraction);
 		if (strcmp(CONFIG_RCAR_TARGET_STRING, "r8a77965")) {
+			printf("Warning: this code supports only %s\n",
+			       CONFIG_RCAR_TARGET_STRING);
+		}
+		break;
+	case 0x57:
+		printf("CPU: Renesas Electronics R8A77990 rev %d.%d\n",
+		       rev_integer, rev_fraction);
+		if (strcmp(CONFIG_RCAR_TARGET_STRING, "r8a77990")) {
 			printf("Warning: this code supports only %s\n",
 			       CONFIG_RCAR_TARGET_STRING);
 		}
