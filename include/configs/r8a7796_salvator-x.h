@@ -1,15 +1,19 @@
 /*
  * include/configs/r8a7796_salvator-x.h
- *     This file is Salvator-X board configuration.
+ *     This file is Salvator-X/Salvator-XS board configuration.
  *     CPU r8a7796.
  *
- * Copyright (C) 2016-2017 Renesas Electronics Corporation
+ * Copyright (C) 2016-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __SALVATOR_X_H
 #define __SALVATOR_X_H
+
+/* This settings for Salvator-XS board */
+/* If use Salvator-X then comment out "#define BOARD_SALVATOR_XS". */
+#define BOARD_SALVATOR_XS
 
 #undef DEBUG
 #define CONFIG_RCAR_BOARD_STRING "Salvator-X"
@@ -40,6 +44,20 @@
 #define CONFIG_BITBANGMII_MULTI
 #define CONFIG_SH_ETHER_BITBANG
 
+#if defined(BOARD_SALVATOR_XS)
+/* Board Clock */
+/* XTAL_CLK : 16.64MHz */
+#define RCAR_XTAL_CLK	16640000u
+#define CONFIG_SYS_CLK_FREQ	RCAR_XTAL_CLK
+/* ch0to2 CPclk, ch3to11 S3D2_PEREclk, ch12to14 S3D2_RTclk */
+/* CPclk 8.32MHz, S3D2 133.33MHz , S3D4 66.66MHz           */
+#define CONFIG_CP_CLK_FREQ	(CONFIG_SYS_CLK_FREQ / 2)
+#define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 192 / 2)
+#define CONFIG_S3D2_CLK_FREQ	(266666666u/2)
+#define CONFIG_S3D4_CLK_FREQ	(266666666u/4)
+/* Generic Timer Definitions (use in assembler source) */
+#define COUNTER_FREQUENCY	0x7EF400	/* 8.32MHz from CPclk */
+#else
 /* Board Clock */
 /* XTAL_CLK : 33.33MHz */
 #define RCAR_XTAL_CLK	33333333u
@@ -50,9 +68,9 @@
 #define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 192 / 2)
 #define CONFIG_S3D2_CLK_FREQ	(266666666u/2)
 #define CONFIG_S3D4_CLK_FREQ	(266666666u/4)
-
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
+#endif
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	(0xF1010000)
