@@ -66,6 +66,22 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void board_cleanup_preboot_os(void)
+{
+	/* Stop the used sys-module clocks */
+	/* EHTERAVB */
+	mstp_setbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
+	/* SD/eMMC(exist SCIF) */
+	mstp_setbits_le32(SMSTPCR3, SMSTPCR3,
+			  SD0_MSTP314 | SD1_MSTP313 | SD3_MSTP311);
+
+	/* GPIOs*/
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
+			  GPIO1_MSTP911 | GPIO2_MSTP910 | GPIO6_MSTP906);
+
+	/* Supply SCIF2 (don't stop SCIF2_MSTP310) */
+}
+
 int board_init(void)
 {
 	/* adress of boot parameters */
