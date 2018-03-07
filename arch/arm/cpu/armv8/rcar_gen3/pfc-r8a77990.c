@@ -938,11 +938,11 @@ enum {
 	/* sel_pwm3[2](0,1,2) */
 	FN_SEL_PWM3_0, FN_SEL_PWM3_1, FN_SEL_PWM3_2,
 	/* sel_pwm4[1](0,1) */
-	FN_SEL_PWM4,
+	FN_SEL_PWM4_0, FN_SEL_PWM4_1,
 	/* sel_pwm5[1](0,1) */
-	FN_SEL_PWM5,
+	FN_SEL_PWM5_0, FN_SEL_PWM5_1,
 	/* sel_pwm6[1](0,1) */
-	FN_SEL_PWM6,
+	FN_SEL_PWM6_0, FN_SEL_PWM6_1,
 	/* sel_remocon[2](0,1,2) */
 	FN_SEL_REMOCON_0, FN_SEL_REMOCON_1, FN_SEL_REMOCON_2,
 	/* sel_scif[1](0,1) */
@@ -3085,9 +3085,9 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ PINMUX_CFG_REG_VAR("IPSR2", 0xE6060208, 32,
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR2_31_28 [4] */
-		IFN_A0, FN_IRQ0, FN_PWM2_A, FN_MSIOF3_SS1_B, FN_VI5_CLK_A,
-		FN_DU_CDE, FN_HRX3_D, FN_IERX, FN_QSTB_QHE,
-		0, 0, 0, 0,
+		IFN_A0, FN_IRQ0, FN_PWM2_A, FN_MSIOF3_SS1_B,
+		FN_VI5_CLK_A, FN_DU_CDE, FN_HRX3_D, FN_IERX,
+		FN_QSTB_QHE, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR2_27_24 [4] */
@@ -3104,13 +3104,13 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR2_19_16 [4] */
 		IFN_RDx, FN_PWM1_A, FN_AVB_LINK, FN_VI4_FIELD,
-		FN_RX3_C, FN_FSCLKST2x_A, FN_VI5_DATA0_B, 0,
+		0, FN_RX3_C, FN_FSCLKST2x_A, FN_VI5_DATA0_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR2_15_12 [4] */
 		IFN_BSx, FN_PWM0_A, FN_AVB_MAGIC, FN_VI4_CLK,
-		FN_TX3_C, FN_VI5_CLK_B, 0, 0,
+		0, FN_TX3_C, 0, FN_VI5_CLK_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
@@ -3139,26 +3139,26 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR3_31_28 [4] */
 		IFN_A8, FN_SDA6_A, FN_RX3_B, FN_HRX4_C,
-		FN_VI5_HSYNCx_A, FN_DU_HSYNC, FN_VI4_DATA0_B, FN_QSTH_QHS,
-		0, 0, 0, 0,
+		FN_VI5_HSYNCx_A, FN_DU_HSYNC, FN_VI4_DATA0_B, 0,
+		FN_QSTH_QHS, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_27_24 [4] */
 		IFN_A7, FN_TX4_A, FN_MSIOF3_TXD_B, FN_VI4_DATA11,
-		FN_RIF2_D1_B, 0, 0, 0,
+		0, 0, FN_RIF2_D1_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_23_20 [4] */
 		IFN_A6, FN_RX4_A, FN_MSIOF3_RXD_B, FN_VI4_DATA10,
-		FN_RIF2_D0_B, 0, 0, 0,
+		0, 0, FN_RIF2_D0_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_19_16 [4] */
 		IFN_A5, FN_SCK4_A, FN_MSIOF3_SCK_B, FN_VI4_DATA9,
-		FN_PWM3_B, FN_RIF2_SYNC_B, FN_QPOLA, 0,
-		0, 0, 0, 0,
+		FN_PWM3_B, 0, FN_RIF2_SYNC_B, 0,
+		FN_QPOLA, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_15_12 [4] */
@@ -3169,14 +3169,14 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR3_11_8 [4] */
 		IFN_A3, FN_CTS4x_A, FN_PWM4_A, FN_VI4_DATA12,
-		FN_DU_DOTCLKOUT0, FN_HTX3_D, FN_IECLK, FN_LCDOUT12,
-		0, 0, 0, 0,
+		0, FN_DU_DOTCLKOUT0, FN_HTX3_D, FN_IECLK,
+		FN_LCDOUT12, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_7_4 [4] */
 		IFN_A2, FN_IRQ2, FN_AVB_AVTP_PPS, FN_VI4_CLKENB,
-		FN_VI5_DATA1_A, FN_DU_DISP, FN_SCL6_B, FN_QSTVB_QVE,
-		0, 0, 0, 0,
+		FN_VI5_DATA1_A, FN_DU_DISP, FN_SCL6_B, 0,
+		FN_QSTVB_QVE, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR3_3_0 [4] */
@@ -3192,50 +3192,50 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR4_31_28 [4] */
 		IFN_A16, FN_MSIOF1_SYNC, FN_MSIOF2_SS1_B, FN_VI4_DATA19,
-		FN_VI5_DATA5_A, FN_DU_DB5, FN_LCDOUT5, 0,
-		0, 0, 0, 0,
+		FN_VI5_DATA5_A, FN_DU_DB5, 0, 0,
+		FN_LCDOUT5, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_27_24 [4] */
 		IFN_A15, FN_MSIOF1_SS2, FN_MSIOF2_TXD_B, FN_VI4_DATA18,
-		FN_VI5_DATA4_A, FN_DU_DB4, FN_LCDOUT4, 0,
-		0, 0, 0, 0,
+		FN_VI5_DATA4_A, FN_DU_DB4, 0, 0,
+		FN_LCDOUT4, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_23_20 [4] */
 		IFN_A14, FN_MSIOF1_SS1, FN_MSIOF2_RXD_B, FN_VI4_DATA15,
-		FN_HTX4_D, FN_DU_DB3, FN_LCDOUT3, 0,
-		0, 0, 0, 0,
+		FN_HTX4_D, FN_DU_DB3, 0, 0,
+		FN_LCDOUT3, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_19_16 [4] */
 		IFN_A13, FN_SCK5_A, FN_MSIOF2_SCK_B, FN_VI4_DATA14,
-		FN_HRX4_D, FN_DU_DB2, FN_LCDOUT2, 0,
-		0, 0, 0, 0,
+		FN_HRX4_D, FN_DU_DB2, 0, 0,
+		FN_LCDOUT2, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_15_12 [4] */
 		IFN_A12, FN_RX5_A, FN_MSIOF2_SS2_B, FN_VI4_DATA17,
-		FN_VI5_DATA3_A, FN_DU_DG6, FN_LCDOUT14, 0,
-		0, 0, 0, 0,
+		FN_VI5_DATA3_A, FN_DU_DG6, 0, 0,
+		FN_LCDOUT14, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_11_8 [4] */
 		IFN_A11, FN_SCL6_A, FN_TX3_B, FN_HTX4_C,
-		FN_DU_VSYNC, FN_VI4_DATA1_B, FN_QSTVA_QVS, 0,
-		0, 0, 0, 0,
+		0, FN_DU_VSYNC, FN_VI4_DATA1_B, 0,
+		FN_QSTVA_QVS, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_7_4 [4] */
 		IFN_A10, FN_IRQ4, FN_MSIOF2_SYNC_B, FN_VI4_DATA13,
-		FN_VI5_FIELD_A, FN_DU_DG5, FN_FSCLKST2x_B, FN_LCDOUT13,
-		0, 0, 0, 0,
+		FN_VI5_FIELD_A, FN_DU_DG5, FN_FSCLKST2x_B, 0,
+		FN_LCDOUT13, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR4_3_0 [4] */
 		IFN_A9, FN_TX5_A, FN_IRQ3, FN_VI4_DATA16,
-		FN_VI5_VSYNCx_A, FN_DU_DG7, FN_LCDOUT15, 0,
-		0, 0, 0, 0,
+		FN_VI5_VSYNCx_A, FN_DU_DG7, 0, 0,
+		FN_LCDOUT15, 0, 0, 0,
 		0, 0, 0, 0,
 		}
 	},
@@ -3244,51 +3244,51 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ PINMUX_CFG_REG_VAR("IPSR5", 0xE6060214, 32,
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR5_31_28 [4] */
-		IFN_D2, FN_MSIOF3_RXD_A, FN_RX5_C, FN_VI5_DATA14_A,
-		FN_DU_DR3, FN_RX4_C, FN_LCDOUT19, 0,
-		0, 0, 0, 0,
+		IFN_D2, FN_MSIOF3_RXD_A, FN_RX5_C, 0,
+		FN_VI5_DATA14_A, FN_DU_DR3, FN_RX4_C, 0,
+		FN_LCDOUT19, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_27_24 [4] */
 		IFN_D1, FN_MSIOF3_SYNC_A, FN_SCK3_A, FN_VI4_DATA23,
-		FN_VI5_CLKENB_A, FN_DU_DB7, FN_RTS4x_TANS_C, FN_LCDOUT7,
-		0, 0, 0, 0,
+		FN_VI5_CLKENB_A, FN_DU_DB7, FN_RTS4x_TANS_C, 0,
+		FN_LCDOUT7, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_23_20 [4] */
-		IFN_D0, FN_MSIOF3_SCK_A, FN_DU_DR2, FN_CTS4x_C,
+		IFN_D0, FN_MSIOF3_SCK_A, 0, 0,
+		0, FN_DU_DR2, FN_CTS4x_C, 0,
 		FN_LCDOUT18, 0, 0, 0,
-		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_19_16 [4] */
-		IFN_WE0x, FN_SDA5, FN_DU_DR1, FN_VI4_DATA3_B,
+		IFN_WE0x, FN_SDA5, 0, 0,
+		0, FN_DU_DR1, FN_VI4_DATA3_B, 0,
 		FN_LCDOUT17, 0, 0, 0,
-		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_15_12 [4] */
-		IFN_CS0x, FN_SCL5, FN_DU_DR0, FN_VI4_DATA2_B,
+		IFN_CS0x, FN_SCL5, 0, 0,
+		0, FN_DU_DR0, FN_VI4_DATA2_B, 0,
 		FN_LCDOUT16, 0, 0, 0,
-		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_11_8 [4] */
-		IFN_A19, FN_MSIOF1_SCK, FN_VI4_DATA22, FN_VI5_DATA2_A,
-		FN_DU_DB1, FN_HTX4_E, FN_LCDOUT1, 0,
-		0, 0, 0, 0,
+		IFN_A19, FN_MSIOF1_SCK, 0, FN_VI4_DATA22,
+		FN_VI5_DATA2_A, FN_DU_DB1, 0, FN_HTX4_E,
+		FN_LCDOUT1, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_7_4 [4] */
-		IFN_A18, FN_MSIOF1_TXD, FN_VI4_DATA21, FN_VI5_DATA7_A,
-		FN_DU_DB0, FN_HRX4_E, FN_LCDOUT0, 0,
-		0, 0, 0, 0,
+		IFN_A18, FN_MSIOF1_TXD, 0, FN_VI4_DATA21,
+		FN_VI5_DATA7_A, FN_DU_DB0, 0, FN_HRX4_E,
+		FN_LCDOUT0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR5_3_0 [4] */
-		IFN_A17, FN_MSIOF1_RXD, FN_VI4_DATA20, FN_VI5_DATA6_A,
-		FN_DU_DB6, FN_LCDOUT6, 0, 0,
-		0, 0, 0, 0,
+		IFN_A17, FN_MSIOF1_RXD, 0, FN_VI4_DATA20,
+		FN_VI5_DATA6_A, FN_DU_DB6, 0, 0,
+		FN_LCDOUT6, 0, 0, 0,
 		0, 0, 0, 0,
 		}
 	},
@@ -3297,51 +3297,51 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ PINMUX_CFG_REG_VAR("IPSR6", 0xE6060218, 32,
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR6_31_28 [4] */
-		IFN_D10, FN_MSIOF2_RXD_A, FN_VI5_DATA13_A, FN_DU_DG1,
-		FN_RIF3_D0_B, FN_HTX3_E, FN_LCDOUT9, 0,
-		0, 0, 0, 0,
+		IFN_D10, FN_MSIOF2_RXD_A, 0, 0,
+		FN_VI5_DATA13_A, FN_DU_DG1, FN_RIF3_D0_B, FN_HTX3_E,
+		FN_LCDOUT9, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_27_24 [4] */
-		IFN_D9, FN_MSIOF2_SYNC_A, FN_VI5_DATA10_A, FN_DU_DG0,
-		FN_RIF3_SYNC_B, FN_HRX3_E, FN_LCDOUT8, 0,
-		0, 0, 0, 0,
+		IFN_D9, FN_MSIOF2_SYNC_A, 0, 0,
+		FN_VI5_DATA10_A, FN_DU_DG0, FN_RIF3_SYNC_B, FN_HRX3_E,
+		FN_LCDOUT8, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_23_20 [4] */
-		IFN_D8, FN_MSIOF2_SCK_A, FN_SCK4_B, FN_VI5_DATA12_A,
-		FN_DU_DR7, FN_RIF3_CLK_B, FN_HCTS3x_E, FN_LCDOUT23,
-		0, 0, 0, 0,
+		IFN_D8, FN_MSIOF2_SCK_A, FN_SCK4_B, 0,
+		FN_VI5_DATA12_A, FN_DU_DR7, FN_RIF3_CLK_B, FN_HCTS3x_E,
+		FN_LCDOUT23, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_19_16 [4] */
 		IFN_D7, FN_CANFD1_RX, FN_IRQ5, FN_CAN1_RX,
-		FN_CTS3x_A, FN_VI5_DATA2_B, 0, 0,
+		FN_CTS3x_A, 0, 0, FN_VI5_DATA2_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_15_12 [4] */
-		IFN_D6, FN_TX3_A, FN_HTX3_B, FN_DU_DR6,
-		FN_VI4_DATA5_B, FN_LCDOUT22, 0, 0,
-		0, 0, 0, 0,
+		IFN_D6, FN_TX3_A, FN_HTX3_B, 0,
+		0, FN_DU_DR6, FN_VI4_DATA5_B, 0,
+		FN_LCDOUT22, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_11_8 [4] */
-		IFN_D5, FN_RX3_A, FN_HRX3_B, FN_DU_DR5,
-		FN_VI4_DATA4_B, FN_LCDOUT21, 0, 0,
-		0, 0, 0, 0,
+		IFN_D5, FN_RX3_A, FN_HRX3_B, 0,
+		0, FN_DU_DR5, FN_VI4_DATA4_B, 0,
+		FN_LCDOUT21, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_7_4 [4] */
 		IFN_D4, FN_CANFD1_TX, FN_HSCK3_B, FN_CAN1_TX,
-		FN_RTS3x_TANS_A, FN_MSIOF3_SS2_A, FN_VI5_DATA1_B, 0,
+		FN_RTS3x_TANS_A, FN_MSIOF3_SS2_A, 0, FN_VI5_DATA1_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR6_3_0 [4] */
-		IFN_D3, FN_MSIOF3_TXD_A, FN_TX5_C, FN_VI5_DATA15_A,
-		FN_DU_DR4, FN_TX4_C, FN_LCDOUT20, 0,
-		0, 0, 0, 0,
+		IFN_D3, FN_MSIOF3_TXD_A, FN_TX5_C, 0,
+		FN_VI5_DATA15_A, FN_DU_DR4, FN_TX4_C, 0,
+		FN_LCDOUT20, 0, 0, 0,
 		0, 0, 0, 0,
 		}
 	},
@@ -3356,45 +3356,45 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0, 0, 0,
 
 		/* IPSR7_27_24 [4] */
-		IFN_SDA4, FN_WE1x, FN_VI4_DATA7_B, FN_VI5_DATA7_B,
+		IFN_SDA4, FN_WE1x, 0, 0,
+		0, 0, FN_VI4_DATA7_B, FN_VI5_DATA7_B,
 		FN_QPOLB, 0, 0, 0,
-		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_23_20 [4] */
-		IFN_SCL4, FN_CS1x_A26, FN_DU_DOTCLKIN0, FN_VI4_DATA6_B,
-		FN_VI5_DATA6_B, FN_QCLK, 0, 0,
-		0, 0, 0, 0,
+		IFN_SCL4, FN_CS1x_A26, 0, 0,
+		0, FN_DU_DOTCLKIN0, FN_VI4_DATA6_B, FN_VI5_DATA6_B,
+		FN_QCLK, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_19_16 [4] */
 		IFN_D15, FN_MSIOF2_SS1_A, FN_HTX3_A, FN_MSIOF3_SS1_A,
-		FN_DU_DG3, FN_LCDOUT11, 0, 0,
-		0, 0, 0, 0,
+		0, FN_DU_DG3, 0, 0,
+		FN_LCDOUT11, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_15_12 [4] */
 		IFN_D14, FN_CAN_CLK, FN_HRX3_A, FN_MSIOF2_SS2_A,
-		FN_SDA7_B, FN_VI5_DATA5_B, 0, 0,
+		0, FN_SDA7_B, 0, FN_VI5_DATA5_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_11_8 [4] */
 		IFN_D13, FN_CANFD0_RX, FN_RX4_B, FN_CAN0_RX,
-		FN_VI5_DATA9_A, FN_SCL7_B, FN_VI5_DATA4_B, 0,
+		FN_VI5_DATA9_A, FN_SCL7_B, 0, FN_VI5_DATA4_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_7_4 [4] */
 		IFN_D12, FN_CANFD0_TX, FN_TX4_B, FN_CAN0_TX,
-		FN_VI5_DATA8_A, FN_VI5_DATA3_B, 0, 0,
+		FN_VI5_DATA8_A, 0, 0, FN_VI5_DATA3_B,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR7_3_0 [4] */
-		IFN_D11, FN_MSIOF2_TXD_A, FN_VI5_DATA11_A, FN_DU_DG2,
-		FN_RIF3_D1_B, FN_HRTS3x_E, FN_LCDOUT10, 0,
-		0, 0, 0, 0,
+		IFN_D11, FN_MSIOF2_TXD_A, 0, 0,
+		FN_VI5_DATA11_A, FN_DU_DG2, FN_RIF3_D1_B, FN_HRTS3x_E,
+		FN_LCDOUT10, 0, 0, 0,
 		0, 0, 0, 0,
 		}
 	},
@@ -3428,25 +3428,25 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR8_15_12 [4] */
 		IFN_SD0_DAT2, FN_NFDATA12, FN_SCL2_C, FN_HRTS1x_B,
-		FN_BPFCLK_B, 0, 0, 0,
+		0, FN_BPFCLK_B, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR8_11_8 [4] */
 		IFN_SD0_DAT1, FN_NFDATA11, FN_SDA2_C, FN_HCTS1x_B,
-		FN_FMIN_B, 0, 0, 0,
+		0, FN_FMIN_B, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR8_7_4 [4] */
-		IFN_SD0_DAT0, FN_NFDATA10, FN_HTX1_B, FN_REMOCON_B,
-		0, 0, 0, 0,
+		IFN_SD0_DAT0, FN_NFDATA10, 0, FN_HTX1_B,
+		0, FN_REMOCON_B, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR8_3_0 [4] */
-		IFN_SD0_CMD, FN_NFDATA9, FN_HRX1_B, FN_SPEEDIN_B,
-		0, 0, 0, 0,
+		IFN_SD0_CMD, FN_NFDATA9, 0, FN_HRX1_B,
+		0, FN_SPEEDIN_B, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		}
@@ -3568,8 +3568,8 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR11_27_24 [4] */
 		IFN_SCK0_A, FN_HSCK1_A, FN_USB3HS0_ID, FN_RTS1x_TANS,
-		FN_SDA2_A, FN_FMCLK_C, FN_USB1_ID, 0,
-		0, 0, 0, 0,
+		FN_SDA2_A, FN_FMCLK_C, 0, 0,
+		FN_USB1_ID, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR11_23_20 [4] */
@@ -3586,25 +3586,25 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR11_15_12 [4] */
 		IFN_TX0_A, FN_HTX1_A, FN_SSI_WS2_A, FN_RIF1_D0,
-		FN_TS_SDAT1, 0, 0, 0,
+		0, 0, 0, FN_TS_SDAT1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR11_11_8 [4] */
 		IFN_RX0_A, FN_HRX1_A, FN_SSI_SCK2_A, FN_RIF1_SYNC,
-		FN_TS_SCK1, 0, 0, 0,
+		0, 0, 0, FN_TS_SCK1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR11_7_4 [4] */
 		IFN_SD1_WP, FN_NFWPx_A, FN_SSI_WS1, FN_RIF0_SYNC_B,
-		FN_TS_SPSYNC0, 0, 0, 0,
+		0, 0, 0, FN_TS_SPSYNC0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR11_3_0 [4] */
 		IFN_SD1_CD, FN_NFCEx_A, FN_SSI_SCK1, FN_RIF0_D1_B,
-		FN_TS_SDEN0, 0, 0, 0,
+		0, 0, 0, FN_TS_SDEN0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		}
@@ -3620,32 +3620,32 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0, 0, 0,
 
 		/* IPSR12_27_24 [4] */
-		IFN_MSIOF0_TXD, FN_SSI_SDATA7, FN_RX2_B, 0,
-		0, 0, 0, 0,
+		IFN_MSIOF0_TXD, 0, FN_SSI_SDATA7, 0,
+		0, FN_RX2_B, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR12_23_20 [4] */
-		IFN_MSIOF0_RXD, FN_SSI_WS78, FN_TX2_B, 0,
-		0, 0, 0, 0,
+		IFN_MSIOF0_RXD, 0, FN_SSI_WS78, 0,
+		0, FN_TX2_B, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR12_19_16 [4] */
-		IFN_MSIOF0_SCK, FN_SSI_SCK78, 0, 0,
+		IFN_MSIOF0_SCK, 0, FN_SSI_SCK78, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR12_15_12 [4] */
-		IFN_RX2_A, FN_HTX0_A, FN_AUDIO_CLKOUT3_A, FN_SDA1_A,
-		FN_FSO_CFE_1_N_A, FN_TS_SPSYNC1, 0, 0,
+		IFN_RX2_A, FN_HTX0_A, FN_AUDIO_CLKOUT3_A, 0,
+		FN_SDA1_A, 0, FN_FSO_CFE_1_N_A, FN_TS_SPSYNC1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR12_11_8 [4] */
-		IFN_TX2_A, FN_HRX0_A, FN_AUDIO_CLKOUT2_A, FN_SCL1_A,
-		FN_FSO_CFE_0_N_A, FN_TS_SDEN1, 0, 0,
+		IFN_TX2_A, FN_HRX0_A, FN_AUDIO_CLKOUT2_A, 0,
+		FN_SCL1_A, 0, FN_FSO_CFE_0_N_A, FN_TS_SDEN1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
@@ -3679,25 +3679,25 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0, 0, 0,
 
 		/* IPSR13_23_20 [4] */
-		IFN_MLB_DAT, FN_TX0_B, FN_RIF0_SYNC_A, FN_SIM0_CLK_A,
+		IFN_MLB_DAT, FN_TX0_B, 0, FN_RIF0_SYNC_A,
 		0, 0, 0, 0,
-		0, 0, 0, 0,
+		FN_SIM0_CLK_A, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR13_19_16 [4] */
-		IFN_MLB_SIG, FN_SCK0_B, FN_RIF0_D1_A, FN_SDA1_B,
-		FN_TCLK2_B, FN_SIM0_D_A, 0, 0,
-		0, 0, 0, 0,
+		IFN_MLB_SIG, FN_SCK0_B, 0, FN_RIF0_D1_A,
+		FN_SDA1_B, FN_TCLK2_B, 0, 0,
+		FN_SIM0_D_A, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR13_15_12 [4] */
-		IFN_MLB_CLK, FN_RX0_B, FN_RIF0_D0_A, FN_SCL1_B,
-		FN_TCLK1_B, FN_SIM0_RST_A, 0, 0,
-		0, 0, 0, 0,
+		IFN_MLB_CLK, FN_RX0_B, 0, FN_RIF0_D0_A,
+		FN_SCL1_B, FN_TCLK1_B, 0, 0,
+		FN_SIM0_RST_A, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR13_11_8 [4] */
-		IFN_SSI_SDATA9, FN_AUDIO_CLKC_A, FN_SCK1, 0,
+		IFN_SSI_SDATA9, 0, FN_AUDIO_CLKC_A, FN_SCK1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
@@ -3720,44 +3720,44 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ PINMUX_CFG_REG_VAR("IPSR14", 0xE6060238, 32,
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR14_31_28 [4] */
-		IFN_SSI_SCK5, FN_HRX0_B, FN_USB0_PWEN_B, FN_SCL2_D,
-		FN_PWM6_B, 0, 0, 0,
+		IFN_SSI_SCK5, FN_HRX0_B, 0, FN_USB0_PWEN_B,
+		FN_SCL2_D, 0, FN_PWM6_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_27_24 [4] */
-		IFN_SSI_SDATA4, FN_SSI_WS9_A, FN_PWM5_B, 0,
-		0, 0, 0, 0,
+		IFN_SSI_SDATA4, 0, FN_SSI_WS9_A, 0,
+		0, 0, FN_PWM5_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_23_20 [4] */
-		IFN_SSI_SDATA3, FN_AUDIO_CLKOUT1_C, FN_AUDIO_CLKB_B, FN_PWM4_B,
-		0, 0, 0, 0,
+		IFN_SSI_SDATA3, FN_AUDIO_CLKOUT1_C, FN_AUDIO_CLKB_B, 0,
+		0, 0, FN_PWM4_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_19_16 [4] */
-		IFN_SSI_WS349, FN_PWM3_C, 0, 0,
-		0, 0, 0, 0,
+		IFN_SSI_WS349, 0, 0, 0,
+		0, 0, FN_PWM3_C, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_15_12 [4] */
-		IFN_SSI_SCK349, FN_PWM2_C, 0, 0,
-		0, 0, 0, 0,
+		IFN_SSI_SCK349, 0, 0, 0,
+		0, 0, FN_PWM2_C, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_11_8 [4] */
-		IFN_SSI_SDATA2, FN_AUDIO_CLKOUT2_B, FN_SSI_SCK9_A, FN_PWM1_B,
-		0, 0, 0, 0,
+		IFN_SSI_SDATA2, FN_AUDIO_CLKOUT2_B, FN_SSI_SCK9_A, 0,
+		0, 0, FN_PWM1_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR14_7_4 [4] */
-		IFN_SSI_SDATA1, FN_AUDIO_CLKC_B, FN_PWM0_B, 0,
-		0, 0, 0, 0,
+		IFN_SSI_SDATA1, FN_AUDIO_CLKC_B, 0, 0,
+		0, 0, FN_PWM0_B, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
@@ -3773,8 +3773,8 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ PINMUX_CFG_REG_VAR("IPSR15", 0xE606023C, 32,
 				4, 4, 4, 4, 4, 4, 4, 4) {
 		/* IPSR15_31_28 [4] */
-		IFN_USB30_OVC, FN_USB0_OVC_A, FN_FSO_TOE_N_A, 0,
-		0, 0, 0, 0,
+		IFN_USB30_OVC, FN_USB0_OVC_A, 0, 0,
+		0, 0, FN_FSO_TOE_N_A, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 
@@ -3792,20 +3792,20 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 
 		/* IPSR15_19_16 [4] */
 		IFN_SSI_SDATA6, FN_HRTS2x_A, FN_AUDIO_CLKOUT3_C, FN_TPU0TO3,
-		FN_SCL1_D, FN_FSO_TOE_N_B, FN_SIM0_CLK_B, 0,
-		0, 0, 0, 0,
+		FN_SCL1_D, 0, FN_FSO_TOE_N_B, 0,
+		FN_SIM0_CLK_B, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR15_15_12 [4] */
 		IFN_SSI_WS6, FN_HCTS2x_A, FN_AUDIO_CLKOUT2_C, FN_TPU0TO2,
-		FN_SDA1_D, FN_FSO_CFE_1_N_B, FN_SIM0_D_B, 0,
-		0, 0, 0, 0,
+		FN_SDA1_D, 0, FN_FSO_CFE_1_N_B, 0,
+		FN_SIM0_D_B, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR15_11_8 [4] */
 		IFN_SSI_SCK6, FN_HSCK2_A, FN_AUDIO_CLKC_C, FN_TPU0TO1,
-		FN_FSO_CFE_0_N_B, FN_SIM0_RST_B, 0, 0,
-		0, 0, 0, 0,
+		0, 0, FN_FSO_CFE_0_N_B, 0,
+		FN_SIM0_RST_B, 0, 0, 0,
 		0, 0, 0, 0,
 
 		/* IPSR15_7_4 [4] */
@@ -3815,8 +3815,8 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		0, 0, 0, 0,
 
 		/* IPSR15_3_0 [4] */
-		IFN_SSI_WS5, FN_HTX0_B, FN_USB0_OVC_B, FN_SDA2_D,
-		0, 0, 0, 0,
+		IFN_SSI_WS5, FN_HTX0_B, 0, FN_USB0_OVC_B,
+		FN_SDA2_D, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		}
@@ -3861,11 +3861,11 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		/* sel_pwm3[2](0,1,2) */
 		FN_SEL_PWM3_0, FN_SEL_PWM3_1, FN_SEL_PWM3_2, 0,
 		/* sel_pwm4[1](0,1) */
-		FN_SEL_PWM4, 0,
+		FN_SEL_PWM4_0, FN_SEL_PWM4_1,
 		/* sel_pwm5[1](0,1) */
-		FN_SEL_PWM5, 0,
+		FN_SEL_PWM5_0, FN_SEL_PWM5_1,
 		/* sel_pwm6[1](0,1) */
-		FN_SEL_PWM6, 0,
+		FN_SEL_PWM6_0, FN_SEL_PWM5_1,
 		/* sel_remocon[2](0,1,2) */
 		FN_SEL_REMOCON_0, FN_SEL_REMOCON_1, FN_SEL_REMOCON_2, 0,
 		/* sel_scif[1](0,1) */
@@ -3892,16 +3892,17 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		/* sel_usb_20_ch0[1](0,1) */
 		FN_SEL_USB_20_CH0_0, FN_SEL_USB_20_CH0_1,
 		/* reserved[1] */
+		0, 0,
 		/* sel_drif2[1](0,1) */
 		FN_SEL_DRIF2_0, FN_SEL_DRIF2_1,
 		/* sel_drif3[1](0,1) */
 		FN_SEL_DRIF3_0, FN_SEL_DRIF3_1,
 		/* sel_hscif3[3](0,1,2,3,4) */
 		FN_SEL_HSCIF3_0, FN_SEL_HSCIF3_1, FN_SEL_HSCIF3_2, FN_SEL_HSCIF3_3,
-		FN_SEL_HSCIF3_4,
+		FN_SEL_HSCIF3_4, 0, 0, 0,
 		/* sel_hscif4[3](0,1,2,3,4) */
 		FN_SEL_HSCIF4_0, FN_SEL_HSCIF4_1, FN_SEL_HSCIF4_2, FN_SEL_HSCIF4_3,
-		FN_SEL_HSCIF4_4,
+		FN_SEL_HSCIF4_4, 0, 0, 0,
 		/* sel_i2c6[1](0,1) */
 		FN_SEL_I2C6_0, FN_SEL_I2C6_1,
 		/* sel_i2c7[1](0,1) */
@@ -3911,17 +3912,17 @@ static struct pinmux_cfg_reg pinmux_config_regs[] = {
 		/* sel_msiof3[1](0,1) */
 		FN_SEL_MSIOF3_0, FN_SEL_MSIOF3_1,
 		/* sel_scif3[2](0,1,2) */
-		FN_SEL_SCIF3_0, FN_SEL_SCIF3_1, FN_SEL_SCIF3_2,
+		FN_SEL_SCIF3_0, FN_SEL_SCIF3_1, FN_SEL_SCIF3_2, 0,
 		/* sel_scif4[2](0,1,2) */
-		FN_SEL_SCIF4_0, FN_SEL_SCIF4_1, FN_SEL_SCIF4_2,
+		FN_SEL_SCIF4_0, FN_SEL_SCIF4_1, FN_SEL_SCIF4_2, 0,
 		/* sel_scif5[2](0,1,2) */
-		FN_SEL_SCIF5_0, FN_SEL_SCIF5_1, FN_SEL_SCIF5_2,
+		FN_SEL_SCIF5_0, FN_SEL_SCIF5_1, FN_SEL_SCIF5_2, 0,
 		/* sel_vin4[1](0,1) */
 		FN_SEL_VIN4_0, FN_SEL_VIN4_1,
 		/* sel_vin5[1](0,1) */
 		FN_SEL_VIN5_0, FN_SEL_VIN5_1,
 		/* sel_adgc[2](0,1,2) */
-		FN_SEL_ADGC_0, FN_SEL_ADGC_1, FN_SEL_ADGC_2,
+		FN_SEL_ADGC_0, FN_SEL_ADGC_1, FN_SEL_ADGC_2, 0,
 		/* sel_ssi9[1](0,1) */
 		FN_SEL_SSI9_0, FN_SEL_SSI9_1,
 		/* reserved[3..0] */
