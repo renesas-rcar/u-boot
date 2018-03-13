@@ -33,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SD1_MSTP313		(1 << 13)
 #define SD3_MSTP311		(1 << 11)
 #define ETHERAVB_MSTP812	(1 << 12)
+#define DVFS_MSTP926		(1 << 26)
 #define GPIO1_MSTP911		(1 << 11)
 #define GPIO2_MSTP910		(1 << 10)	/* includes assignment of AVB */
 #define GPIO6_MSTP906		(1 << 6)	/* includes assignment of USB */
@@ -63,6 +64,10 @@ int board_early_init_f(void)
 	writel(freq, SD1CKCR);
 	writel(freq, SD3CKCR);		/* eMMC0 */
 
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	/* DVFS for reset */
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
+#endif
 	return 0;
 }
 
@@ -80,6 +85,11 @@ void board_cleanup_preboot_os(void)
 			  GPIO1_MSTP911 | GPIO2_MSTP910 | GPIO6_MSTP906);
 
 	/* Supply SCIF2 (don't stop SCIF2_MSTP310) */
+
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	/* DVFS for reset */
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
+#endif
 }
 
 int board_init(void)
@@ -238,6 +248,9 @@ const struct rcar_sysinfo sysinfo = {
 
 void reset_cpu(ulong addr)
 {
+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
+	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
+#endif
 }
 
 #if defined(CONFIG_DISPLAY_BOARDINFO)
