@@ -2,7 +2,7 @@
  * board/renesas/ulcb/ulcb.c
  *     This file is ULCB board support.
  *
- * Copyright (C) 2016-2017 Renesas Electronics Corporation
+ * Copyright (C) 2016-2018 Renesas Electronics Corporation
  * Copyright (C) 2016 Cogent Embedded, Inc.
  *
  * SPDX-License-Identifier: GPL-2.0+
@@ -50,12 +50,16 @@ int board_early_init_f(void)
 
 	/* SCIF2 */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
+	mstp_wait_clrbits_le32(MSTPSR3, SCIF2_MSTP310);
 	/* EHTERAVB */
 	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_wait_clrbits_le32(MSTPSR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	mstp_wait_clrbits_le32(MSTPSR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0 */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD0_MSTP314);
+	mstp_wait_clrbits_le32(MSTPSR3, SD0_MSTP314);
 
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
@@ -66,6 +70,7 @@ int board_early_init_f(void)
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_wait_clrbits_le32(MSTPSR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
