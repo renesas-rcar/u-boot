@@ -42,10 +42,13 @@ int board_early_init_f(void)
 
 	/* SCIF2 */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
+	mstp_wait_clrbits_le32(MSTPSR3, SCIF2_MSTP310);
 	/* EHTERAVB */
 	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_wait_clrbits_le32(MSTPSR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD2_MSTP312);
+	mstp_wait_clrbits_le32(MSTPSR3, SD2_MSTP312);
 
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD2CKCR);		/* eMMC0 */
