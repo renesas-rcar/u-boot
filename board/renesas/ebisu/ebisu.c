@@ -51,13 +51,19 @@ int board_early_init_f(void)
 	/* gpio enable for modules */
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO1_MSTP911 | GPIO2_MSTP910 | GPIO6_MSTP906);
+	mstp_wait_clrbits_le32(MSTPSR9,
+			       GPIO1_MSTP911 | GPIO2_MSTP910 | GPIO6_MSTP906);
 
 	/* SD/eMMC, SCIF */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3,
 			  SD0_MSTP314 | SD1_MSTP313 | SD3_MSTP311 |
 			  SCIF2_MSTP310);
+	mstp_wait_clrbits_le32(MSTPSR3,
+			       SD0_MSTP314 | SD1_MSTP313 | SD3_MSTP311 |
+			       SCIF2_MSTP310);
 	/* EHTERAVB */
 	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_wait_clrbits_le32(MSTPSR8, ETHERAVB_MSTP812);
 
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
@@ -67,6 +73,7 @@ int board_early_init_f(void)
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_wait_clrbits_le32(MSTPSR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
