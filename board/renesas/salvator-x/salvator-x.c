@@ -53,26 +53,39 @@ int board_early_init_f(void)
 
 	/* SCIF2 */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
+	mstp_wait_clrbits_le32(MSTPSR3, SCIF2_MSTP310);
 	/* EHTERAVB */
 	mstp_clrbits_le32(SMSTPCR8, SMSTPCR8, ETHERAVB_MSTP812);
+	mstp_wait_clrbits_le32(MSTPSR8, ETHERAVB_MSTP812);
 	/* eMMC */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD1_MSTP313 | SD2_MSTP312);
+	mstp_wait_clrbits_le32(MSTPSR3, SD1_MSTP313 | SD2_MSTP312);
 	/* SDHI0, 3 */
 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SD0_MSTP314 | SD3_MSTP311);
+	mstp_wait_clrbits_le32(MSTPSR3, SD0_MSTP314 | SD3_MSTP311);
 #if defined(CONFIG_R8A7795)
 	if (rcar_is_legacy()) {
 		mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907);
+		mstp_wait_clrbits_le32(MSTPSR9,
+				       GPIO2_MSTP910 | GPIO3_MSTP909 |
+				       GPIO5_MSTP907);
 	} else {
 		mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 				  GPIO2_MSTP910 | GPIO3_MSTP909 |
 				  GPIO5_MSTP907 | GPIO6_MSTP906);
+		mstp_wait_clrbits_le32(MSTPSR9,
+				       GPIO2_MSTP910 | GPIO3_MSTP909 |
+				       GPIO5_MSTP907 | GPIO6_MSTP906);
 	}
 #elif defined(CONFIG_R8A7796X)
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 |
 			  GPIO5_MSTP907 | GPIO6_MSTP906);
+	mstp_wait_clrbits_le32(MSTPSR9,
+			       GPIO2_MSTP910 | GPIO3_MSTP909 |
+			       GPIO5_MSTP907 | GPIO6_MSTP906);
 #endif
 	freq = rcar_get_sdhi_config_clk();
 	writel(freq, SD0CKCR);
@@ -83,6 +96,7 @@ int board_early_init_f(void)
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
 	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_wait_clrbits_le32(MSTPSR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
