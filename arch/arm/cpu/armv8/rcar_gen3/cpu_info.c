@@ -62,12 +62,12 @@ int print_cpuinfo(void)
 		}
 		break;
 	case 0x52:
-		if (rev_integer == 2) {
-			rev_integer--;
-			rev_fraction++;
+		if ((rev_integer == 2) && (rev_fraction == 0))
+			printf("CPU: Renesas Electronics R8A7796 rev 1.1\n");
+		else {
+			printf("CPU: Renesas Electronics R8A7796 rev %d.%d\n",
+			       rev_integer, rev_fraction);
 		}
-		printf("CPU: Renesas Electronics R8A7796 rev %d.%d\n",
-		       rev_integer, rev_fraction);
 		if (strcmp(CONFIG_RCAR_TARGET_STRING, "r8a7796")) {
 			printf("Warning: this code supports only %s\n",
 			       CONFIG_RCAR_TARGET_STRING);
