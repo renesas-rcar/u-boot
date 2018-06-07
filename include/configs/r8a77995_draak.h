@@ -3,7 +3,7 @@
  *     This file is draak board configuration.
  *     CPU r8a77995.
  *
- * Copyright (C) 2016-2017 Renesas Electronics Corporation
+ * Copyright (C) 2016-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -113,3 +113,4 @@
 	"booti 0x48080000 - 0x48000000"
 
 #endif /* __DRAAK_H */
+
