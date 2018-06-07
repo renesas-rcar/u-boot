@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/prr_depend.h>
 
 #define PRR			(0xfff00044ul) /* Product Register */
 #define MODEMR			(0xE6160060ul) /* Mode Monitor Register */
