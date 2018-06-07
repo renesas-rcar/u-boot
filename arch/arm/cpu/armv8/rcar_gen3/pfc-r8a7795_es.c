@@ -2,14 +2,14 @@
  * arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7795_es.c
  *     This file is r8a7795 processor support - PFC hardware block.
  *
- * Copyright (C) 2016 Renesas Electronics Corporation
+ * Copyright (C) 2016-2018 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <sh_pfc.h>
-#include <asm/arch/r8a7795_es-gpio.h>
+#include <asm/arch/gpio.h>
 
 #undef GPIO_FN
 #undef GPIO_GFN
