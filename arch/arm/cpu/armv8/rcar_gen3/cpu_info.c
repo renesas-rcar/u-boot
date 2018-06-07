@@ -63,7 +63,7 @@ int print_cpuinfo(void)
 		break;
 	case 0x52:
 		if ((rev_integer == 2) && (rev_fraction == 0))
-			printf("CPU: Renesas Electronics R8A7796 rev 1.1\n");
+			printf("CPU: Renesas Electronics R8A7796 rev 1.1/rev 1.2\n");
 		else {
 			printf("CPU: Renesas Electronics R8A7796 rev %d.%d\n",
 			       rev_integer, rev_fraction);
