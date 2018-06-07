@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <sh_pfc.h>
-#include <asm/arch/r8a77990-gpio.h>
+#include <asm/arch/gpio.h>
 
 #define CPU_32_PORT(fn, pfx, sfx)				\
 	PORT_10(fn, pfx, sfx),					\
