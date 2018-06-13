@@ -292,9 +292,35 @@ out:
 }
 #endif
 
+static void renesas_sdhi_set_clk(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	u32 tmp;
+
+	if (!mmc->clock)
+		return;
+
+	/* Stop the clock before changing its rate to avoid a glitch signal */
+	tmp = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
+	tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
+	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
+
+	if ((mmc->selected_mode == UHS_SDR104) ||
+	    (mmc->selected_mode == MMC_HS_200)) {
+		clk_set_rate(&priv->clk, 400000000);
+	} else {
+		clk_set_rate(&priv->clk, 200000000);
+	}
+}
+
 static int renesas_sdhi_set_ios(struct udevice *dev)
 {
-	int ret = tmio_sd_set_ios(dev);
+	int ret;
+
+	renesas_sdhi_set_clk(dev);
+
+	ret = tmio_sd_set_ios(dev);
 
 	mdelay(10);
 
