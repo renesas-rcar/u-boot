@@ -1,0 +1,26 @@
+/*
+ * Device Tree Source for the Salvator-XS board
+ *
+ * Copyright (C) 2018 Renesas Electronics Corporation
+ */
+
+#include "salvator-common.dtsi"
+
+/ {
+	model = "Renesas Salvator-XS board";
+	compatible = "renesas,salvator-xs";
+};
+
+&extal_clk {
+	clock-frequency = <16640000>;
+};
+
+&i2c4 {
+	versaclock6: clock-generator@6a {
+		compatible = "idt,5p49v6901";
+		reg = <0x6a>;
+		#clock-cells = <1>;
+		clocks = <&x23_clk>;
+		clock-names = "xin";
+	};
+};
