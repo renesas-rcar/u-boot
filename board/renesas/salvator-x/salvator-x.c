@@ -100,3 +100,19 @@ void reset_cpu(ulong addr)
 	writel(RST_CODE, RST_CA57RESCNT);
 #endif
 }
+
+void board_add_ram_info(int use_default)
+{
+	int i;
+
+	printf("\n");
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (!gd->bd->bi_dram[i].size)
+			break;
+		printf("Bank #%d: 0x%09llx - 0x%09llx, ", i,
+		       (unsigned long long)(gd->bd->bi_dram[i].start),
+		       (unsigned long long)(gd->bd->bi_dram[i].start
+		       + gd->bd->bi_dram[i].size - 1));
+		print_size(gd->bd->bi_dram[i].size, "\n");
+	};
+}
