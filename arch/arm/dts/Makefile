@@ -463,6 +463,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77965-salvator-x.dtb \
 	r8a77970-eagle.dtb \
 	r8a77990-ebisu.dtb \
+	r8a77990-ebisu-4d.dtb \
 	r8a77995-draak.dtb
 
 dtb-$(CONFIG_SOC_KEYSTONE) += keystone-k2hk-evm.dtb \
