@@ -461,6 +461,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a7795-salvator-xs-4x2g.dtb \
 	r8a7796-m3ulcb.dtb \
 	r8a7796-salvator-x.dtb \
+	r8a7796-salvator-xs.dtb \
 	r8a77965-salvator-x.dtb \
 	r8a77970-eagle.dtb \
 	r8a77990-ebisu.dtb \
