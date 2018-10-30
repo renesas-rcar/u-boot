@@ -67,6 +67,11 @@ int mach_cpu_init(void);
  */
 int arch_fsp_init(void);
 
+/**
+ * board_add_ram_info() - platform specific RAM information
+ */
+void board_add_ram_info(int use_default);
+
 int dram_init(void);
 
 /**
