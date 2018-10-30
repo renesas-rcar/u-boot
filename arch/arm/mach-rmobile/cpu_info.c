@@ -66,7 +66,7 @@ static const struct {
 
 int print_cpuinfo(void)
 {
-	int i = 0;
+	unsigned int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
 
 	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796) {
