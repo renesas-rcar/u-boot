@@ -21,7 +21,14 @@
 #define CFG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
 /* Environment setting */
+#if CONFIG_IS_ENABLED(CMD_USB)
+#define EXTRA_ENV_RCAR_BOARD_SETTINGS "usb_pgood_delay=2000\0"
+#else
+#define EXTRA_ENV_RCAR_BOARD_SETTINGS "\0"
+#endif
+
 #define CFG_EXTRA_ENV_SETTINGS		\
+	EXTRA_ENV_RCAR_BOARD_SETTINGS	\
 	"bootm_size=0x10000000\0"
 
 #endif	/* __RCAR_GEN3_COMMON_H */
