@@ -116,10 +116,7 @@ static int tmio_sd_check_error(struct udevice *dev)
 
 	if (info2 & (TMIO_SD_INFO2_ERR_END | TMIO_SD_INFO2_ERR_CRC |
 		     TMIO_SD_INFO2_ERR_IDX)) {
-		/* Error in the tuning sequence requires no message output */
-		if (priv->cmdidx != MMC_CMD_SEND_TUNING_BLOCK &&
-		    priv->cmdidx != MMC_CMD_SEND_TUNING_BLOCK_HS200)
-			dev_err(dev, "communication out of sync\n");
+		dev_err(dev, "communication out of sync\n");
 		return -EILSEQ;
 	}
 
@@ -466,7 +463,6 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		dev_err(dev, "unknown response type\n");
 		return -EINVAL;
 	}
-	priv->cmdidx = cmd->cmdidx;
 
 	dev_dbg(dev, "sending CMD%d (SD_CMD=%08x, SD_ARG=%08x)\n",
 		cmd->cmdidx, tmp, cmd->cmdarg);
