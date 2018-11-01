@@ -133,7 +133,6 @@ struct tmio_sd_priv {
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
 #endif
-	ushort cmdidx;
 };
 
 int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
