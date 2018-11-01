@@ -59,6 +59,7 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
+	"usb_pgood_delay=2000\0"	\
 	"fdt_high=0xffffffffffffffff\0"	\
 	"initrd_high=0xffffffffffffffff\0"
 
