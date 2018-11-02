@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot for the Salvator-XS board
+ *
+ * Copyright (C) 2018 Renesas Electronisc Corporation
+ */
+
+#include "r8a77965-salvator-xs.dts"
+#include "r8a77965-u-boot.dtsi"
