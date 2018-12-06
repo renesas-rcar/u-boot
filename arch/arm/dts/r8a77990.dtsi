@@ -293,6 +293,7 @@
 			power-domains = <&sysc 32>;
 			resets = <&cpg 812>;
 			phy-mode = "rgmii";
+			max-speed = <100>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
