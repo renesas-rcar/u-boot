@@ -13,6 +13,7 @@
 #include <env.h>
 #include <image.h>
 #include <net.h>
+#include <cpu_func.h>
 
 static int netboot_common(enum proto_t, struct cmd_tbl *, int, char * const []);
 
@@ -271,6 +272,9 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		bootstage_error(BOOTSTAGE_ID_NET_LOADED);
 		return CMD_RET_SUCCESS;
 	}
+
+	/* flush cache */
+	flush_cache(image_load_addr, ALIGN(size, ARCH_DMA_MINALIGN));
 
 	bootstage_mark(BOOTSTAGE_ID_NET_LOADED);
 
