@@ -1012,13 +1012,22 @@ static int renesas_sdhi_probe(struct udevice *dev)
 	return ret;
 }
 
+static int renesas_sdhi_remove(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+
+	return clk_disable(&priv->clk);
+}
+
 U_BOOT_DRIVER(renesas_sdhi) = {
 	.name = "renesas-sdhi",
 	.id = UCLASS_MMC,
 	.of_match = renesas_sdhi_match,
 	.bind = tmio_sd_bind,
 	.probe = renesas_sdhi_probe,
+	.remove = renesas_sdhi_remove,
 	.priv_auto_alloc_size = sizeof(struct tmio_sd_priv),
 	.platdata_auto_alloc_size = sizeof(struct tmio_sd_plat),
 	.ops = &renesas_sdhi_ops,
+	.flags = DM_FLAG_OS_PREPARE,
 };
