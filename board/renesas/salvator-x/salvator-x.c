@@ -32,6 +32,9 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define DVFS_MSTP926		BIT(26)
+#define GPIO2_MSTP910		BIT(10)
+#define GPIO3_MSTP909		BIT(9)
+#define GPIO5_MSTP907		BIT(7)
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
 int board_early_init_f(void)
@@ -83,6 +86,23 @@ void reset_cpu(ulong addr)
 	/* only CA57 ? */
 	writel(RST_CODE, RST_CA57RESCNT);
 #endif
+}
+
+void board_cleanup_before_linux(void)
+{
+	/*
+	 * Turn off the clock that was turned on outside
+	 * the control of the driver
+	 */
+	/* Configure the HSUSB block */
+	mstp_setbits_le32(SMSTPCR7, SMSTPCR7, HSUSB_MSTP704);
+
+	/*
+	 * Because of the control order dependency,
+	 * turn off a specific clock at this timing
+	 */
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
+			  GPIO2_MSTP910 | GPIO3_MSTP909 | GPIO5_MSTP907);
 }
 
 #ifdef CONFIG_MULTI_DTB_FIT
