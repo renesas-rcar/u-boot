@@ -32,8 +32,22 @@ void sdelay(unsigned long loops)
 			  "b.ne 1b" : "=r" (loops) : "0"(loops) : "cc");
 }
 
+void board_cleanup_before_linux(void)
+	__attribute__((weak, alias("__board_cleanup_before_linux")));
+
+static void __board_cleanup_before_linux(void)
+{
+}
+
 int cleanup_before_linux(void)
 {
+#if defined(CONFIG_RCAR_GEN3)
+	/*
+	 * Take action again that could not be handled
+	 * by device_remove() processing
+	 */
+	board_cleanup_before_linux();
+#endif
 	/*
 	 * this function is called just before we call linux
 	 * it prepares the processor for linux
