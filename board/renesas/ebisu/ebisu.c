@@ -29,6 +29,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define GPIO1_MSTP911		BIT(11)
+#define GPIO3_MSTP909		BIT(9)
+#define GPIO5_MSTP907		BIT(7)
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -49,4 +53,14 @@ int board_init(void)
 void reset_cpu(ulong addr)
 {
 	writel(RST_CA53_CODE, RST_CA53RESCNT);
+}
+
+void board_cleanup_before_linux(void)
+{
+	/*
+	 * Because of the control order dependency,
+	 * turn off a specific clock at this timing
+	 */
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
+			  GPIO1_MSTP911 | GPIO3_MSTP909 | GPIO5_MSTP907);
 }
