@@ -26,6 +26,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define GPIO1_MSTP911		BIT(11)
+#define GPIO3_MSTP909		BIT(9)
+#define GPIO5_MSTP907		BIT(7)
+
 void s_init(void)
 {
 }
@@ -79,4 +83,14 @@ void board_add_ram_info(int use_default)
 		      + gd->bd->bi_dram[i].size - 1));
 		print_size(gd->bd->bi_dram[i].size, "\n");
 	};
+}
+
+void board_cleanup_before_linux(void)
+{
+	/*
+	 * Because of the control order dependency,
+	 * turn off a specific clock at this timing
+	 */
+	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
+			  GPIO1_MSTP911 | GPIO3_MSTP909 | GPIO5_MSTP907);
 }
