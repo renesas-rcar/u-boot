@@ -7,7 +7,6 @@ config SYS_ARCH
 config ARM64
 	bool
 	select PHYS_64BIT
-	select SYS_CACHE_SHIFT_6
 
 if ARM64
 config POSITION_INDEPENDENT
@@ -319,9 +318,11 @@ config SYS_CACHE_SHIFT_5
 
 config SYS_CACHE_SHIFT_6
 	bool
+	default y if ARM64 && !RCAR_GEN3
 
 config SYS_CACHE_SHIFT_7
 	bool
+	default y if ARM64 && RCAR_GEN3
 
 config SYS_CACHELINE_SIZE
 	int
