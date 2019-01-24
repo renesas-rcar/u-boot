@@ -6,7 +6,7 @@
  *
  * Clock configuration based on Linux i2c-rcar.c:
  * Copyright (C) 2014-15 Wolfram Sang <wsa@sang-engineering.com>
- * Copyright (C) 2011-2015 Renesas Electronics Corporation
+ * Copyright (C) 2011-2019 Renesas Electronics Corporation
  * Copyright (C) 2012-14 Renesas Solutions Corp.
  *   Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
  */
@@ -167,7 +167,7 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 			icmcr |= RCAR_I2C_ICMCR_FSB;
 
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+		writel(~(u32)RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDR, true, 100, true);
@@ -177,7 +177,7 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 		msg->buf[i] = readl(priv->base + RCAR_I2C_ICRXD_ICTXD) & 0xff;
 	}
 
-	writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+	writel(~(u32)RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 	return rcar_i2c_finish(dev);
 }
@@ -191,7 +191,7 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 	for (i = 0; i < msg->len; i++) {
 		writel(msg->buf[i], priv->base + RCAR_I2C_ICRXD_ICTXD);
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+		writel(~(u32)RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDE, true, 100, true);
@@ -199,7 +199,7 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 			return ret;
 	}
 
-	writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+	writel(~(u32)RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 	icmcr |= RCAR_I2C_ICMCR_FSB;
 	writel(icmcr, priv->base + RCAR_I2C_ICMCR);
 
