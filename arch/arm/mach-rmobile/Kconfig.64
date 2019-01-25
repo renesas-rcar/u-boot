@@ -64,6 +64,9 @@ config TARGET_EAGLE
 config TARGET_EBISU
 	bool "Ebisu board"
 	imply R8A77990
+	imply SYS_MALLOC_F
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
           Support for Renesas R-Car Gen3 Ebisu platform
 
@@ -103,10 +106,12 @@ source "board/renesas/ulcb/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_SALVATOR_X
+	default 0x80000 if TARGET_EBISU
 	default 0x80000 if TARGET_ULCB
 
 config MULTI_DTB_FIT_USER_DEF_ADDR
 	default 0x49000000 if TARGET_SALVATOR_X
+	default 0x49000000 if TARGET_EBISU
 	default 0x49000000 if TARGET_ULCB
 
 config SYS_MALLOC_F_LEN
