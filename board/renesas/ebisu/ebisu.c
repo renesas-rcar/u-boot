@@ -3,7 +3,7 @@
  * board/renesas/ebisu/ebisu.c
  *     This file is Ebisu board support.
  *
- * Copyright (C) 2018 Marek Vasut <marek.vasut+renesas@gmail.com>
+ * Copyright (C) 2018-2019 Renesas Electronics Corporation
  */
 
 #include <common.h>
@@ -23,6 +23,7 @@
 #include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
+#include "../rcar-common/board_detect.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,3 +95,39 @@ void board_cleanup_before_linux(void)
 	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO1_MSTP911 | GPIO3_MSTP909 | GPIO5_MSTP907);
 }
+
+#if defined(CONFIG_MULTI_DTB_FIT)
+int board_fit_config_name_match(const char *name)
+{
+	int ret;
+	struct rcar_dram_conf_t dram_conf_addr;
+	struct rcar_dt_fit_t dt_fit;
+
+	dt_fit.board_id = 0xff;
+	dt_fit.board_rev = 0xff;
+	/*
+	 * The name address register may be overwritten by the board_detect
+	 * function. Backup it.
+	 */
+	dt_fit.target_name = name;
+
+	ret = board_detect_type(&dt_fit);
+	if (ret)
+		return -1;
+
+	ret = board_detect_dram(&dram_conf_addr);
+
+	switch (dt_fit.board_id) {
+	case BOARD_ID_EBISU:
+		if (!strcmp(dt_fit.target_name, "r8a77990-ebisu-u-boot"))
+			return 0;
+		break;
+	case BOARD_ID_EBISU_4D:
+		if (!strcmp(dt_fit.target_name, "r8a77990-ebisu-4d-u-boot"))
+			return 0;
+		break;
+	}
+
+	return -1;
+}
+#endif
