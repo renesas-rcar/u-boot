@@ -15,6 +15,7 @@
 #include <power/regulator.h>
 #include <asm/unaligned.h>
 
+#include "mmc_private.h"
 #include "tmio-common.h"
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
@@ -533,8 +534,29 @@ static int renesas_sdhi_probe(struct udevice *dev)
 static int renesas_sdhi_remove(struct udevice *dev)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	u32 caps_filtered;
+	int ret = 0;
 
-	return clk_disable(&priv->clk);
+	if (mmc->has_init) {
+		if (IS_SD(mmc)) {
+			caps_filtered = mmc->card_caps &
+			~(MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25) |
+			  MMC_CAP(UHS_SDR50) | MMC_CAP(UHS_DDR50) |
+			  MMC_CAP(UHS_SDR104));
+
+			ret = sd_select_mode_and_width(mmc, caps_filtered);
+		} else {
+			caps_filtered = mmc->card_caps &
+			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400));
+
+			ret = mmc_select_mode_and_width(mmc, caps_filtered);
+		}
+	}
+
+	clk_disable(&priv->clk);
+
+	return ret;
 }
 
 U_BOOT_DRIVER(renesas_sdhi) = {
