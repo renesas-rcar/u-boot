@@ -18,6 +18,10 @@ extern int mmc_set_blocklen(struct mmc *mmc, int len);
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 void mmc_adapter_card_type_ident(void);
 #endif
+#if !CONFIG_IS_ENABLED(MMC_TINY)
+int sd_select_mode_and_width(struct mmc *mmc, uint card_caps);
+int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
+#endif
 
 #if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
