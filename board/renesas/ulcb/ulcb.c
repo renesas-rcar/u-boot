@@ -3,7 +3,7 @@
  * board/renesas/ulcb/ulcb.c
  *     This file is ULCB board support.
  *
- * Copyright (C) 2017 Renesas Electronics Corporation
+ * Copyright (C) 2017-2019 Renesas Electronics Corporation
  */
 
 #include <common.h>
@@ -23,6 +23,7 @@
 #include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
+#include "../rcar-common/board_detect.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -120,3 +121,62 @@ void board_cleanup_before_linux(void)
 	mstp_setbits_le32(SMSTPCR9, SMSTPCR9,
 			  GPIO2_MSTP910 | GPIO3_MSTP909 | GPIO5_MSTP907);
 }
+
+#if defined(CONFIG_MULTI_DTB_FIT)
+int board_fit_config_name_match(const char *name)
+{
+	int ret;
+	int i;
+	int bank_num;
+	u64 bank_size;
+	struct rcar_dram_conf_t dram_conf_addr;
+	struct rcar_dt_fit_t dt_fit;
+
+	dt_fit.board_id = 0xff;
+	dt_fit.board_rev = 0xff;
+	/*
+	 * The name address register may be overwritten by the board_detect
+	 * function. Backup it.
+	 */
+	dt_fit.target_name = (char *)name;
+
+	ret = board_detect_type(&dt_fit);
+	if (ret)
+		return -1;
+
+	ret = board_detect_dram(&dram_conf_addr);
+
+	switch (dt_fit.board_id) {
+	case BOARD_ID_SK_PREM:
+		if (!ret) {
+			/* select memory type */
+			bank_num = 0;
+			for (i = 0; i < 4; i++) {
+				if (dram_conf_addr.address[i])
+					bank_num++;
+				else
+					break;
+			}
+			bank_size = dram_conf_addr.size[0];
+#if defined(CONFIG_R8A7795)
+			if (!strcmp(dt_fit.target_name,
+				    "r8a7795-h3ulcb-u-boot") &&
+			    bank_num == 4 && bank_size == 0x40000000) {
+				return 0;
+			} else if (!strcmp(dt_fit.target_name,
+					   "r8a7795-h3ulcb-4x2g-u-boot") &&
+				   bank_num == 4 && bank_size == 0x80000000) {
+				return 0;
+			}
+#endif
+		}
+		/* else works default : return -1 */
+		break;
+	case BOARD_ID_SK_PRO:
+		/* M3/M3N only use default dt */
+		break;
+	}
+
+	return -1;
+}
+#endif
