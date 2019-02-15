@@ -3,8 +3,36 @@
  * Device Tree Source extras for U-Boot for the Salvator-XS board
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
- * Copyright (C) 2018 Renesas Electronics Corporation
+ * Copyright (C) 2018-2019 Renesas Electronics Corporation
  */
 
 #include "r8a7795-salvator-xs-4x2g.dts"
 #include "r8a7795-u-boot.dtsi"
+
+&sdhi2_pins {
+	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
+	power-source = <1800>;
+};
+
+&sdhi2_pins_uhs {
+	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
+};
+
+&sdhi0 {
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr104;
+	max-frequency = <208000000>;
+};
+
+&sdhi2 {
+	mmc-hs400-1_8v;
+	max-frequency = <200000000>;
+};
+
+&sdhi3 {
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr104;
+	max-frequency = <208000000>;
+};
