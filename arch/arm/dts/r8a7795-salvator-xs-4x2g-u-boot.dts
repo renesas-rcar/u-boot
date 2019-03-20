@@ -9,6 +9,14 @@
 #include "r8a7795-salvator-xs-4x2g.dts"
 #include "r8a7795-u-boot.dtsi"
 
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
+
+&vcc_sdhi3 {
+	u-boot,off-on-delay-us = <20000>;
+};
+
 &sdhi2_pins {
 	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
 	power-source = <1800>;
