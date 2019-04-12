@@ -142,7 +142,7 @@ void board_cleanup_before_linux(void)
 int board_fit_config_name_match(const char *name)
 {
 	int ret;
-#if defined(CONFIG_R8A7795)
+#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796)
 	int i;
 	int bank_num;
 	u64 bank_size;
@@ -208,8 +208,26 @@ int board_fit_config_name_match(const char *name)
 		/* else works default : return -1 */
 #endif
 #if defined(CONFIG_R8A7796)
-		if (!strcmp(dt_fit.target_name, "r8a7796-salvator-xs-u-boot"))
-			return 0;
+		if (!ret) {
+			/* select memory type */
+			bank_num = 0;
+			for (i = 0; i < 4; i++) {
+				if (dram_conf_addr.address[i])
+					bank_num++;
+				else
+					continue;
+			}
+			bank_size = dram_conf_addr.size[0];
+			if (!strcmp(dt_fit.target_name, "r8a7796-salvator-xs-u-boot") &&
+			    bank_num == 2 && bank_size == 0x80000000) {
+				return 0;
+			} else if (!strcmp(dt_fit.target_name,
+					   "r8a7796-salvator-xs-2x4g-u-boot") &&
+				   bank_num == 2 && bank_size == 0x100000000) {
+				return 0;
+			}
+		}
+		/* else works default : return -1 */
 #endif
 #if defined(CONFIG_R8A77965)
 		if (!strcmp(dt_fit.target_name, "r8a77965-salvator-xs-u-boot"))
