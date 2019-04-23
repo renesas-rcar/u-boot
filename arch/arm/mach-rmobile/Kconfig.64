@@ -64,6 +64,11 @@ config TARGET_CONDOR
 	help
           Support for Renesas R-Car Gen3 Condor platform
 
+config TARGET_V3HSK
+	bool "V3HSK board"
+	help
+          Support for Renesas R-Car Gen3 V3HSK platform
+
 config TARGET_DRAAK
 	bool "Draak board"
 	imply R8A77995
@@ -121,6 +126,7 @@ config SYS_SOC
 	default "rmobile"
 
 source "board/renesas/condor/Kconfig"
+source "board/renesas/v3hsk/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
 source "board/renesas/v3msk/Kconfig"
