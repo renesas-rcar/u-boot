@@ -75,6 +75,14 @@
 	};
 };
 
+&i2c0 {
+	pinctrl-0 = <&i2c0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+	clock-frequency = <400000>;
+};
+
 &mmc0 {
 	/* used for on-board eMMC */
 	pinctrl-0 = <&mmc_pins>;
@@ -94,6 +102,11 @@
 		groups = "gether_mdio_a", "gether_rgmii",
 			 "gether_txcrefclk", "gether_txcrefclk_mega";
 		function = "gether";
+	};
+
+	i2c0_pins: i2c0 {
+		groups = "i2c0";
+		function = "i2c0";
 	};
 
 	mmc_pins: mmc {
