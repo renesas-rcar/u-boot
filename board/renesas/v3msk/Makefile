@@ -11,4 +11,5 @@ ifdef CONFIG_SPL_BUILD
 obj-y	:= ../rcar-common/gen3-spl.o
 else
 obj-y	:= v3msk.o ../rcar-common/common.o
+obj-$(CONFIG_SYSRESET)	+= cpld.o
 endif

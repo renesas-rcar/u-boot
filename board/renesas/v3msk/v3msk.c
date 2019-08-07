@@ -69,6 +69,7 @@ int board_init(void)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(SYSRESET)
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CA53RESCNT	(RST_BASE + 0x44)
@@ -90,3 +91,4 @@ void reset_cpu(ulong addr)
 	else
 		hang();
 }
+#endif
