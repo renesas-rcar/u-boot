@@ -13,6 +13,17 @@
 	aliases {
 		spi0 = &rpc;
 	};
+
+	cpld {
+		compatible = "renesas,v3msk-cpld";
+		status = "okay";
+		gpio-mdc = <&gpio1 21 0>;
+		gpio-mosi = <&gpio1 22 0>;
+		gpio-miso = <&gpio1 23 0>;
+		gpio-enablez = <&gpio1 19 0>;
+		/* Disable V3MSK Videobox Mini CANFD PHY */
+		gpios = <&gpio0 12 0>, <&gpio0 14 0>;
+	};
 };
 
 &avb {
