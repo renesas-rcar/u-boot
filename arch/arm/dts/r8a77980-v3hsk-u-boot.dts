@@ -32,3 +32,11 @@
 		status = "okay";
 	};
 };
+
+&i2c0 {
+	cpld {
+		compatible = "renesas,v3hsk-cpld";
+		reg = <0x70>;
+		u-boot,i2c-offset-len = <2>;
+	};
+};
