@@ -763,6 +763,13 @@ static int sh_eth_phy_config(struct udevice *dev)
 	struct phy_device *phydev;
 	int mask = 0xffffffff;
 
+	if (dm_gpio_is_valid(&priv->reset_gpio)) {
+		dm_gpio_set_value(&priv->reset_gpio, 1);
+		mdelay(20);
+		dm_gpio_set_value(&priv->reset_gpio, 0);
+		mdelay(1);
+	}
+
 	phydev = phy_find_by_mask(priv->bus, mask, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
