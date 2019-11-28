@@ -173,7 +173,28 @@ int board_fit_config_name_match(const char *name)
 		/* else works default : return -1 */
 		break;
 	case BOARD_ID_SK_PRO:
-		/* M3/M3N only use default dt */
+#if defined(CONFIG_R8A7796)
+		if (!ret) {
+			/* select memory type */
+			bank_num = 0;
+			for (i = 0; i < 4; i++) {
+				if (dram_conf_addr.address[i])
+					bank_num++;
+				else
+					continue;
+			}
+			bank_size = dram_conf_addr.size[0];
+			if (!strcmp(dt_fit.target_name, "r8a7796-m3ulcb-u-boot") &&
+			    bank_num == 2 && bank_size == 0x40000000) {
+				return 0;
+			} else if (!strcmp(dt_fit.target_name,
+					"r8a7796-m3ulcb-2x4g-u-boot") &&
+				   bank_num == 2 && bank_size == 0x100000000) {
+				return 0;
+			}
+
+		}
+#endif
 		break;
 	}
 
