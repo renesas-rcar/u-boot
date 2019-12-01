@@ -130,11 +130,11 @@ static int sh_eth_recv_start(struct sh_eth_dev *eth)
 	/* Check if the rx descriptor is ready */
 	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
 	if (port_info->rx_desc_cur->rd0 & RD_RACT)
-		return -EINVAL;
+		return -EAGAIN;
 
 	/* Check for errors */
 	if (port_info->rx_desc_cur->rd0 & RD_RFE)
-		return -EINVAL;
+		return 0;
 
 	return port_info->rx_desc_cur->rd1 & 0xffff;
 }
@@ -558,9 +558,11 @@ static int sh_eth_recv_common(struct sh_eth_dev *eth)
 	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
 
 	len = sh_eth_recv_start(eth);
-	if (len > 0) {
-		invalidate_cache(packet, len);
-		net_process_received_packet(packet, len);
+	if (len >= 0) {
+		if (len > 0) {
+			invalidate_cache(packet, len);
+			net_process_received_packet(packet, len);
+		}
 		sh_eth_recv_finish(eth);
 	} else
 		len = 0;
@@ -715,15 +717,13 @@ static int sh_ether_recv(struct udevice *dev, int flags, uchar **packetp)
 		*packetp = packet;
 
 		return len;
-	} else {
-		len = 0;
-
-		/* Restart the receiver if disabled */
-		if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
-			sh_eth_write(port_info, EDRRR_R, EDRRR);
-
-		return -EAGAIN;
 	}
+
+	/* Restart the receiver if disabled */
+	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
+		sh_eth_write(port_info, EDRRR_R, EDRRR);
+
+	return len;
 }
 
 static int sh_ether_free_pkt(struct udevice *dev, uchar *packet, int length)
