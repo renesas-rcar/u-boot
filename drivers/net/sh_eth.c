@@ -144,6 +144,8 @@ static void sh_eth_recv_finish(struct sh_eth_dev *eth)
 {
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
+	invalidate_cache(ADDR_TO_P2(port_info->rx_desc_cur->rd2), MAX_BUF_SIZE);
+
 	/* Make current descriptor available again */
 	if (port_info->rx_desc_cur->rd0 & RD_RDLE)
 		port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
@@ -212,8 +214,6 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 		goto err;
 	}
 
-	flush_cache_wback(port_info->tx_desc_alloc, alloc_desc_size);
-
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base =
 		(struct tx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->tx_desc_alloc);
@@ -231,6 +231,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	cur_tx_desc--;
 	cur_tx_desc->td0 |= TD_TDLE;
 
+	flush_cache_wback(port_info->tx_desc_alloc, alloc_desc_size);
 	/*
 	 * Point the controller to the tx descriptor list. Must use physical
 	 * addresses
@@ -266,8 +267,6 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 		goto err;
 	}
 
-	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
-
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base =
 		(struct rx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_alloc);
@@ -300,6 +299,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	/* Mark the end of the descriptors */
 	cur_rx_desc--;
 	cur_rx_desc->rd0 |= RD_RDLE;
+
+	invalidate_cache(port_info->rx_buf_alloc, NUM_RX_DESC * MAX_BUF_SIZE);
+	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
 
 	/* Point the controller to the rx descriptor list */
 	sh_eth_write(port_info, ADDR_TO_PHY(port_info->rx_desc_base), RDLAR);
