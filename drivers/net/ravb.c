@@ -304,7 +304,7 @@ static int ravb_phy_config(struct udevice *dev)
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct phy_device *phydev;
-	int mask = 0xffffffff, reg;
+	int reg;
 
 	if (dm_gpio_is_valid(&eth->reset_gpio)) {
 		dm_gpio_set_value(&eth->reset_gpio, 1);
@@ -313,11 +313,9 @@ static int ravb_phy_config(struct udevice *dev)
 		mdelay(1);
 	}
 
-	phydev = phy_find_by_mask(eth->bus, mask, pdata->phy_interface);
+	phydev = phy_connect(eth->bus, 0, dev, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev);
 
 	eth->phydev = phydev;
 
