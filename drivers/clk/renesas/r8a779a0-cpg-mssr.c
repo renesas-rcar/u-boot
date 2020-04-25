@@ -315,4 +315,5 @@ U_BOOT_DRIVER(clk_r8a779a0) = {
 	.ops		= &gen4_clk_ops,
 	.probe		= gen4_clk_probe,
 	.remove		= gen4_clk_remove,
+	.flags          = DM_FLAG_OS_PREPARE | DM_FLAG_VITAL,
 };
