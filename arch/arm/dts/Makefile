@@ -686,6 +686,7 @@ dtb-$(CONFIG_RCAR_GEN2) += \
 
 dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a7795-h3ulcb-u-boot.dtb \
+	r8a7795-h3ulcb-4x2g-u-boot.dtb \
 	r8a7795-salvator-x-u-boot.dtb \
 	r8a7795-salvator-xs-u-boot.dtb \
 	r8a7795-salvator-xs-2x2g-u-boot.dtb \
