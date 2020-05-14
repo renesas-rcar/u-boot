@@ -4,8 +4,10 @@
  */
 
 #define BOARD_ID_SALVATOR_X	0x00
+#define BOARD_ID_SK_PRO		0x02
 #define BOARD_ID_SALVATOR_XS	0x04
 #define BOARD_ID_EBISU		0x08
+#define BOARD_ID_SK_PREM	0x0b
 #define BOARD_ID_EBISU_4D	0x0d
 #define BOARD_ID_UNKNOWN	0xff
 #define BOARD_REV_UNKNOWN	0xff
