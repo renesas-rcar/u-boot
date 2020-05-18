@@ -33,6 +33,7 @@ enum sh_pfc_model {
 	SH_PFC_R8A77980,
 	SH_PFC_R8A77990,
 	SH_PFC_R8A77995,
+	SH_PFC_R8A779A0,
 };
 
 struct sh_pfc_pin_config {
@@ -128,12 +129,33 @@ u32 sh_pfc_read(struct sh_pfc *pfc, u32 reg)
 	return sh_pfc_read_raw_reg((void __iomem *)(uintptr_t)reg, 32);
 }
 
+u32 sh_pfc_get_unlock_reg(struct sh_pfc *pfc, u32 reg)
+{
+	u32 unlock_reg = pfc->info->unlock_reg ? pfc->info->unlock_reg : 0;
+	unsigned int i;
+
+	if (!pfc->info->unlock_regs)
+		return unlock_reg;
+
+	for (i = 0; i < pfc->info->unlock_regs_size; i++) {
+		u32 tmp = pfc->info->unlock_regs[i];
+
+		if (reg < tmp || reg > tmp + pfc->info->writable_area)
+			continue;
+
+		unlock_reg = tmp;
+		break;
+	}
+
+	return unlock_reg;
+}
+
 void sh_pfc_write(struct sh_pfc *pfc, u32 reg, u32 data)
 {
 	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
+		(void __iomem *)(uintptr_t)sh_pfc_get_unlock_reg(pfc, reg);
 
-	if (pfc->info->unlock_reg)
+	if (pfc->info->unlock_reg || pfc->info->unlock_regs)
 		sh_pfc_write_raw_reg(unlock_reg, 32, ~data);
 
 	sh_pfc_write_raw_reg((void __iomem *)(uintptr_t)reg, 32, data);
@@ -166,7 +188,7 @@ static void sh_pfc_write_config_reg(struct sh_pfc *pfc,
 {
 	void __iomem *mapped_reg;
 	void __iomem *unlock_reg =
-		(void __iomem *)(uintptr_t)pfc->info->unlock_reg;
+		(void __iomem *)(uintptr_t)sh_pfc_get_unlock_reg(pfc, crp->reg);
 	unsigned int pos;
 	u32 mask, data;
 
@@ -183,7 +205,7 @@ static void sh_pfc_write_config_reg(struct sh_pfc *pfc,
 	data &= mask;
 	data |= value;
 
-	if (pfc->info->unlock_reg)
+	if (pfc->info->unlock_reg || pfc->info->unlock_regs)
 		sh_pfc_write_raw_reg(unlock_reg, 32, ~data);
 
 	sh_pfc_write_raw_reg(mapped_reg, crp->reg_width, data);
@@ -875,6 +897,10 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A77995)
 		priv->pfc.info = &r8a77995_pinmux_info;
 #endif
+#ifdef CONFIG_PINCTRL_PFC_R8A779A0
+	if (model == SH_PFC_R8A779A0)
+		priv->pfc.info = &r8a779a0_pinmux_info;
+#endif
 
 	priv->pmx.pfc = &priv->pfc;
 	sh_pfc_init_ranges(&priv->pfc);
@@ -956,6 +982,13 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 		.data = SH_PFC_R8A77995,
 	},
 #endif
+#ifdef CONFIG_PINCTRL_PFC_R8A779A0
+	{
+		.compatible = "renesas,pfc-r8a779a0",
+		.data = SH_PFC_R8A779A0,
+	},
+#endif
+
 	{ },
 };
 
