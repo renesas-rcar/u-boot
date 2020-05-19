@@ -24,14 +24,20 @@
 #define GPIO_EDGLEVEL	0x24	/* Edge/level Select Register */
 #define GPIO_FILONOFF	0x28	/* Chattering Prevention On/Off Register */
 #define GPIO_BOTHEDGE	0x4c	/* One Edge/Both Edge Select Register */
+#define GPIO_INEN	0x50	/* General Input Enable Register */
 
 #define RCAR_MAX_GPIO_PER_BANK		32
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct gpio_rcar_info {
+	bool has_inen;
+};
+
 struct rcar_gpio_priv {
 	void __iomem		*regs;
 	int			pfc_offset;
+	bool			has_inen;
 };
 
 static int rcar_gpio_get_value(struct udevice *dev, unsigned offset)
@@ -63,7 +69,7 @@ static int rcar_gpio_set_value(struct udevice *dev, unsigned offset,
 }
 
 static void rcar_gpio_set_direction(void __iomem *regs, unsigned offset,
-				    bool output)
+				    bool output, bool has_inen)
 {
 	/*
 	 * follow steps in the GPIO documentation for
@@ -73,6 +79,14 @@ static void rcar_gpio_set_direction(void __iomem *regs, unsigned offset,
 
 	/* Configure postive logic in POSNEG */
 	clrbits_le32(regs + GPIO_POSNEG, BIT(offset));
+
+	/* Select "Input Enable/Disable" in INEN */
+	if (has_inen) {
+		if (output)
+			clrbits_le32(regs + GPIO_INEN, BIT(offset));
+		else
+			setbits_le32(regs + GPIO_INEN, BIT(offset));
+	}
 
 	/* Select "General Input/Output Mode" in IOINTSEL */
 	clrbits_le32(regs + GPIO_IOINTSEL, BIT(offset));
@@ -88,7 +102,7 @@ static int rcar_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct rcar_gpio_priv *priv = dev_get_priv(dev);
 
-	rcar_gpio_set_direction(priv->regs, offset, false);
+	rcar_gpio_set_direction(priv->regs, offset, false, priv->has_inen);
 
 	return 0;
 }
@@ -100,7 +114,7 @@ static int rcar_gpio_direction_output(struct udevice *dev, unsigned offset,
 
 	/* write GPIO value to output before selecting output mode of pin */
 	rcar_gpio_set_value(dev, offset, value);
-	rcar_gpio_set_direction(priv->regs, offset, true);
+	rcar_gpio_set_direction(priv->regs, offset, true, priv->has_inen);
 
 	return 0;
 }
@@ -140,11 +154,14 @@ static int rcar_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct rcar_gpio_priv *priv = dev_get_priv(dev);
+	struct gpio_rcar_info *info;
 	struct fdtdec_phandle_args args;
 	struct clk clk;
 	int node = dev_of_offset(dev);
 	int ret;
 
+	info = (struct gpio_rcar_info *)dev_get_driver_data(dev);
+	priv->has_inen = info->has_inen;
 	priv->regs = (void __iomem *)devfdt_get_addr(dev);
 	uc_priv->bank_name = dev->name;
 
@@ -169,16 +186,49 @@ static int rcar_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
+static const struct gpio_rcar_info gpio_rcar_info_gen2 = {
+	.has_inen = false,
+};
+
+static const struct gpio_rcar_info gpio_rcar_info_gen3 = {
+	.has_inen = false,
+};
+
+static const struct gpio_rcar_info gpio_rcar_info_v3u = {
+	.has_inen = true,
+};
+
 static const struct udevice_id rcar_gpio_ids[] = {
-	{ .compatible = "renesas,gpio-r8a7795" },
-	{ .compatible = "renesas,gpio-r8a7796" },
-	{ .compatible = "renesas,gpio-r8a77965" },
-	{ .compatible = "renesas,gpio-r8a77970" },
-	{ .compatible = "renesas,gpio-r8a77990" },
-	{ .compatible = "renesas,gpio-r8a77995" },
-	{ .compatible = "renesas,rcar-gen2-gpio" },
-	{ .compatible = "renesas,rcar-gen3-gpio" },
-	{ /* sentinel */ }
+	{
+		.compatible	= "renesas,gpio-r8a7795",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a7796",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a77965",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a77970",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a77990",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a77995",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		.compatible	= "renesas,gpio-r8a779a0",
+		.data		= (ulong)&gpio_rcar_info_v3u
+	}, {
+		.compatible	= "renesas,rcar-gen2-gpio",
+		.data		= (ulong)&gpio_rcar_info_gen2
+	}, {
+		.compatible	= "renesas,rcar-gen3-gpio",
+		.data		= (ulong)&gpio_rcar_info_gen3
+	}, {
+		/* sentinel */
+	}
 };
 
 U_BOOT_DRIVER(rcar_gpio) = {
