@@ -48,6 +48,12 @@ choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
 
+config TARGET_FALCON
+	bool "Falcon board"
+	imply R8A779A0
+	help
+          Support for Renesas R-Car Gen3 Falcon platform
+
 config TARGET_CONDOR
 	bool "Condor board"
 	imply R8A77980
@@ -102,6 +108,7 @@ endchoice
 config SYS_SOC
 	default "rmobile"
 
+source "board/renesas/falcon/Kconfig"
 source "board/renesas/condor/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"

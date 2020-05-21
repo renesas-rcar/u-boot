@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot for the Falcon board
+ *
+ * Copyright (C) 2020 Renesas Electronics Corp.
+ */
+
+#include "r8a779a0-falcon.dts"
+#include "r8a779a0-u-boot.dtsi"
+
+/ {
+	aliases {
+		spi0 = &rpc;
+	};
+};
+
+&rpc {
+	bank-width = <2>;
+	num-cs = <1>;
+	spi-max-frequency = <40000000>;
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+		status = "okay";
+		/delete-node/ partitions;
+	};
+};
+
+&pfc {
+	avb0_pins: avb0 {
+		mux {
+			groups = "avb0_link", "avb0_mdio", "avb0_rgmii",
+				 "avb0_txcrefclk", "avb0_magic";
+		};
+
+		pins_mii_tx {
+			pins = "PIN_AVB0_TX_CTL", "PIN_AVB0_TXC", "PIN_AVB0_TD0",
+				"PIN_AVB0_TD1", "PIN_AVB0_TD2", "PIN_AVB0_TD3",
+				"PIN_AVB0_TXCREFCLK", "PIN_AVB0_MAGIC";
+		};
+	};
+};
+
