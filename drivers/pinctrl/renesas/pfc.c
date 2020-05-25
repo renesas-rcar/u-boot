@@ -36,7 +36,9 @@ enum sh_pfc_model {
 };
 
 struct sh_pfc_pin_config {
-	u32 type;
+	unsigned int mux_mark;
+	bool mux_set;
+	bool gpio_enabled;
 };
 
 struct sh_pfc_pinctrl {
@@ -484,14 +486,11 @@ static int sh_pfc_gpio_request_enable(struct udevice *dev,
 	idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	cfg = &pmx->configs[idx];
 
-	if (cfg->type != PINMUX_TYPE_NONE)
-		return -EBUSY;
-
 	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
 	if (ret)
 		return ret;
 
-	cfg->type = PINMUX_TYPE_GPIO;
+	cfg->gpio_enabled = true;
 
 	return 0;
 }
@@ -520,7 +519,10 @@ static int sh_pfc_gpio_disable_free(struct udevice *dev,
 	idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	cfg = &pmx->configs[idx];
 
-	cfg->type = PINMUX_TYPE_NONE;
+	cfg->gpio_enabled = false;
+	/* If mux is already set, this configures it here */
+	if (cfg->mux_set)
+		sh_pfc_config_mux(pfc, cfg->mux_mark, PINMUX_TYPE_FUNCTION);
 
 	return 0;
 }
@@ -535,7 +537,7 @@ static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
 	int idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
 
-	if (cfg->type != PINMUX_TYPE_NONE)
+	if (cfg->gpio_enabled)
 		return -EBUSY;
 
 	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_FUNCTION);
@@ -555,16 +557,27 @@ static int sh_pfc_pinctrl_group_set(struct udevice *dev, unsigned group_selector
 		int idx = sh_pfc_get_pin_index(pfc, grp->pins[i]);
 		struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
 
-		if (cfg->type != PINMUX_TYPE_NONE) {
+		/*
+		 * This driver cannot manage both gpio and mux when the gpio
+		 * pin is already enabled. So, this function fails.
+		 */
+		if (cfg->gpio_enabled) {
 			ret = -EBUSY;
 			goto done;
 		}
-	}
 
-	for (i = 0; i < grp->nr_pins; ++i) {
 		ret = sh_pfc_config_mux(pfc, grp->mux[i], PINMUX_TYPE_FUNCTION);
 		if (ret < 0)
-			break;
+			goto done;
+	}
+
+	/* All group pins are configured, mark the pins as mux_set */
+	for (i = 0; i < grp->nr_pins; ++i) {
+		int idx = sh_pfc_get_pin_index(pfc, grp->pins[i]);
+		struct sh_pfc_pin_config *cfg = &pmx->configs[idx];
+
+		cfg->mux_set = true;
+		cfg->mux_mark = grp->mux[i];
 	}
 
 done:
@@ -790,18 +803,11 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 
 static int sh_pfc_map_pins(struct sh_pfc *pfc, struct sh_pfc_pinctrl *pmx)
 {
-	unsigned int i;
-
 	/* Allocate and initialize the pins and configs arrays. */
 	pmx->configs = kzalloc(sizeof(*pmx->configs) * pfc->info->nr_pins,
 				    GFP_KERNEL);
 	if (unlikely(!pmx->configs))
 		return -ENOMEM;
-
-	for (i = 0; i < pfc->info->nr_pins; ++i) {
-		struct sh_pfc_pin_config *cfg = &pmx->configs[i];
-		cfg->type = PINMUX_TYPE_NONE;
-	}
 
 	return 0;
 }
