@@ -19,8 +19,30 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CPGWPR  0xE6150000
 #define CPGWPCR 0xE6150004
 
+#define	EXTAL_CLK	16666600u
+#define CNTCR_BASE	0xE6080000
+#define	CNTFID0		(CNTCR_BASE + 0x020)
+#define CNTCR_EN	BIT(0)
+
+void init_generic_timer(void)
+{
+	u32 freq, val;
+
+	/* Set frequency data in CNTFID0 */
+	freq = EXTAL_CLK;
+
+	/* Update memory mapped and register based freqency */
+	__asm__ volatile ("msr cntfrq_el0, %0" :: "r" (freq));
+	writel(freq, CNTFID0);
+
+	/* Enable counter */
+	val = readl(CNTCR_BASE);
+	writel(val | CNTCR_EN, CNTCR_BASE);
+}
+
 void s_init(void)
 {
+	init_generic_timer();
 }
 
 int board_early_init_f(void)
