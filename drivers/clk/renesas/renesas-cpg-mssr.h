@@ -29,6 +29,7 @@ struct cpg_mssr_info {
 	unsigned int			clk_extal_usb_id;
 	unsigned int			pll0_div;
 	const void			*(*get_pll_config)(const u32 cpg_mode);
+	unsigned int			reset_modemr;
 };
 
 /*
