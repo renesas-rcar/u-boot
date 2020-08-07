@@ -369,7 +369,7 @@ int gen3_clk_probe(struct udevice *dev)
 	struct cpg_mssr_info *info =
 		(struct cpg_mssr_info *)dev_get_driver_data(dev);
 	fdt_addr_t rst_base;
-	u32 cpg_mode;
+	u32 cpg_mode, rst_modemr;
 	int ret;
 
 	priv->base = (struct gen3_base *)devfdt_get_addr(dev);
@@ -385,7 +385,8 @@ int gen3_clk_probe(struct udevice *dev)
 	if (rst_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	cpg_mode = readl(rst_base + CPG_RST_MODEMR);
+	rst_modemr = info->reset_modemr ? info->reset_modemr : CPG_RST_MODEMR;
+	cpg_mode = readl(rst_base + rst_modemr);
 
 	priv->cpg_pll_config =
 		(struct rcar_gen3_cpg_pll_config *)info->get_pll_config(cpg_mode);
