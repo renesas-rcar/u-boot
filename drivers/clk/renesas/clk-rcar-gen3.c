@@ -97,9 +97,12 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
 			return ret;
 
 		if (core->type == CLK_TYPE_GEN3_MDSEL) {
+			if (priv->cpg_mode & BIT(core->offset))
+				parent->id = core->parent & 0xffff;
+			else
+				parent->id = core->parent >> 16;
+
 			parent->dev = clk->dev;
-			parent->id = core->parent >> (priv->sscg ? 16 : 0);
-			parent->id &= 0xffff;
 			return 0;
 		}
 	}
@@ -160,7 +163,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, div, prediv, postdiv;
+	u32 value, mult, div, prediv, postdiv, parent_id;
 	u64 rate = 0;
 	int i, ret;
 
@@ -258,12 +261,17 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_MDSEL:
-		div = (core->div >> (priv->sscg ? 16 : 0)) & 0xffff;
+		if (priv->cpg_mode & BIT(core->offset)) {
+			parent_id = core->parent & 0xffff;
+			div = core->div & 0xffff;
+		} else {
+			parent_id = core->parent >> 16;
+			div = core->div >> 16;
+		}
 		rate = gen3_clk_get_rate64(&parent) / div;
-		debug("%s[%i] PE clk: parent=%i div=%u => rate=%llu\n",
+		debug("%s[%i] MDSEL clk: parent=%i div=%u => rate=%llu\n",
 		      __func__, __LINE__,
-		      (core->parent >> (priv->sscg ? 16 : 0)) & 0xffff,
-		      div, rate);
+		      parent_id, div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
@@ -384,7 +392,7 @@ int gen3_clk_probe(struct udevice *dev)
 	if (!priv->cpg_pll_config->extal_div)
 		return -EINVAL;
 
-	priv->sscg = !(cpg_mode & BIT(12));
+	priv->cpg_mode = cpg_mode;
 
 	ret = clk_get_by_name(dev, "extal", &priv->clk_extal);
 	if (ret < 0)
