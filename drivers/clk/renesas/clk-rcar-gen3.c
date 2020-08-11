@@ -28,6 +28,12 @@
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
 
+#define CPG_V3U_PLL20CR		0x0834
+#define CPG_V3U_PLL21CR		0x0838
+#define CPG_V3U_PLL30CR		0x083c
+#define CPG_V3U_PLL31CR		0x0840
+#define CPG_V3U_PLL4CR		0x0844
+
 #define CPG_RPC_PREDIV_MASK	0x3
 #define CPG_RPC_PREDIV_OFFSET	3
 #define CPG_RPC_POSTDIV_MASK	0x7
@@ -163,7 +169,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, mult, div, prediv, postdiv, parent_id;
+	u32 value, mult, div, prediv, postdiv, parent_id, offset = 0;
 	u64 rate = 0;
 	int i, ret;
 
@@ -220,6 +226,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL1:
+	case CLK_TYPE_V3U_PLL1:
 		rate = gen3_clk_get_rate64(&parent) * pll_config->pll1_mult;
 		rate /= pll_config->pll1_div;
 		debug("%s[%i] PLL1 clk: parent=%i mul=%i div=%i => rate=%llu\n",
@@ -229,7 +236,16 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL2:
-		value = readl(priv->base + CPG_PLL2CR);
+	case CLK_TYPE_V3U_PLL20:
+	case CLK_TYPE_V3U_PLL21:
+		if (core->type == CLK_TYPE_V3U_PLL20)
+			offset = CPG_V3U_PLL20CR;
+		else if (core->type == CLK_TYPE_V3U_PLL21)
+			offset = CPG_V3U_PLL21CR;
+		else
+			offset = CPG_PLL2CR;
+
+		value = readl(priv->base + offset);
 		mult = (((value >> 24) & 0x7f) + 1) * 2;
 		rate = gen3_clk_get_rate64(&parent) * mult;
 		debug("%s[%i] PLL2 clk: parent=%i mult=%u => rate=%llu\n",
@@ -245,12 +261,41 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		      pll_config->pll3_div, rate);
 		return rate;
 
+	case CLK_TYPE_V3U_PLL30:
+	case CLK_TYPE_V3U_PLL31:
+		if (core->type == CLK_TYPE_V3U_PLL30)
+			offset = CPG_V3U_PLL30CR;
+		else if (core->type == CLK_TYPE_V3U_PLL31)
+			offset = CPG_V3U_PLL31CR;
+
+		value = readl(priv->base + offset);
+		mult = (((value >> 24) & 0x7f) + 1) * 2;
+		rate = gen3_clk_get_rate64(&parent) * mult;
+		debug("%s[%i] PLL3 clk: parent=%i mult=%u => rate=%llu\n",
+		      __func__, __LINE__, core->parent, mult, rate);
+		return rate;
+
 	case CLK_TYPE_GEN3_PLL4:
-		value = readl(priv->base + CPG_PLL4CR);
+	case CLK_TYPE_V3U_PLL4:
+		if (core->type == CLK_TYPE_V3U_PLL4)
+			offset = CPG_V3U_PLL4CR;
+		else
+			offset = CPG_PLL4CR;
+
+		value = readl(priv->base + offset);
 		mult = (((value >> 24) & 0x7f) + 1) * 2;
 		rate = gen3_clk_get_rate64(&parent) * mult;
 		debug("%s[%i] PLL4 clk: parent=%i mult=%u => rate=%llu\n",
 		      __func__, __LINE__, core->parent, mult, rate);
+		return rate;
+
+	case CLK_TYPE_V3U_PLL5:
+		rate = gen3_clk_get_rate64(&parent) * pll_config->pll5_mult;
+		rate /= pll_config->pll5_div;
+		debug("%s[%i] PLL5 clk: parent=%i mul=%i div=%i => rate=%llu\n",
+		      __func__, __LINE__,
+		      core->parent, pll_config->pll5_mult,
+		      pll_config->pll5_div, rate);
 		return rate;
 
 	case CLK_TYPE_FF:

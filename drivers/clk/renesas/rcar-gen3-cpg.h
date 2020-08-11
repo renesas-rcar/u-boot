@@ -28,6 +28,13 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_RPCSRC,
 	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_RPCD2,
+	CLK_TYPE_V3U_PLL1,
+	CLK_TYPE_V3U_PLL20,
+	CLK_TYPE_V3U_PLL21,
+	CLK_TYPE_V3U_PLL30,
+	CLK_TYPE_V3U_PLL31,
+	CLK_TYPE_V3U_PLL4,
+	CLK_TYPE_V3U_PLL5,
 
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
@@ -67,6 +74,8 @@ struct rcar_gen3_cpg_pll_config {
 	u8 pll3_mult;
 	u8 pll3_div;
 	u8 osc_prediv;
+	u8 pll5_mult;
+	u8 pll5_div;
 };
 
 #define CPG_RPCCKCR	0x238
