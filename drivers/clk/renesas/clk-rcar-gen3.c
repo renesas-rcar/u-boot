@@ -205,6 +205,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_MAIN:
+	case CLK_TYPE_R8A779A0_MAIN:
 		rate = gen3_clk_get_rate64(&parent) / pll_config->extal_div;
 		debug("%s[%i] MAIN clk: parent=%i extal_div=%i => rate=%llu\n",
 		      __func__, __LINE__,
@@ -220,6 +221,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_PLL1:
+	case CLK_TYPE_R8A779A0_PLL1:
 		rate = gen3_clk_get_rate64(&parent) * pll_config->pll1_mult;
 		rate /= pll_config->pll1_div;
 		debug("%s[%i] PLL1 clk: parent=%i mul=%i div=%i => rate=%llu\n",
@@ -251,6 +253,24 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		rate = gen3_clk_get_rate64(&parent) * mult;
 		debug("%s[%i] PLL4 clk: parent=%i mult=%u => rate=%llu\n",
 		      __func__, __LINE__, core->parent, mult, rate);
+		return rate;
+
+	case CLK_TYPE_R8A779A0_PLL2X_3X:
+	case CLK_TYPE_R8A779A0_PLL4:
+		value = readl(priv->base + core->offset);
+		mult = (((value >> 24) & 0x7f) + 1) * 2;
+		rate = gen3_clk_get_rate64(&parent) * mult;
+		debug("%s[%i] V3U PLL clk: parent=%i mult=%u => rate=%llu\n",
+		      __func__, __LINE__, core->parent, mult, rate);
+		return rate;
+
+	case CLK_TYPE_R8A779A0_PLL5:
+		rate = gen3_clk_get_rate64(&parent) * pll_config->pll5_mult;
+		rate /= pll_config->pll5_div;
+		debug("%s[%i] PLL5 clk: parent=%i mul=%i div=%i => rate=%llu\n",
+		      __func__, __LINE__,
+		      core->parent, pll_config->pll5_mult,
+		      pll_config->pll5_div, rate);
 		return rate;
 
 	case CLK_TYPE_FF:
