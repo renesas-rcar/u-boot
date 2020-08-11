@@ -137,6 +137,8 @@ int renesas_clk_endisable(struct clk *clk, void __iomem *base,
 	const unsigned int reg = clkid / 100;
 	const unsigned int bit = clkid % 100;
 	const u32 bitmask = BIT(bit);
+	const u16 ctl_offset = info->mstpcr ? info->mstpcr[reg] : SMSTPCR(reg);
+	const u16 sts_offset = info->mstpsr ? info->mstpsr[reg] : MSTPSR(reg);
 
 	if (!renesas_clk_is_mod(clk))
 		return -EINVAL;
@@ -145,11 +147,11 @@ int renesas_clk_endisable(struct clk *clk, void __iomem *base,
 	      clkid, reg, bit, enable ? "ON" : "OFF");
 
 	if (enable) {
-		clrbits_le32(base + SMSTPCR(reg), bitmask);
-		return wait_for_bit_le32(base + MSTPSR(reg),
+		clrbits_le32(base + ctl_offset, bitmask);
+		return wait_for_bit_le32(base + sts_offset,
 				    bitmask, 0, 100, 0);
 	} else {
-		setbits_le32(base + SMSTPCR(reg), bitmask);
+		setbits_le32(base + ctl_offset, bitmask);
 		return 0;
 	}
 }
@@ -162,14 +164,21 @@ int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info)
 	clrbits_le32(TMU_BASE + TSTR0, TSTR0_STR0);
 
 	/* Stop module clock */
-	for (i = 0; i < info->mstp_table_size; i++) {
-		clrsetbits_le32(base + SMSTPCR(i),
-				info->mstp_table[i].sdis,
-				info->mstp_table[i].sen);
-		clrsetbits_le32(base + RMSTPCR(i),
-				info->mstp_table[i].rdis,
-				info->mstp_table[i].ren);
-	}
+	if (info->mstpcr)
+		for (i = 0; i < info->mstp_table_size; i++) {
+			clrsetbits_le32(base + info->mstpcr[i],
+					info->mstp_table[i].sdis,
+					info->mstp_table[i].sen);
+		}
+	else
+		for (i = 0; i < info->mstp_table_size; i++) {
+			clrsetbits_le32(base + SMSTPCR(i),
+					info->mstp_table[i].sdis,
+					info->mstp_table[i].sen);
+			clrsetbits_le32(base + RMSTPCR(i),
+					info->mstp_table[i].rdis,
+					info->mstp_table[i].ren);
+		}
 
 	return 0;
 }
