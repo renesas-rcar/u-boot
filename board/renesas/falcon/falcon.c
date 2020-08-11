@@ -16,12 +16,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CPGWPR  0xE6150000
+#define CPGWPCR 0xE6150004
+
 void s_init(void)
 {
 }
 
 int board_early_init_f(void)
 {
+	/* Unlock CPG access */
+	writel(0x5A5AFFFF, CPGWPR);
+	writel(0xA5A50000, CPGWPCR);
+
 	return 0;
 }
 
