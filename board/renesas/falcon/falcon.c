@@ -218,11 +218,40 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define	DRV0CTRL4	0xE6060080
+#define	DRV1CTRL4	0xE6060084
+#define	DRV2CTRL4	0xE6060088
+#define	DRV3CTRL4	0xE606008c
+
+void init_pfc_drvstr(void)
+{
+	u32 val;
+
+	val = readl(DRV0CTRL4);
+	val &= ~0x77777777;
+	val |=  0x77777777;
+	writel(~val, PFC_PMMR);
+	writel(val, DRV0CTRL4);
+
+	val = readl(DRV1CTRL4);
+	val &= ~0x77777777;
+	val |=  0x77777777;
+	writel(~val, PFC_PMMR);
+	writel(val, DRV1CTRL4);
+
+	val = readl(DRV2CTRL4);
+	val &= ~0x00077777;
+	val |=  0x00077777;
+	writel(~val, PFC_PMMR);
+	writel(val, DRV2CTRL4);
+}
+
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
+	init_pfc_drvstr();
 	init_gic_v3();
 
 	return 0;
