@@ -11,6 +11,18 @@
 
 #define GEN3_NR_REGIONS 16
 
+/*
+ * Traditionally, Secure protection area is from 0x43F00000 to 0x47DFFFFF
+ * and is excluded from the mapped area.
+ * However, in case U-Boot start address belongs to secure region, adjust the
+ * access range and the mapped area accordingly.
+ */
+#if defined(CONFIG_RCAR_HAS_SECURE_BASE)
+#define RCAR_END_PROC_AREA CONFIG_SYS_TEXT_BASE
+#else
+#define RCAR_END_PROC_AREA 0x47E00000UL
+#endif
+
 static struct mm_region gen3_mem_map[GEN3_NR_REGIONS] = {
 	{
 		.virt = 0x0UL,
@@ -26,8 +38,8 @@ static struct mm_region gen3_mem_map[GEN3_NR_REGIONS] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x47E00000UL,
-		.phys = 0x47E00000UL,
+		.virt = RCAR_END_PROC_AREA,
+		.phys = RCAR_END_PROC_AREA,
 		.size = 0x78200000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
@@ -91,8 +103,8 @@ void enable_caches(void)
 						PTE_BLOCK_INNER_SHARE;
 			i++;
 
-			start = 0x47E00000ULL;
-			size += 0x00200000ULL;
+			start = RCAR_END_PROC_AREA;
+			size += (0xC0000000ULL - RCAR_END_PROC_AREA);
 		}
 
 		gen3_mem_map[i].virt = start;
