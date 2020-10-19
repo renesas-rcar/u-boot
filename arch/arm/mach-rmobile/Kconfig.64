@@ -129,4 +129,10 @@ config MULTI_DTB_FIT_USER_DEF_ADDR
 config SYS_MALLOC_F_LEN
 	default 0x8000 if RCAR_GEN3
 
+config RCAR_HAS_SECURE_BASE
+	bool "Indicate that SYS_TEXT_BASE is in secure region"
+	default n
+	help
+          If enabled, the defined value for SYS_TEXT_BASE is in secure region
+
 endif
