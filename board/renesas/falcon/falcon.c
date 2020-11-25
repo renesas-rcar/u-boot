@@ -83,6 +83,12 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_SRESCR0	(RST_BASE + 0x18)
+#define RST_SPRES	0x5AA58000
+#define RST_WDTRSTCR	(RST_BASE + 0x10)
+#define RST_RWDT	0xA55A8002
+
 int board_init(void)
 {
 	/* address of boot parameters */
@@ -91,12 +97,12 @@ int board_init(void)
 	if (current_el() == 3)
 		init_gic_v3();
 
+	/* Enable RWDT reset */
+	if (current_el() == 3)
+		writel(RST_RWDT, RST_WDTRSTCR);
+
 	return 0;
 }
-
-#define RST_BASE	0xE6160000 /* Domain0 */
-#define RST_SRESCR0	(RST_BASE + 0x18)
-#define RST_SPRES	0x5AA58000
 
 void reset_cpu(void)
 {
