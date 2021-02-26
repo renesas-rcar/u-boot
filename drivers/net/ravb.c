@@ -671,6 +671,7 @@ int ravb_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id ravb_ids[] = {
 	{ .compatible = "renesas,etheravb-r8a7795" },
 	{ .compatible = "renesas,etheravb-r8a7796" },
+	{ .compatible = "renesas,etheravb-r8a77961" },
 	{ .compatible = "renesas,etheravb-r8a77965" },
 	{ .compatible = "renesas,etheravb-r8a77970" },
 	{ .compatible = "renesas,etheravb-r8a77990" },
