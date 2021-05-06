@@ -106,6 +106,11 @@ int testdram(void);
 int arch_setup_dest_addr(void);
 
 /**
+ * board_add_ram_info() - platform specific RAM information
+ */
+void board_add_ram_info(int use_default);
+
+/**
  * arch_reserve_stacks() - Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each
