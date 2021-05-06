@@ -112,6 +112,11 @@ phys_size_t get_effective_memsize(void);
 int testdram(void);
 
 /**
+ * board_add_ram_info() - platform specific RAM information
+ */
+void board_add_ram_info(int use_default);
+
+/**
  * arch_reserve_stacks() - Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each
