@@ -84,7 +84,7 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 void spi_flash_free(struct spi_flash *flash)
 {
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
-		spi_flash_mtd_unregister();
+		spi_flash_mtd_unregister(flash);
 
 	spi_free_slave(flash->spi);
 	free(flash);
@@ -151,7 +151,7 @@ int spi_flash_std_probe(struct udevice *dev)
 static int spi_flash_std_remove(struct udevice *dev)
 {
 	if (CONFIG_IS_ENABLED(SPI_FLASH_MTD))
-		spi_flash_mtd_unregister();
+		spi_flash_mtd_unregister(flash);
 
 	return 0;
 }
