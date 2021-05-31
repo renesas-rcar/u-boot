@@ -17,6 +17,7 @@
 	aliases {
 		serial0 = &scif2;
 		ethernet0 = &avb;
+		i2c0 = &i2c0;
 	};
 
 	backlight: backlight {
