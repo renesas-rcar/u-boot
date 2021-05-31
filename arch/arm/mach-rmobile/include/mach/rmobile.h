@@ -41,10 +41,24 @@
 #define RMOBILE_CPU_TYPE_R8A77995	0x58
 #define RMOBILE_CPU_TYPE_R8A779A0	0x59
 
+/* EEPROM BOARD IDs */
+#define BOARD_TYPE_SALVATOR_X		0x00
+#define BOARD_TYPE_STARTER_KIT		0x02
+#define BOARD_TYPE_EAGLE		0x03
+#define BOARD_TYPE_SALVATOR_XS		0x04
+#define BOARD_TYPE_DRAAK		0x07
+#define BOARD_TYPE_CONDOR		0x06
+#define BOARD_TYPE_EBISU		0x08
+#define BOARD_TYPE_STARTER_KIT_PRE	0x0B
+#define BOARD_TYPE_EBISU_4D		0x0D
+#define BOARD_TYPE_CONDOR_I		0x10
+#define BOARD_TYPE_UNKNOWN		0x1F
+
 #ifndef __ASSEMBLY__
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);
+int rcar_get_board_type(int busnum, int chip_addr, u32 *type);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_RMOBILE_H */

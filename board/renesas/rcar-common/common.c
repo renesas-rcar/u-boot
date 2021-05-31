@@ -13,6 +13,7 @@
 #include <dm/uclass-internal.h>
 #include <asm/arch/rmobile.h>
 #include <linux/libfdt.h>
+#include <i2c.h>
 
 #ifdef CONFIG_RCAR_GEN3
 
@@ -122,6 +123,56 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
+
+#define BOARD_CODE_MASK		0xF8
+#define BOARD_CODE_SHIFT	0x03
+#define BOARD_ID_UNKNOWN	0xFF
+
+static u8 rcar_get_board_type_by_chip(void)
+{
+	switch (rmobile_get_cpu_type()) {
+	case RMOBILE_CPU_TYPE_R8A7795:
+	case RMOBILE_CPU_TYPE_R8A7796:
+	case RMOBILE_CPU_TYPE_R8A77965:
+		return BOARD_TYPE_SALVATOR_X << BOARD_CODE_SHIFT;
+	case RMOBILE_CPU_TYPE_R8A77970:
+		return BOARD_TYPE_EAGLE << BOARD_CODE_SHIFT;
+	case RMOBILE_CPU_TYPE_R8A77980:
+		return BOARD_TYPE_CONDOR << BOARD_CODE_SHIFT;
+	case RMOBILE_CPU_TYPE_R8A77990:
+		return BOARD_TYPE_EBISU << BOARD_CODE_SHIFT;
+	case RMOBILE_CPU_TYPE_R8A77995:
+		return BOARD_TYPE_DRAAK << BOARD_CODE_SHIFT;
+	default:
+		return BOARD_TYPE_UNKNOWN << BOARD_CODE_SHIFT;
+	}
+}
+
+int rcar_get_board_type(int busnum, int chip_addr, u32 *type)
+{
+	struct udevice *dev;
+	u8 board_id = BOARD_ID_UNKNOWN;
+	int ret;
+
+	if (busnum == -1)
+		goto get_type;
+
+	ret = i2c_get_chip_for_busnum(busnum, chip_addr, 1, &dev);
+	if (ret)
+		return ret;
+
+	ret = dm_i2c_read(dev, 0x70, &board_id, 1);
+	if (ret)
+		return ret;
+
+get_type:
+	if (board_id == BOARD_ID_UNKNOWN)
+		board_id = rcar_get_board_type_by_chip();
+
+	*type = ((u32)board_id & BOARD_CODE_MASK) >> BOARD_CODE_SHIFT;
+
+	return ret;
+}
 #endif
 
 void board_add_ram_info(int use_default)
