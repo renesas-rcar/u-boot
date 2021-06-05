@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot on R-Car M3-W+ (R8A77961) SoC
+ *
+ * Copyright (C) 2021 Renesas Electronics Corp.
+ */
+
+#include "r8a779x-u-boot.dtsi"
+
+&extalr_clk {
+	u-boot,dm-pre-reloc;
+};
+
+/delete-node/ &ak4613;
+/delete-node/ &audma0;
+/delete-node/ &audma1;
+/delete-node/ &csi20;
+/delete-node/ &csi40;
+/delete-node/ &du;
+/delete-node/ &fcpf0;
+/delete-node/ &fcpvb0;
+/delete-node/ &fcpvd0;
+/delete-node/ &fcpvd1;
+/delete-node/ &fcpvd2;
+/delete-node/ &fcpvi0;
+/delete-node/ &hdmi0;
+/delete-node/ &rcar_sound;
+/delete-node/ &sound_card;
+/delete-node/ &vin0;
+/delete-node/ &vin1;
+/delete-node/ &vin2;
+/delete-node/ &vin3;
+/delete-node/ &vin4;
+/delete-node/ &vin5;
+/delete-node/ &vin6;
+/delete-node/ &vin7;
+/delete-node/ &vspb;
+/delete-node/ &vspd0;
+/delete-node/ &vspd1;
+/delete-node/ &vspd2;
+/delete-node/ &vspi0;
+
+/ {
+	/delete-node/ cvbs-in;
+	/delete-node/ hdmi-in;
+	/delete-node/ hdmi0-out;
+	/delete-node/ hdmi1-out;
+	/delete-node/ vga-encoder;
+	/delete-node/ vga;
+};
+
+&i2c4 {
+	/delete-node/ video-receiver@70;
+};
