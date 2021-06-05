@@ -110,6 +110,7 @@ int board_fit_config_name_match(const char *name)
 {
 	/* PRR driver is not available yet */
 	u32 cpu_type = rmobile_get_cpu_type();
+	u32 cpu_rev = rmobile_get_cpu_rev_integer();
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
 	    is_rcar_gen3_board("renesas,salvator-x") &&
@@ -121,9 +122,14 @@ int board_fit_config_name_match(const char *name)
 	    !strcmp(name, "r8a77960-salvator-x-u-boot"))
 		return 0;
 
-	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) && (cpu_rev < 3) &&
 	    is_rcar_gen3_board("renesas,salvator-xs") &&
 	    !strcmp(name, "r8a77960-salvator-xs-u-boot"))
+		return 0;
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) && (cpu_rev == 3) &&
+	    is_rcar_gen3_board("renesas,salvator-xs") &&
+	    !strcmp(name, "r8a77961-salvator-xs-u-boot"))
 		return 0;
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
