@@ -142,6 +142,11 @@ int board_fit_config_name_match(const char *name)
 	    !strcmp(name, "r8a77965-salvator-x-u-boot"))
 		return 0;
 
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
+	    is_rcar_gen3_board("renesas,salvator-xs") &&
+	    !strcmp(name, "r8a77965-salvator-xs-u-boot"))
+		return 0;
+
 	return -1;
 }
 #endif
