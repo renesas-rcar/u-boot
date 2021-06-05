@@ -92,14 +92,17 @@ int board_fit_config_name_match(const char *name)
 	u32 cpu_type = rmobile_get_cpu_type();
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
+	    is_rcar_gen3_board("renesas,salvator-x") &&
 	    !strcmp(name, "r8a77950-salvator-x-u-boot"))
 		return 0;
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
+	    is_rcar_gen3_board("renesas,salvator-x") &&
 	    !strcmp(name, "r8a77960-salvator-x-u-boot"))
 		return 0;
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
+	    is_rcar_gen3_board("renesas,salvator-x") &&
 	    !strcmp(name, "r8a77965-salvator-x-u-boot"))
 		return 0;
 

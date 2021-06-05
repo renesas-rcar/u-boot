@@ -19,8 +19,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* If the firmware passed a device tree use it for U-Boot DRAM setup. */
+/*
+ * If the firmware passed a device tree use it for U-Boot DRAM setup
+ * and board identification
+ */
 extern u64 rcar_atf_boot_args[];
+
+#ifdef CONFIG_MULTI_DTB_FIT
+bool is_rcar_gen3_board(const char *board_name)
+{
+	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
+	bool ret = false;
+
+	if ((fdt_magic(atf_fdt_blob) == FDT_MAGIC) &&
+	    (fdt_node_check_compatible(atf_fdt_blob, 0, board_name) == 0))
+		ret = true;
+
+	return ret;
+}
+#endif
 
 int fdtdec_board_setup(const void *fdt_blob)
 {

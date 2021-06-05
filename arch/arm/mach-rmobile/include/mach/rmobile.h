@@ -59,6 +59,7 @@ u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);
 int rcar_get_board_type(int busnum, int chip_addr, u32 *type);
+bool is_rcar_gen3_board(const char *board_name);
 #endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARCH_RMOBILE_H */
