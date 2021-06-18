@@ -395,6 +395,25 @@ int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error)
 }
 #endif
 
+int mmc_send_abort_tuning(struct mmc *mmc, u32 opcode)
+{
+	struct mmc_cmd cmd;
+
+	/*
+	 * eMMC specification specifies that CMD12 can be used to stop a tuning
+	 * command, but SD specification does not, so do nothing unless it is
+	 * eMMC.
+	 */
+	if (opcode != MMC_CMD_SEND_TUNING_BLOCK_HS200)
+		return 0;
+
+	cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+	cmd.cmdarg = 0;
+	cmd.resp_type = MMC_RSP_R1;
+
+	return mmc_send_cmd(mmc, &cmd, NULL);
+}
+
 static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			   lbaint_t blkcnt)
 {
