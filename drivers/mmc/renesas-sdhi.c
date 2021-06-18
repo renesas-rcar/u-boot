@@ -479,6 +479,9 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD;
 	else
 		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD2;
+
+	/* Host need to send stop command during tuning in SD */
+	plat->cfg.host_caps |= MMC_CAP2_STOP_TUNE_SD;
 }
 
 static int renesas_sdhi_probe(struct udevice *dev)
