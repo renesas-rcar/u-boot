@@ -404,7 +404,8 @@ int mmc_send_abort_tuning(struct mmc *mmc, u32 opcode)
 	 * command, but SD specification does not, so do nothing unless it is
 	 * eMMC.
 	 */
-	if (opcode != MMC_CMD_SEND_TUNING_BLOCK_HS200)
+	if (!(mmc->host_caps & MMC_CAP2_STOP_TUNE_SD) &&
+	    opcode != MMC_CMD_SEND_TUNING_BLOCK_HS200)
 		return 0;
 
 	cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;

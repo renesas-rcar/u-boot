@@ -79,6 +79,7 @@ struct bd_info;
 #define MMC_MODE_4BIT		BIT(29)
 #define MMC_MODE_1BIT		BIT(28)
 #define MMC_MODE_SPI		BIT(27)
+#define MMC_CAP2_STOP_TUNE_SD	(1 << 25)	/* Host need to send stop command during tuning in SD */
 
 
 #define SD_DATA_4BIT	0x00040000

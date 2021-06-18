@@ -924,6 +924,9 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->nrtaps = 4;
 	else
 		priv->nrtaps = 8;
+
+	/* Host need to send stop command during tuning in SD */
+	plat->cfg.host_caps |= MMC_CAP2_STOP_TUNE_SD;
 #endif
 	/* H3 ES1.x and M3W ES1.0 uses bit 17 for DTRAEND */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
