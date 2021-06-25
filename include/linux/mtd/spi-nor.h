@@ -473,8 +473,9 @@ struct flash_info;
  * @flash_lock:		[FLASH-SPECIFIC] lock a region of the SPI NOR
  * @flash_unlock:	[FLASH-SPECIFIC] unlock a region of the SPI NOR
  * @flash_is_locked:	[FLASH-SPECIFIC] check if a region of the SPI NOR is
- * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
  *			completely locked
+ * @quad_enable:	[FLASH-SPECIFIC] enables SPI NOR quad mode
+ * @octal_dtr_enable:	[FLASH-SPECIFIC] enables SPI NOR octal DTR mode.
  * @priv:		the private data
  */
 struct spi_nor {
@@ -522,6 +523,7 @@ struct spi_nor {
 	int (*flash_unlock)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*flash_is_locked)(struct spi_nor *nor, loff_t ofs, uint64_t len);
 	int (*quad_enable)(struct spi_nor *nor);
+	int (*octal_dtr_enable)(struct spi_nor *nor);
 
 	void *priv;
 /* Compatibility for spi_flash, remove once sf layer is merged with mtd */
