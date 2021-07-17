@@ -877,7 +877,8 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_integer() <= 1)) ||
 	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() < 2)))
+	    (rmobile_get_cpu_rev_fraction() < 2)) ||
+	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77970))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
 
 	/* H3 ES2.0, ES3.0 and M3W ES1.2 and M3N bad taps */
