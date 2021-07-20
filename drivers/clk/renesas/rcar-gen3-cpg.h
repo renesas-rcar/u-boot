@@ -33,6 +33,8 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_R8A779A0_PLL2X_3X,	/* PLL[23][01] */
 	CLK_TYPE_R8A779A0_PLL4,
 	CLK_TYPE_R8A779A0_PLL5,
+	CLK_TYPE_R8A77970_SD0H,
+	CLK_TYPE_R8A77970_SD0,
 
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
@@ -40,6 +42,9 @@ enum rcar_gen3_clk_types {
 
 #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
+
+#define DEF_GEN3_SD_V3M(_name, _id, _type, _parent, _offset)	\
+	DEF_BASE(_name, _id, _type, _parent, .offset = _offset)
 
 #define DEF_GEN3_RPC(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPC, _parent, .offset = _offset)
