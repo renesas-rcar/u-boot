@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source for the Eagle Function board on r8a77970
+ *
+ * Copyright (C) 2017-2021 Renesas Electronics Corp.
+ * Copyright (C) 2017 Cogent Embedded, Inc.
+ */
+
+#include "r8a77970-eagle.dts"
+
+/ {
+	model = "Renesas Eagle Function board based on r8a77970";
+
+	vcc_3v3: regulator0 {
+		compatible = "regulator-fixed";
+		regulator-name = "fixed-VCC3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	vcc_vddq_vin0: regulator1 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC-VDDQ-VIN0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+};
+
+&pfc {
+	mmc_pins: mmc {
+		groups = "mmc_data8", "mmc_ctrl";
+		function = "mmc";
+		power-source = <1800>;
+	};
+};
+
+&mmc0 {
+	/* used for on-board eMMC */
+	pinctrl-0 = <&mmc_pins>;
+	pinctrl-1 = <&mmc_pins>;
+	pinctrl-names = "default", "state_uhs";
+
+	vmmc-supply = <&vcc_3v3>;
+	vqmmc-supply = <&vcc_vddq_vin0>;
+	mmc-hs200-1_8v;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
+};
