@@ -85,6 +85,18 @@ static const struct sd_div_table cpg_sd_div_table[] = {
 	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          0,       32),
 };
 
+static const struct sd_div_table r8a77970_cpg_sd0h_div_table[] = {
+	{  0,  2 }, {  1,  3 }, {  2,  4 }, {  3,  6 },
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, {  0,  0 },
+};
+
+static const struct sd_div_table r8a77970_cpg_sd0_div_table[] = {
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, { 12, 10 },
+	{  0,  0 },
+};
+
 static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
 			       struct cpg_mssr_info *info, struct clk *parent)
 {
@@ -131,12 +143,15 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 	if (ret)
 		return ret;
 
-	if (core->type != CLK_TYPE_GEN3_SD)
+	if (!(core->type == CLK_TYPE_GEN3_SD ||
+	      core->type == CLK_TYPE_R8A77970_SD0H ||
+	      core->type == CLK_TYPE_R8A77970_SD0))
 		return 0;
 
 	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
 
-	writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
+	if (core->type == CLK_TYPE_GEN3_SD)
+		writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
 
 	return 0;
 }
@@ -187,7 +202,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
+	const struct sd_div_table *sd_div_table;
 	u32 value, div, prediv, postdiv, parent_id;
+	u32 sd_div_num, sd_div_mask, shift = 0;
 	u64 rate = 0;
 	int i, ret;
 
@@ -299,18 +316,36 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
+	case CLK_TYPE_R8A77970_SD0H:
+	case CLK_TYPE_R8A77970_SD0:
 		value = readl(priv->base + core->offset);
-		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
+		if (core->type == CLK_TYPE_R8A77970_SD0H) {
+			sd_div_table = r8a77970_cpg_sd0h_div_table;
+			sd_div_num = ARRAY_SIZE(r8a77970_cpg_sd0h_div_table);
+			sd_div_mask = 0xf;
+			shift = 8;
+		} else if (core->type == CLK_TYPE_R8A77970_SD0) {
+			sd_div_table = r8a77970_cpg_sd0_div_table;
+			sd_div_num = ARRAY_SIZE(r8a77970_cpg_sd0_div_table);
+			sd_div_mask = 0xf;
+			shift = 4;
+		} else {
+			sd_div_table = cpg_sd_div_table;
+			sd_div_num = ARRAY_SIZE(cpg_sd_div_table);
+			sd_div_mask = CPG_SD_STP_MASK | CPG_SD_FC_MASK;
+			shift = 0;
+		}
+		value &= sd_div_mask << shift;
 
-		for (i = 0; i < ARRAY_SIZE(cpg_sd_div_table); i++) {
-			if (cpg_sd_div_table[i].val != value)
+		for (i = 0; i < sd_div_num; i++) {
+			if (sd_div_table[i].val << shift != value)
 				continue;
 
 			rate = gen3_clk_get_rate64(&parent) /
-			       cpg_sd_div_table[i].div;
+			       sd_div_table[i].div;
 			debug("%s[%i] SD clk: parent=%i div=%i => rate=%llu\n",
 			      __func__, __LINE__,
-			      core->parent, cpg_sd_div_table[i].div, rate);
+			      core->parent, sd_div_table[i].div, rate);
 
 			return rate;
 		}

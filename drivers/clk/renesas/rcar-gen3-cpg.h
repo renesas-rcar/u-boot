@@ -35,6 +35,8 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_R8A779A0_SD,
 	CLK_TYPE_R8A779A0_MDSEL,	/* Select parent/divider using mode pin */
 	CLK_TYPE_R8A779A0_OSC,	/* OSC EXTAL predivider and fixed divider */
+	CLK_TYPE_R8A77970_SD0H,
+	CLK_TYPE_R8A77970_SD0,
 
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
@@ -42,6 +44,9 @@ enum rcar_gen3_clk_types {
 
 #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
+
+#define DEF_GEN3_SD_V3M(_name, _id, _type, _parent, _offset)   \
+	DEF_BASE(_name, _id, _type, _parent, .offset = _offset)
 
 #define DEF_GEN3_RPCD2(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPCD2, _parent, .offset = _offset)
