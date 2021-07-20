@@ -82,6 +82,18 @@ static const struct clk_div_table cpg_sd_div_table[] = {
 	{ 0, 2 }, { 1, 4 }, { 0, 0 },
 };
 
+static const struct clk_div_table r8a77970_cpg_sd0h_div_table[] = {
+	{  0,  2 }, {  1,  3 }, {  2,  4 }, {  3,  6 },
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, {  0,  0 },
+};
+
+static const struct clk_div_table r8a77970_cpg_sd0_div_table[] = {
+	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
+	{  8, 24 }, { 10, 36 }, { 11, 48 }, { 12, 10 },
+	{  0,  0 },
+};
+
 static const struct clk_div_table cpg_rpcsrc_div_table[] = {
 	{ 2, 5 }, { 3, 6 }, { 0, 0 },
 };
@@ -186,6 +198,21 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 		reg_val = readl(priv->base + core->offset);
 		reg_val &= GENMASK(1, 0);
 		reg_val |= value << 0;
+		writel(reg_val, priv->base + core->offset);
+
+		debug("%s[%i] SD clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
+		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
+		break;
+
+	case CLK_TYPE_R8A77970_SD0:
+		div = gen3_clk_get_rate64(&parent) / rate;
+		value = _get_table_val(cpg_sd_div_table, div);
+		if (!value)
+			return -EINVAL;
+
+		reg_val = readl(priv->base + core->offset);
+		reg_val &= GENMASK(7, 4);
+		reg_val |= value << 4;
 		writel(reg_val, priv->base + core->offset);
 
 		debug("%s[%i] SD clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
@@ -339,6 +366,12 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						     SDnSRCFC_SHIFT, 8,
 						     cpg_sdh_div_table, "SDH");
 
+	case CLK_TYPE_R8A77970_SD0H:
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + core->offset, 8, 4,
+						     r8a77970_cpg_sd0h_div_table, "SDH");
+
 	case CLK_TYPE_GEN3_SD:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
@@ -346,6 +379,12 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						     gen3_clk_get_rate64(&parent),
 						     priv->base + core->offset, 0, 2,
 						     cpg_sd_div_table, "SD");
+
+	case CLK_TYPE_R8A77970_SD0:
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + core->offset, 4, 4,
+						     r8a77970_cpg_sd0_div_table, "SD");
 
 	case CLK_TYPE_GEN3_RPCSRC:
 		return rcar_clk_get_rate64_div_table(core->parent,

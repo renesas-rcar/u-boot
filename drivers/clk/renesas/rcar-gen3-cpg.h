@@ -18,7 +18,9 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_PLL3,
 	CLK_TYPE_GEN3_PLL4,
 	CLK_TYPE_GEN3_SDH,
+	CLK_TYPE_R8A77970_SD0H,
 	CLK_TYPE_GEN3_SD,
+	CLK_TYPE_R8A77970_SD0,
 	CLK_TYPE_GEN3_R,
 	CLK_TYPE_GEN3_MDSEL,	/* Select parent/divider using mode pin */
 	CLK_TYPE_GEN3_Z,

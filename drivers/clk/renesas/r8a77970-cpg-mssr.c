@@ -22,10 +22,11 @@
 
 #define CPG_SD0CKCR		0x0074
 
-enum r8a77970_clk_types {
-	CLK_TYPE_R8A77970_SD0H = CLK_TYPE_GEN3_SOC_BASE,
-	CLK_TYPE_R8A77970_SD0,
-};
+#define DEF_SDH(_name, _id, _parent, _offset)   \
+	DEF_BASE(_name, _id, CLK_TYPE_R8A77970_SD0H, _parent, .offset = _offset)
+
+#define DEF_SD(_name, _id, _parent, _offset)   \
+	DEF_BASE(_name, _id, CLK_TYPE_R8A77970_SD0, _parent, .offset = _offset)
 
 enum clk_ids {
 	/* Core Clock Outputs exported to DT */
@@ -73,9 +74,8 @@ static const struct cpg_core_clk r8a77970_core_clks[] = {
 	DEF_FIXED("s2d2",	R8A77970_CLK_S2D2,  CLK_PLL1_DIV2, 12, 1),
 	DEF_FIXED("s2d4",	R8A77970_CLK_S2D4,  CLK_PLL1_DIV2, 24, 1),
 
-	DEF_BASE("sd0h", R8A77970_CLK_SD0H, CLK_TYPE_R8A77970_SD0H,
-		 CLK_PLL1_DIV2),
-	DEF_BASE("sd0",	R8A77970_CLK_SD0, CLK_TYPE_R8A77970_SD0, CLK_PLL1_DIV2),
+	DEF_SDH("sd0h",		R8A77970_CLK_SD0H,  CLK_PLL1_DIV2, CPG_SD0CKCR),
+	DEF_SD("sd0",		R8A77970_CLK_SD0,   CLK_PLL1_DIV2, CPG_SD0CKCR),
 
 	DEF_FIXED("rpc",	R8A77970_CLK_RPC,   CLK_PLL1_DIV2,  5, 1),
 	DEF_FIXED("rpcd2",	R8A77970_CLK_RPCD2, CLK_PLL1_DIV2, 10, 1),
