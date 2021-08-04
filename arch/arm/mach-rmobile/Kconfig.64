@@ -139,6 +139,15 @@ endif
 
 if RCAR_GEN4
 
+menu "Select Target SoC"
+
+config R8A779F0
+	bool "Renesas SoC R8A779F0"
+	imply CLK_R8A779F0
+	imply PINCTRL_PFC_R8A779F0
+
+endmenu
+
 choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
