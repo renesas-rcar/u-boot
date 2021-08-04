@@ -15,7 +15,7 @@
 
 static u32 rmobile_get_prr(void)
 {
-#ifdef CONFIG_RCAR_GEN3
+#if defined(CONFIG_RCAR_GEN3) || defined(CONFIG_RCAR_GEN4)
 	return readl(0xFFF00044);
 #else
 	return readl(0xFF000044);
