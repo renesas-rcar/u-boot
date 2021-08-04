@@ -568,7 +568,7 @@ static int sh_gpio_get_value(struct pinmux_info *gpioc, unsigned gpio)
 
 	if (!gpioc || get_data_reg(gpioc, gpio, &dr, &bit) != 0)
 		return -1;
-#if defined(CONFIG_RCAR_GEN3)
+#if defined(CONFIG_RCAR_GEN3) || defined(CONFIG_RCAR_GEN4)
 	if ((gpioc->gpios[gpio].flags & PINMUX_FLAG_TYPE) == PINMUX_TYPE_INPUT)
 		offset += 4;
 #endif
