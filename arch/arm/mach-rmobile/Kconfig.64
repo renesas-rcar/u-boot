@@ -214,3 +214,18 @@ config SYS_MALLOC_F_LEN
 	default 0x8000 if RCAR_GEN3
 
 endif
+
+if RCAR_GEN4
+
+choice
+	prompt "Renesas ARM64 SoCs board select"
+	optional
+endchoice
+
+config SYS_SOC
+	default "rmobile"
+
+config SYS_MALLOC_F_LEN
+	default 0x8000 if RCAR_GEN4
+
+endif

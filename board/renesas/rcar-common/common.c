@@ -15,7 +15,7 @@
 #include <asm/arch/rmobile.h>
 #include <linux/libfdt.h>
 
-#ifdef CONFIG_RCAR_GEN3
+#if defined(CONFIG_RCAR_GEN3) || defined(CONFIG_RCAR_GEN4)
 
 DECLARE_GLOBAL_DATA_PTR;
 
