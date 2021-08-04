@@ -833,6 +833,8 @@ static const struct dm_mmc_ops renesas_sdhi_ops = {
 #define RENESAS_GEN2_QUIRKS	TMIO_SD_CAP_RCAR_GEN2
 #define RENESAS_GEN3_QUIRKS				\
 	TMIO_SD_CAP_64BIT | TMIO_SD_CAP_RCAR_GEN3 | TMIO_SD_CAP_RCAR_UHS
+#define RENESAS_GEN4_QUIRKS				\
+	TMIO_SD_CAP_64BIT | TMIO_SD_CAP_RCAR_GEN4 | TMIO_SD_CAP_RCAR_UHS
 
 static const struct udevice_id renesas_sdhi_match[] = {
 	{ .compatible = "renesas,sdhi-r8a7790", .data = RENESAS_GEN2_QUIRKS },
@@ -849,6 +851,7 @@ static const struct udevice_id renesas_sdhi_match[] = {
 	{ .compatible = "renesas,sdhi-r8a77990", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a77995", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a779a0", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a779f0", .data = RENESAS_GEN4_QUIRKS },
 	{ /* sentinel */ }
 };
 
@@ -861,7 +864,8 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
-	if (!(priv->caps & TMIO_SD_CAP_RCAR_GEN3))
+	if (!(priv->caps & TMIO_SD_CAP_RCAR_GEN3) &&
+	    !(priv->caps & TMIO_SD_CAP_RCAR_GEN4))
 		return;
 
 	if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL)

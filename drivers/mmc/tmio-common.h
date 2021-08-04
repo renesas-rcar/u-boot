@@ -131,8 +131,9 @@ struct tmio_sd_priv {
 #define TMIO_SD_CAP_RCAR_GEN2		BIT(5)	/* Renesas RCar version of IP */
 #define TMIO_SD_CAP_RCAR_GEN3		BIT(6)	/* Renesas RCar version of IP */
 #define TMIO_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas RCar UHS/SDR modes */
+#define TMIO_SD_CAP_RCAR_GEN4		BIT(8)	/* Renesas RCar version of IP */
 #define TMIO_SD_CAP_RCAR		\
-	(TMIO_SD_CAP_RCAR_GEN2 | TMIO_SD_CAP_RCAR_GEN3)
+	(TMIO_SD_CAP_RCAR_GEN2 | TMIO_SD_CAP_RCAR_GEN3 | TMIO_SD_CAP_RCAR_GEN4)
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
 #endif
