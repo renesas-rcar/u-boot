@@ -216,7 +216,8 @@ static u32 rpc_spi_get_strobe_delay(void)
 	 */
 	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796 && rmobile_get_cpu_rev_integer() == 1)
 		return RPC_PHYCNT_STRTIM(6);
-	else if (cpu_type == RMOBILE_CPU_TYPE_R8A779F0)
+	else if (cpu_type == RMOBILE_CPU_TYPE_R8A779F0 ||
+		 cpu_type == RMOBILE_CPU_TYPE_R8A779G0)
 		return RPC_PHYCNT_STRTIM2(15);
 	else
 		return RPC_PHYCNT_STRTIM(7);
@@ -474,6 +475,7 @@ static const struct udevice_id rpc_spi_ids[] = {
 	{ .compatible = "renesas,rcar-gen3-rpc" },
 	{ .compatible = "renesas,rpc-r8a779a0" },
 	{ .compatible = "renesas,rpc-r8a779f0" },
+	{ .compatible = "renesas,rpc-r8a779g0" },
 	{ }
 };
 
