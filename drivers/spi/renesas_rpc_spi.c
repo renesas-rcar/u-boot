@@ -139,6 +139,7 @@
 #define PRC_PHYCNT_EXDS		BIT(21)
 #define RPC_PHYCNT_OCT		BIT(20)
 #define RPC_PHYCNT_STRTIM(v)	(((v) & 0x7) << 15)
+#define RPC_PHYCNT_STRTIM2(v)	(((v) & 0x7) << 15 | ((v) & 0x8) << 24)
 #define RPC_PHYCNT_WBUF2	BIT(4)
 #define RPC_PHYCNT_WBUF		BIT(2)
 #define RPC_PHYCNT_MEM(v)	(((v) & 0x3) << 0)
@@ -210,9 +211,12 @@ static u32 rpc_spi_get_strobe_delay(void)
 	 *       0: On H3 ES1.x (not supported in mainline U-Boot)
 	 *       6: On M3
 	 *       7: On other R-Car Gen3
+	 *      15: On R-Car Gen4
 	 */
 	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796)
 		return RPC_PHYCNT_STRTIM(6);
+	else if (cpu_type == RMOBILE_CPU_TYPE_R8A779G0)
+		return RPC_PHYCNT_STRTIM2(15);
 	else
 		return RPC_PHYCNT_STRTIM(7);
 }
@@ -467,6 +471,7 @@ static const struct udevice_id rpc_spi_ids[] = {
 	{ .compatible = "renesas,rpc-r8a77980" },
 	{ .compatible = "renesas,rpc-r8a77995" },
 	{ .compatible = "renesas,rpc-r8a779a0" },
+	{ .compatible = "renesas,rpc-r8a779g0" },
 	{ .compatible = "renesas,rpc-r7s72100" },
 	{ }
 };
