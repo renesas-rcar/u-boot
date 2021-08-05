@@ -230,12 +230,19 @@ config TARGET_FALCON
 	help
           Support for Renesas R-Car Gen4 Falcon platform
 
+config TARGET_SPIDER
+	bool "Spider board"
+	imply R8A779F0
+	help
+	  Support for Renesas R-Car Gen4 Spider platform
+
 endchoice
 
 config SYS_SOC
 	default "rmobile"
 
 source "board/renesas/falcon/Kconfig"
+source "board/renesas/spider/Kconfig"
 
 config SYS_MALLOC_F_LEN
 	default 0x8000 if RCAR_GEN4
