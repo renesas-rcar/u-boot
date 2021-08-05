@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source for the Spider Ethernet sub-board
+ *
+ * Copyright (C) 2021 Renesas Electronics Corp.
+ */
