@@ -35,6 +35,19 @@ static void init_generic_timer(void)
 	setbits_le32(CNTCR_BASE, CNTCR_EN);
 }
 
+static void init_gic_v3(void)
+{
+	 /* GIC v3 power on */
+	writel(0x00000002, (GICR_LPI_PWRR));
+
+	/* Wait till the WAKER_CA_BIT changes to 0 */
+	writel(readl(GICR_LPI_WAKER) & ~0x00000002, (GICR_LPI_WAKER));
+	while (readl(GICR_LPI_WAKER) & 0x00000004)
+		;
+
+	writel(0xffffffff, GICR_SGI_BASE + GICR_IGROUPR0);
+}
+
 void s_init(void)
 {
 	if (current_el() == 3)
@@ -54,6 +67,9 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
+
+	if (current_el() == 3)
+		init_gic_v3();
 
 	return 0;
 }
