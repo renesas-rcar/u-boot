@@ -377,6 +377,20 @@
 			status = "disabled";
 		};
 
+		rswitch: ethernet@e68c0000 {
+			compatible = "renesas,etherswitch-r8a779f0",
+				     "renesas,etherswitch";
+			reg = <0 0xe68c0000 0 0x00020000>,
+			      <0 0xe6444000 0 0x2800>;
+			reg-names = "iobase", "serdes";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&cpg CPG_MOD 1505>,
+				 <&cpg CPG_MOD 1506>;
+			clock-names = "rsw2", "eth-phy";
+			status = "disabled";
+		};
+
 		scif0: serial@e6e60000 {
 			compatible = "renesas,scif-r8a779f0",
 				     "renesas,rcar-gen4-scif", "renesas,scif";
