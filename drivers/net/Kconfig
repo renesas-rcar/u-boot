@@ -674,6 +674,14 @@ config RENESAS_RAVB
 	  This driver implements support for the Ethernet AVB block in
 	  Renesas M3 and H3 SoCs.
 
+config RENESAS_ETHER_SWITCH
+	bool "Renesas Ethernet Switch support"
+	depends on DM_ETH && R8A779F0
+	select PHYLIB
+	help
+	  This driver implements support for the Renesas Ethernet Switch
+	  which is available on R-Car S4 SoC (r8a779f0).
+
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
