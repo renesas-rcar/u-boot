@@ -62,6 +62,7 @@ obj-$(CONFIG_ETH_SANDBOX_RAW) += sandbox-raw.o
 obj-$(CONFIG_ETH_SANDBOX_RAW) += sandbox-raw-bus.o
 obj-$(CONFIG_SH_ETHER) += sh_eth.o
 obj-$(CONFIG_RENESAS_RAVB) += ravb.o
+obj-$(CONFIG_RENESAS_ETHER_SWITCH) += rswitch.o
 obj-$(CONFIG_SMC91111) += smc91111.o
 obj-$(CONFIG_SMC911X) += smc911x.o
 obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
