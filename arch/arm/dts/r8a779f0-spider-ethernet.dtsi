@@ -5,6 +5,53 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
+&pfc {
+	tsn0_pins: tsn0 {
+		mux {
+			groups = "tsn0_link_b", "tsn0_mdio_b";
+			function = "tsn0";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+
+		pins_mdio {
+			groups = "tsn0_mdio_b";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+	};
+
+	tsn1_pins: tsn1 {
+		mux {
+			groups = "tsn1_link_b", "tsn1_mdio_b";
+			function = "tsn1";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+
+		pins_mdio {
+			groups = "tsn1_mdio_b";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+	};
+
+	tsn2_pins: tsn2 {
+		mux {
+			groups = "tsn2_link_b", "tsn2_mdio_b";
+			function = "tsn2";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+
+		pins_mdio {
+			groups = "tsn2_mdio_b";
+			drive-strength = <18>;
+			power-source = <1800>;
+		};
+	};
+};
+
 &i2c4 {
 	eeprom@52 {
 		compatible = "rohm,br24g01", "atmel,24c01";
@@ -12,4 +59,36 @@
 		reg = <0x52>;
 		pagesize = <8>;
 	};
+};
+
+&rswitch {
+	status = "okay";
+	pinctrl-0 = <&tsn0_pins>;
+	pinctrl-names = "default";
+	phy-mode = "sgmii";
+	phy-handle = <&etha0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	etha0: ethernet-phy@1 {
+		phy-connection-type = "sgmii";
+		device_type = "ethernet-phy";
+		compatible = "marvell,88e2110";
+		reg = <1>;
+	};
+
+	etha1: ethernet-phy@2 {
+		phy-connection-type = "sgmii";
+		device_type = "ethernet-phy";
+		compatible = "marvell,88e2110";
+		reg = <2>;
+	};
+
+	etha2: ethernet-phy@3 {
+		phy-connection-type = "sgmii";
+		device_type = "ethernet-phy";
+		compatible = "marvell,88e2110";
+		reg = <3>;
+	};
+
 };
