@@ -100,6 +100,7 @@ ENTRY(_main)
 	ldr	x18, [x18, #GD_NEW_GD]		/* x18 <- gd->new_gd */
 
 #ifndef CONFIG_RCAR_GEN3
+#ifndef CONFIG_RCAR_GEN4
 	adr	lr, relocation_return
 #if CONFIG_POSITION_INDEPENDENT
 	/* Add in link-vs-runtime offset */
@@ -115,6 +116,7 @@ ENTRY(_main)
 	b	relocate_code
 
 relocation_return:
+#endif
 #endif
 
 /*
