@@ -92,6 +92,10 @@ static const struct cpg_core_clk r8a779a0_core_clks[] = {
 	DEF_FIXED(".s3",		CLK_S3,		CLK_PLL1_DIV2,	4, 1),
 	DEF_FIXED(".sdsrc",		CLK_SDSRC,	CLK_PLL5_DIV4,	1, 1),
 	DEF_RATE(".oco",		CLK_OCO,	32768),
+	DEF_BASE(".rpcsrc",	 CLK_RPCSRC,		CLK_TYPE_GEN3_RPCSRC,
+		 CLK_PLL5),
+	DEF_GEN3_RPC("rpc",	 R8A779A0_CLK_RPC,	CLK_RPCSRC, 0x874),
+	DEF_GEN3_RPCD2("rpcd2",	 R8A779A0_CLK_RPCD2,	CLK_RPCSRC, 0x874),
 
 	/* Core Clock Outputs */
 	DEF_FIXED("zx",		R8A779A0_CLK_ZX,	CLK_PLL20_DIV2,	2, 1),
