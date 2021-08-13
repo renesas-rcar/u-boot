@@ -49,7 +49,7 @@
 #define RCAR_I2C_ICMAR			0x20 /* master address */
 #define RCAR_I2C_ICRXD_ICTXD		0x24 /* data port */
 /*
- * First Bit Setup Cycle (Gen3).
+ * First Bit Setup Cycle (Gen3/Gen4).
  * Defines 1st bit delay between SDA and SCL.
  */
 #define RCAR_I2C_ICFBSCR		0x38
@@ -59,6 +59,7 @@
 enum rcar_i2c_type {
 	RCAR_I2C_TYPE_GEN2,
 	RCAR_I2C_TYPE_GEN3,
+	RCAR_I2C_TYPE_GEN4,
 };
 
 struct rcar_i2c_priv {
@@ -309,7 +310,8 @@ scgd_find:
 	priv->icccr = (scgd << RCAR_I2C_ICCCR_SCGD_OFF) | cdf;
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
 
-	if (priv->type == RCAR_I2C_TYPE_GEN3) {
+	if (priv->type == RCAR_I2C_TYPE_GEN3 ||
+	    priv->type == RCAR_I2C_TYPE_GEN4) {
 		/* Set SCL/SDA delay */
 		writel(RCAR_I2C_ICFBSCR_TCYC17, priv->base + RCAR_I2C_ICFBSCR);
 	}
@@ -363,6 +365,7 @@ static const struct dm_i2c_ops rcar_i2c_ops = {
 static const struct udevice_id rcar_i2c_ids[] = {
 	{ .compatible = "renesas,rcar-gen2-i2c", .data = RCAR_I2C_TYPE_GEN2 },
 	{ .compatible = "renesas,rcar-gen3-i2c", .data = RCAR_I2C_TYPE_GEN3 },
+	{ .compatible = "renesas,rcar-gen4-i2c", .data = RCAR_I2C_TYPE_GEN4 },
 	{ }
 };
 
