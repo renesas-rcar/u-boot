@@ -67,7 +67,37 @@ enum rswitch_reg {
 	CABPIRM		= CARO + 0x0140,
 
 	FWPBFC		= FWRO + 0x4A00,
+
+	MPSM		= RMRO + 0x0000,
+	MPIC		= RMRO + 0x0004,
+	MTFFC		= RMRO + 0x0020,
+	MTPFC		= RMRO + 0x0024,
+	MTPFC2		= RMRO + 0x0028,
+	MTPFC3		= RMRO + 0x0030,
+	MTATC		= RMRO + 0x0050,
+	MRGC		= RMRO + 0x0080,
+	MRMAC0		= RMRO + 0x0084,
+	MRMAC1		= RMRO + 0x0088,
+	MRAFC		= RMRO + 0x008C,
+	MRSCE		= RMRO + 0x0090,
+	MRSCP		= RMRO + 0x0094,
+	MRFSCE		= RMRO + 0x009C,
+	MRFSCP		= RMRO + 0x00A0,
+	MTRC		= RMRO + 0x00A4,
+	MLVC		= RMRO + 0x0180,
+	MXGMIIC		= RMRO + 0x0190,
+	MPCH		= RMRO + 0x0194,
+	MANM		= RMRO + 0x019C,
+	MEIE		= RMRO + 0x0204,
+	MMIS0		= RMRO + 0x0210,
+	MMIE0		= RMRO + 0x0214,
+	MMIS1		= RMRO + 0x0220,
+	MMIE1		= RMRO + 0x0224,
+	MMIE2		= RMRO + 0x0234,
 };
+
+#define MTPFC3(x)	(MTPFC3 + 4*(x))
+#define MTATC(x)	(MTATC + 4*(x))
 
 /* COMA */
 #define RRC_RR		BIT(0)
@@ -84,6 +114,45 @@ enum rswitch_reg {
 #define EATASRIRM_TASRR		BIT(1)
 #define EATDQDC(q)		(EATDQDC + (q) * 0x04)
 #define EATDQDC_DQD		(0xff)
+
+/* RMAC */
+#define MPIC_PIS_XGMII		0x100
+#define MPIC_LSC_MASK		(0x7 << 3)
+#define MPIC_LSC_100		0x01
+#define MPIC_LSC_1000		0x10
+#define MPIC_LSC_2500		0x11
+#define MTFFC_FCM_PFC		0x2
+#define MTFFC_FCM_NO_PAD	0x1
+#define MTPFC3_PFC		0x1
+#define MLVC_PLV_RQ		0x1000
+#define MLVC_LVT		0x9
+#define MMIS0_LVSS		0x2
+
+#define MPIC_PSMCS_MASK		(0x7f << 16)
+#define MPIC_PSMCS_SET		(0x40 << 16)
+#define MPIC_PSMHT_MASK		(0x7 << 24)
+#define MPIC_PSMHT_SET		(0x6 << 24)
+
+#define MPSM_MFF_C45		(0x1 << 2)
+#define MPSM_MFF_C22		(0x0 << 2)
+#define MPSM_PSME_MASK		0x1
+#define MPSM_MFF_MASK		0x4
+
+#define MDIO_READ		0x11
+#define MDIO_WRITE		0x01
+#define MDIO_ADDR		0x00
+
+#define MPSM_POP_MASK		(0x3 << 13)
+#define MPSM_PRA_MASK		(0x1f << 8)
+#define MPSM_PDA_MASK		(0x1f << 3)
+#define MPSM_PRD_MASK		(0xff << 16)
+
+/* Completion flags */
+#define MMIS1_PAACS		BIT(2) /* Address */
+#define MMIS1_PWACS		BIT(1) /* Write */
+#define MMIS1_PRACS		BIT(0) /* Read */
+
+#define LINK_TIMEOUT		1000
 
 enum rswitch_etha_mode {
 	EAMC_OPC_RESET,
@@ -120,6 +189,7 @@ struct rswitch_etha {
 	void __iomem		*addr;
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
+	unsigned char		*enetaddr;
 };
 
 struct rswitch_gwca {
@@ -127,6 +197,11 @@ struct rswitch_gwca {
 	void __iomem		*addr;
 	int			num_chain;
 };
+
+/* Setting value */
+#define LINK_SPEED_100		100
+#define LINK_SPEED_1000		1000
+#define LINK_SPEED_2500		2500
 
 /* Decriptor */
 #define RSWITCH_NUM_BASE_DESC		2
@@ -210,6 +285,11 @@ static inline void rswitch_invalidate_dcache(u32 addr, u32 len)
 	invalidate_dcache_range(start, end);
 }
 
+void rswitch_modify(struct rswitch_etha *etha, enum rswitch_reg reg, u32 clear, u32 set)
+{
+	writel((readl(etha->addr + reg) & ~clear) | set, reg);
+}
+
 #define RSWITCH_TIMEOUT_MS	1000
 static int rswitch_reg_wait(void __iomem *addr, u32 offs, u32 mask, u32 expected)
 {
@@ -288,6 +368,123 @@ static int rswitch_gwca_change_mode(struct rswitch_priv *priv,
 		rswitch_agent_clock_ctrl(priv, gwca->index, 0);
 
 	return ret;
+}
+
+static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
+				  int phyad, int devad, int regad, int data)
+{
+	int ret = 0;
+
+	/* Set register address to PHY */
+	rswitch_modify(etha, MPSM, MPSM_POP_MASK, MDIO_ADDR);
+	rswitch_modify(etha, MPSM, MPSM_PRD_MASK, regad << 16);
+	rswitch_modify(etha, MPSM, MPSM_PRA_MASK, devad << 8);
+	rswitch_modify(etha, MPSM, MPSM_PDA_MASK, phyad << 3);
+
+	/* Start PHY access */
+	rswitch_modify(etha, MPSM, MPSM_PSME_MASK, 0x1);
+
+	/* Wait to finish address setting*/
+	rswitch_reg_wait(etha->addr, MPSM, MPSM_PSME_MASK, 0);
+
+	/* Clear completion flag */
+	rswitch_modify(etha, MMIS1, MMIS1_PAACS, 0);
+
+	/* Read/Write PHY register */
+	rswitch_modify(etha, MPSM, MPSM_POP_MASK, read ? MDIO_READ : MDIO_WRITE );
+	rswitch_modify(etha, MPSM, MPSM_PDA_MASK, devad << 8);
+	rswitch_modify(etha, MPSM, MPSM_PRA_MASK, phyad << 3);
+
+	/* Start PHY access */
+	rswitch_modify(etha, MPSM, MPSM_PSME_MASK, 0x1);
+
+	if (!read)
+		rswitch_modify(etha, MPSM, MPSM_PRD_MASK, data << 16);
+
+	rswitch_reg_wait(etha->addr, MPSM, MPSM_PSME_MASK, 0);
+
+	if (read)
+		ret = (readl(etha->addr + MPSM) & MPSM_PRD_MASK) >> 16 ;
+
+	return ret;
+}
+
+static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, int regad)
+{
+	struct rswitch_priv *priv = miidev->priv;
+	struct rswitch_etha *etha = &priv->etha;
+	int val;
+
+	/* Change to config mode */
+	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
+
+	/* Enable Station Management clock */
+	rswitch_modify(etha, MPIC, MPIC_PSMHT_MASK, MPIC_PSMHT_SET);
+	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, MPIC_PSMCS_SET);
+
+	/* Set Station Management Mode : Clause 45 */
+	rswitch_modify(etha, MPSM, 0x4, MPSM_MFF_C45);
+
+	/* Access PHY register */
+	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+
+	/* Disale Station Management Clock */
+	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0x0);
+
+	/* Change to disable mode */
+	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
+
+	return val;
+}
+
+int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int regad, u16 data)
+{
+	struct rswitch_priv *priv = miidev->priv;
+	struct rswitch_etha *etha = &priv->etha;
+
+	/* Change to config mode */
+	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
+
+	/* Enable Station Management clock */
+	rswitch_modify(etha, MPIC, MPIC_PSMHT_MASK, MPIC_PSMHT_SET);
+	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, MPIC_PSMCS_SET);
+
+	/* Set Station Management Mode : Clause 45 */
+	rswitch_modify(etha, MPSM, 0x4, MPSM_MFF_C45);
+
+	/* Access PHY register */
+	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+
+	/* Disale Station Management Clock */
+	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0x0);
+
+	/* Change to disable mode */
+	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
+
+	return 0;
+}
+
+static int rswitch_check_link(struct rswitch_etha *etha)
+{
+	int timeout = 0;
+	int ret;
+	/* Request Link Verification */
+	writel(MLVC_PLV_RQ, etha->addr + MLVC);
+
+	/* Complete Link Verification */
+	while (readl(etha->addr + MLVC) & MLVC_PLV_RQ) {
+		timeout++;
+
+		if (timeout > LINK_TIMEOUT){
+			debug("%s: Link verification timeout \n", __func__);
+			ret = -ETIMEDOUT;
+			break;
+		}
+	}
+	/* Clear interrupt */
+	writel(MMIS0_LVSS, etha->addr + MMIS0);
+
+	return 0;
 }
 
 static int rswitch_reset(struct rswitch_priv *priv)
@@ -416,6 +613,41 @@ static void rswitch_mfwd_init(struct rswitch_priv *priv)
 	       priv->addr + FWPBFC(gwca->index));
 }
 
+static int rswitch_rmac_init(struct rswitch_etha *etha)
+{
+	printf("\nRSW_DBG: %s", __func__);
+	unsigned char *mac = etha->enetaddr;
+	int ret;
+
+	/* Set MAC address */
+	writel((mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) | mac[5],
+	       etha->addr + MRMAC1);
+
+	writel((mac[0] << 8) | mac[1], etha->addr + MRMAC0);
+
+	/* Set MIIx */
+	writel(MPIC_PIS_XGMII | MPIC_LSC_1000, etha->addr + MPIC);
+
+	/* Disable all MAC error interrupt */
+	writel(0x0, etha->addr + MEIE);
+
+	/* Disable MAC monitoring interrupt */
+	writel(0x0, etha->addr + MMIE0);
+	writel(0x0, etha->addr + MMIE1);
+	writel(0x0, etha->addr + MMIE2);
+
+	/* MAC transmission configuration */
+	writel(MTFFC_FCM_PFC, etha->addr + MTFFC);
+	writel(MTPFC3_PFC, etha->addr + MTPFC3(0));
+
+	/* Link Verification */
+	ret = rswitch_check_link(etha);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int rswitch_gwca_mcast_table_reset(struct rswitch_gwca *gwca)
 {
 	writel(GWMTIRM_MTIOG, gwca->addr + GWMTIRM);
@@ -477,8 +709,24 @@ static int rswitch_etha_tas_ram_reset(struct rswitch_etha *etha)
 	return rswitch_reg_wait(etha->addr, EATASRIRM, EATASRIRM_TASRR, EATASRIRM_TASRR);
 }
 
-static int rswitch_rmac_init(struct rswitch_etha *etha) {
-
+static int phy_update_speed(struct rswitch_etha *etha, int speed)
+{
+	/* Update speed */
+	switch (speed) {
+		case 100:
+			/* Set MIIx */
+			rswitch_modify(etha, MPIC, MPIC_LSC_MASK, MPIC_LSC_100);
+			break;
+		case 1000:
+			rswitch_modify(etha, MPIC, MPIC_LSC_MASK, MPIC_LSC_1000);
+			break;
+		case 2500:
+			rswitch_modify(etha, MPIC, MPIC_LSC_MASK, MPIC_LSC_2500);
+			break;
+		default:
+			pr_info("%s : Not support speed %d", __func__, speed);
+			break;
+	}
 	return 0;
 }
 
@@ -507,6 +755,12 @@ static int rswitch_etha_init(struct rswitch_priv *priv)
 	ret = rswitch_rmac_init(etha);
 	if (ret)
 		return ret;
+
+	ret = phy_startup(etha->phydev);
+	if (ret)
+		return ret;
+
+	phy_update_speed(etha, etha->phydev->speed);
 
 	ret = rswitch_etha_change_mode(priv, EAMC_OPC_OPERATION);
 	if (ret)
@@ -548,6 +802,31 @@ static int rswitch_init(struct rswitch_priv *priv)
 
 static int rswitch_phy_config(struct udevice *dev)
 {
+	struct rswitch_priv *priv = dev_get_priv(dev);
+	struct rswitch_etha *etha = &priv->etha;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct phy_device *phydev;
+	int reg;
+
+	phydev = phy_connect(etha->bus, 0, dev, pdata->phy_interface);
+	if (!phydev)
+		return -ENODEV;
+
+	etha->phydev = phydev;
+
+	phydev->supported &= SUPPORTED_100baseT_Full | SUPPORTED_1000baseT_Full |
+			     SUPPORTED_Autoneg |  SUPPORTED_TP | SUPPORTED_MII |
+			     SUPPORTED_Pause | SUPPORTED_Asym_Pause;
+
+	if (pdata->max_speed != 1000) {
+		phydev->supported &= ~SUPPORTED_1000baseT_Full;
+		reg = phy_read(phydev, -1, MII_CTRL1000);
+		reg &= ~(BIT(9) | BIT(8));
+		phy_write(phydev, -1, MII_CTRL1000, reg);
+	}
+	phydev->speed = 1000;
+	phy_config(phydev);
+
 	return 0;
 }
 
@@ -664,6 +943,15 @@ static void rswitch_stop(struct udevice *dev)
 
 static int rswitch_write_hwaddr(struct udevice *dev)
 {
+	struct rswitch_priv *priv = dev_get_priv(dev);
+	struct rswitch_etha *etha = &priv->etha;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	unsigned char *mac = pdata->enetaddr;
+
+	writel((mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) | mac[5], etha->addr + MRMAC1);
+
+	writel((mac[0] << 8) | mac[1], etha->addr + MRMAC0);
+
 	return 0;
 }
 
@@ -673,6 +961,7 @@ static int rswitch_probe(struct udevice *dev)
 	struct rswitch_priv *priv = dev_get_priv(dev);
 	struct rswitch_etha *etha = &priv->etha;
 	struct rswitch_gwca *gwca = &priv->gwca;
+	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
 	int ret;
 
@@ -685,6 +974,8 @@ static int rswitch_probe(struct udevice *dev)
 	etha->index = 0;
 	etha->addr = priv->addr + RSWITCH_ETHA_OFFSET + etha->index * RSWITCH_ETHA_SIZE;
 
+	etha->enetaddr = pdata->enetaddr;
+
 	/* Use only one port so always use (forward to) GWCA0 */
 	gwca->index = 0;
 	gwca->addr = priv->addr + RSWITCH_GWCA_OFFSET + gwca->index * RSWITCH_GWCA_SIZE;
@@ -695,15 +986,21 @@ static int rswitch_probe(struct udevice *dev)
 	if (ret)
 		goto err_mdio_alloc;
 
+	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0, &phandle_args);
+	if (!ret) {
+		ret = -ENODEV;
+		goto err_mdio_alloc;
+	}
+
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
 		ret = -ENOMEM;
 		goto err_mdio_alloc;
 	}
 
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = priv;
+	mdiodev->priv = priv;
+	mdiodev->read = rswitch_mii_read_c45;
+	mdiodev->write = rswitch_mii_write_c45;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	ret = mdio_register(mdiodev);
@@ -752,10 +1049,28 @@ static int rswitch_remove(struct udevice *dev)
 int rswitch_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	const char *phy_mode;
+	const fdt32_t *cell;
+	int ret = 0;
 
 	pdata->iobase = dev_read_addr(dev);
+	pdata->phy_interface = -1;
+	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
+				NULL);
+	if (phy_mode)
+		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 
-	return 0;
+	if (pdata->phy_interface == -1) {
+		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
+		return -EINVAL;
+	}
+
+	pdata->max_speed = 1000;
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
+
+	return ret;
 }
 
 static const struct eth_ops rswitch_ops = {
