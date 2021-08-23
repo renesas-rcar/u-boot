@@ -25,22 +25,17 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#define RST_BASE	0xE6160000 /* Domain0 */
-#define RST_SRESCR0	(RST_BASE + 0x18)
-#define RST_SPRES	0x5AA58000
-#define RST_WDTRSTCR	(RST_BASE + 0x10)
-#define RST_RWDT	0xA55A8002
-
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 
-	/* Enable RWDT reset */
-	writel(RST_RWDT, RST_WDTRSTCR);
-
 	return 0;
 }
+
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_SRESCR0	(RST_BASE + 0x18)
+#define RST_SPRES	0x5AA58000
 
 void reset_cpu(ulong addr)
 {
