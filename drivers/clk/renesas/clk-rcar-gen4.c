@@ -26,6 +26,16 @@ struct clk_div_table {
 	unsigned int div;
 };
 
+/* CPG_RPCFC[4:3] */
+static const struct clk_div_table cpg_rpcsrc_div_table[] = {
+	{ 2, 5 }, { 3, 6 }, { 0, 0 },
+};
+
+/* CPG_RPCFC[2:0] */
+static const struct clk_div_table cpg_rpc_div_table[] = {
+	{ 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 0, 0 },
+};
+
 static int gen4_clk_get_parent(struct gen4_clk_priv *priv, struct clk *clk,
 			       struct cpg_mssr_info *info, struct clk *parent)
 {
@@ -284,6 +294,25 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 		debug("%s[%i] MDSEL clk: parent=%i div=%u => rate=%llu\n",
 		      __func__, __LINE__,
 		      parent_id, div, rate);
+		return rate;
+
+	case CLK_TYPE_R8A779F0_RPCSRC:
+		/* CPG_RPCFC[4:3] */
+		return gen4_clk_get_rate64_div_table(priv, &parent, core,
+					core->offset, 3, 2, cpg_rpcsrc_div_table,
+					"S4_RPCSRC");
+
+	case CLK_TYPE_R8A779F0_RPC:
+		/* CPG_RPCFC[2:0] */
+		return gen4_clk_get_rate64_div_table(priv, &parent, core,
+					core->offset, 0, 3, cpg_rpc_div_table,
+					"S4_RPC");
+
+	case CLK_TYPE_R8A779F0_RPCD2:
+		rate = gen4_clk_get_rate64(&parent) / core->div;
+		debug("%s[%i] RPCD2 clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__,
+		      parent_id, core->div, rate);
 		return rate;
 	}
 
