@@ -173,17 +173,21 @@ static int gen4_clk_disable(struct clk *clk)
 #define CPG_SSMODE_FRAC_DOWN	0x6
 #define CPG_SSMODE_FRAC_CENTER	0x7
 
+#define is_v4h (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A779G0)
+
 /* PLLxCR0 */
 #define CPG_PLL_KICK		BIT(31)
-#define CPG_PLL_NI_T1(val)	((val >> 20) & 0x1ff) /* R-Car S4 */
-#define CPG_PLL_NI_T2(val)	((val >> 20) & 0xff) /* R-Car V4H */
+#define CPG_PLL_NI_S4(val)	((val >> 20) & 0x1ff) /* R-Car S4 */
+#define CPG_PLL_NI_V4H(val)	((val >> 20) & 0xff) /* R-Car V4H */
+#define CPG_PLL_NI(val)		(is_v4h ? CPG_PLL_NI_V4H(val) : CPG_PLL_NI_S4(val))
 #define CPG_PLL_SSMODE(val)	((val >> 16) & 0x7)
 #define CPG_PLL_SSFREQ(val)	((val >> 8) & 0x7f)
 #define CPG_PLL_SSDEPT(val)	(val & 0x7f)
 
 /* PLLxCR1 */
-#define CPG_PLL_NF_T1(val)	(val & 0xffffff) /* R-Car S4 */
-#define CPG_PLL_NF_T2(val)	(val & 0x1ffffff) /* R-Car V4H */
+#define CPG_PLL_NF_S4(val)	(val & 0xffffff) /* R-Car S4 */
+#define CPG_PLL_NF_V4H(val)	(val & 0x1ffffff) /* R-Car V4H */
+#define CPG_PLL_NF(val)		(is_v4h ? CPG_PLL_NF_V4H(val) : CPG_PLL_NF_S4(val))
 
 static u64 gen4_clk_get_rate64(struct clk *clk);
 
@@ -201,13 +205,13 @@ static u64 gen4_clk_get_rate64_pll_mul_reg(struct gen4_clk_priv *priv,
 		ssmode = CPG_PLL_SSMODE(value);
 
 		frac = (ssmode == CPG_SSMODE_INT || !frac_reg) ? 0 :
-			CPG_PLL_NF_T1(readl(priv->base + frac_reg));
+			CPG_PLL_NF(readl(priv->base + frac_reg));
 
 		switch (core->type) {
 		case CLK_TYPE_R8A779F0_PLL1:
 			if (ssmode == CPG_SSMODE_FRAC ||
 			    ssmode == CPG_SSMODE_FRAC_CENTER)
-				mult = (CPG_PLL_NI_T1(value) + 1);
+				mult = (CPG_PLL_NI(value) + 1);
 			else
 				return -EINVAL;
 			break;
@@ -215,17 +219,36 @@ static u64 gen4_clk_get_rate64_pll_mul_reg(struct gen4_clk_priv *priv,
 		case CLK_TYPE_R8A779F0_PLL2:
 		case CLK_TYPE_R8A779F0_PLL6:
 			if (ssmode == CPG_SSMODE_INT)
-				mult = (CPG_PLL_NI_T1(value) + 1) * 2;
+				mult = (CPG_PLL_NI(value) + 1) * 2;
 			else if (ssmode == CPG_SSMODE_FRAC ||
 				 ssmode == CPG_SSMODE_FRAC_DOWN)
-				mult = (CPG_PLL_NI_T1(value) + 1);
+				mult = (CPG_PLL_NI(value) + 1);
 			else
 				return -EINVAL;
 			break;
 
 		case CLK_TYPE_R8A779F0_PLL3:
 			if (ssmode == CPG_SSMODE_INT)
-				mult = (CPG_PLL_NI_T1(value) + 1) * 2;
+				mult = (CPG_PLL_NI(value) + 1) * 2;
+			else
+				return -EINVAL;
+			break;
+
+		case CLK_TYPE_R8A779G0_PLL1:
+		case CLK_TYPE_R8A779G0_PLL2:
+		case CLK_TYPE_R8A779G0_PLL4:
+		case CLK_TYPE_R8A779G0_PLL6:
+			if (ssmode == CPG_SSMODE_INT ||
+			    ssmode == CPG_SSMODE_FRAC ||
+			    ssmode == CPG_SSMODE_FRAC_DOWN)
+				mult = (CPG_PLL_NI(value) + 1) * 2;
+			else
+				return -EINVAL;
+			break;
+
+		case CLK_TYPE_R8A779G0_PLL3:
+			if (ssmode == CPG_SSMODE_INT)
+				mult = (CPG_PLL_NI(value) + 1) * 2;
 			else
 				return -EINVAL;
 		}
@@ -356,6 +379,7 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN4_MAIN:
 	case CLK_TYPE_R8A779F0_MAIN:
+	case CLK_TYPE_R8A779G0_MAIN:
 		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 					0, 0, 1, pll_config->extal_div,
 					"MAIN");
@@ -385,6 +409,36 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 					CPG_PLL6CR0, CPG_PLL6CR1, 0,
 					pll_config->extal_div, "S4_PLL6");
 
+	case CLK_TYPE_R8A779G0_PLL1:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					CPG_PLL1CR0, CPG_PLL1CR1, 0,
+					pll_config->extal_div, "V4H_PLL1");
+
+	case CLK_TYPE_R8A779G0_PLL2:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					CPG_PLL2CR0, CPG_PLL2CR1, 0,
+					pll_config->extal_div, "V4H_PLL2");
+
+	case CLK_TYPE_R8A779G0_PLL3:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					CPG_PLL3CR0, CPG_PLL3CR1, 0,
+					pll_config->extal_div, "V4H_PLL3");
+
+	case CLK_TYPE_R8A779G0_PLL4:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					CPG_PLL4CR0, CPG_PLL4CR1, 0,
+					pll_config->extal_div, "V4H_PLL4");
+
+	case CLK_TYPE_R8A779G0_PLL5:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					0, 0, pll_config->pll5_mult,
+					pll_config->pll5_div, "V4H_PLL5");
+
+	case CLK_TYPE_R8A779G0_PLL6:
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+					CPG_PLL6CR0, CPG_PLL6CR1, 0,
+					pll_config->extal_div, "V4H_PLL6");
+
 	case CLK_TYPE_FF:
 		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 					0, 0, core->mult, core->div,
@@ -392,6 +446,7 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN4_MDSEL:
 	case CLK_TYPE_R8A779F0_MDSEL:
+	case CLK_TYPE_R8A779G0_MDSEL:
 		if (priv->cpg_mode & BIT(core->offset)) {
 			parent_id = core->parent & 0xffff;
 			div = core->div & 0xffff;
