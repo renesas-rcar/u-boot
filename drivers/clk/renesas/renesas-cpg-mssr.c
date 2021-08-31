@@ -128,7 +128,8 @@ int renesas_clk_remove(void __iomem *base, struct cpg_mssr_info *info)
 				info->mstp_table[i].sdis,
 				info->mstp_table[i].sen);
 
-		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U)
+		if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U ||
+		    info->reg_layout == CLK_REG_LAYOUT_RCAR_S4)
 			continue;
 
 		clrsetbits_le32(base + RMSTPCR(i),
