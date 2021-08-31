@@ -135,7 +135,8 @@ static int gen4_clk_setup_sdif_div(struct clk *clk, ulong rate)
 	if (ret)
 		return ret;
 
-	if (core->type != CLK_TYPE_R8A779F0_SD)
+	if (!(core->type == CLK_TYPE_R8A779F0_SD ||
+	    core->type == CLK_TYPE_R8A779G0_SD))
 		return 0;
 
 	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
@@ -466,8 +467,14 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 		return gen4_clk_get_rate64_div_table(priv, &parent, core,
 					core->offset, 29, 2, cpg_sdsrc_div_table,
 					"S4_SDSCR");
+	case CLK_TYPE_R8A779G0_SDSCR:
+		/* CPG_SDSRC_SEL[30:29] */
+		return gen4_clk_get_rate64_div_table(priv, &parent, core,
+					core->offset, 29, 2, cpg_sdsrc_div_table,
+					"V4H_SDSCR");
 
 	case CLK_TYPE_R8A779F0_SD:
+	case CLK_TYPE_R8A779G0_SD:
 		value = readl(priv->base + core->offset);
 		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
 
