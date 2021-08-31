@@ -21,6 +21,11 @@
 #include "renesas-cpg-mssr.h"
 #include "rcar-gen4-cpg.h"
 
+struct clk_div_table {
+	u32 val;
+	unsigned int div;
+};
+
 static int gen4_clk_get_parent(struct gen4_clk_priv *priv, struct clk *clk,
 			       struct cpg_mssr_info *info, struct clk *parent)
 {
@@ -129,6 +134,48 @@ static u64 gen4_clk_get_rate64_pll_mul_reg(struct gen4_clk_priv *priv,
 
 	debug("%s[%i] %s clk: parent=%i mult=%u div=%u mode=%u => rate=%llu\n",
 	      __func__, __LINE__, name, core->parent, mult, div, ssmode, rate);
+	return rate;
+}
+
+static unsigned int _get_table_div(const struct clk_div_table *table, u32 value)
+{
+	const struct clk_div_table *clkt;
+
+	for (clkt = table; clkt->div; clkt++)
+		if (clkt->val == value)
+			return clkt->div;
+	return 0;
+}
+
+/*
+ * @reg: register address to adjust divider
+ * @shift: number of bits to shift the bitfield
+ * @width: width of the bitfield
+ * @table: array of divider/value pairs ending with a div set to 0
+ */
+#define div_mask(width)	((1 << (width)) - 1)
+
+static u64 gen4_clk_get_rate64_div_table(struct gen4_clk_priv *priv,
+					 struct clk *parent,
+					 const struct cpg_core_clk *core,
+					 u32 reg, u32 shift, u32 width,
+					 const struct clk_div_table *table,
+					 char *name)
+{
+	u32 value, div;
+	u64 rate;
+
+	value = readl(priv->base + reg) >> shift;
+	value &= div_mask(width);
+
+	div = _get_table_div(table, value);
+	if (!div)
+		return -EINVAL;
+
+	rate = gen4_clk_get_rate64(parent) / div;
+	debug("%s[%i] %s clk: parent=%i div=%u => rate=%llu\n",
+	      __func__, __LINE__, name, core->parent, div, rate);
+
 	return rate;
 }
 
