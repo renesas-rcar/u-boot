@@ -164,6 +164,13 @@ static unsigned int _get_table_div(const struct clk_div_table *table, u32 value)
  * @table: array of divider/value pairs ending with a div set to 0
  */
 #define div_mask(width)	((1 << (width)) - 1)
+#define RPC_CMNCR		0xEE200000
+#define RPC_CMNCR_MOIIO3(val)	(((val) & 0x3) << 22)
+#define RPC_CMNCR_MOIIO2(val)	(((val) & 0x3) << 20)
+#define RPC_CMNCR_MOIIO1(val)	(((val) & 0x3) << 18)
+#define RPC_CMNCR_MOIIO0(val)	(((val) & 0x3) << 16)
+#define RPC_CMNCR_MOIIO_HIZ	(RPC_CMNCR_MOIIO0(3) | RPC_CMNCR_MOIIO1(3) | \
+				 RPC_CMNCR_MOIIO2(3) | RPC_CMNCR_MOIIO3(3))
 
 static u64 gen4_clk_get_rate64_div_table(struct gen4_clk_priv *priv,
 					 struct clk *parent,
@@ -175,8 +182,26 @@ static u64 gen4_clk_get_rate64_div_table(struct gen4_clk_priv *priv,
 	u32 value, div;
 	u64 rate;
 
+retry:
 	value = readl(priv->base + reg) >> shift;
 	value &= div_mask(width);
+
+	if (core->type == CLK_TYPE_R8A779G0_RPCSRC && value == 0x3) {
+		debug("%s: %s: force to correct RPCFC[4:3] to 0x2\n",
+		      __func__, name);
+		/*
+		 * When the operation frequency changes by setting RPCCKCR in
+		 * CPG, read after write operation on this register is
+		 * necessary to guarantee the setting to be applied.
+		 * Before changing RPCCKCR setting, set CMNCR.MOIIOx(x=0,1,2,3)
+		 * register to B’11 (Hi-Z).
+		 */
+		writel(readl(RPC_CMNCR) | RPC_CMNCR_MOIIO_HIZ, RPC_CMNCR);
+		value = readl(priv->base + reg) & 0xFFFFFFF7;
+		writel(value, priv->base + reg);
+		readl(priv->base + reg);
+		goto retry;
+	}
 
 	div = _get_table_div(table, value);
 	if (!div)
