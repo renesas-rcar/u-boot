@@ -300,7 +300,8 @@ retry:
 	value = readl(priv->base + reg) >> shift;
 	value &= div_mask(width);
 
-	if (core->type == CLK_TYPE_R8A779F0_RPCSRC && value == 0x3) {
+	if ((value == 0x3) && (core->type == CLK_TYPE_R8A779F0_RPCSRC ||
+	    core->type == CLK_TYPE_R8A779G0_RPCSRC)) {
 		debug("%s: %s: force to correct RPCFC[4:3] to 0x2\n",
 		      __func__, name);
 		/*
