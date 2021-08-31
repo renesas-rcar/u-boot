@@ -14,6 +14,21 @@ enum rcar_gen4_clk_types {
 	CLK_TYPE_GEN4_MDSEL,		/* Select parent/divider using mode pin */
 	CLK_TYPE_GEN4_OSC,		/* OSC EXTAL pre-divider and fixed divider */
 
+	CLK_TYPE_R8A779G0_MAIN,
+	CLK_TYPE_R8A779G0_PLL1,
+	CLK_TYPE_R8A779G0_PLL2,
+	CLK_TYPE_R8A779G0_PLL3,
+	CLK_TYPE_R8A779G0_PLL4,
+	CLK_TYPE_R8A779G0_PLL5,
+	CLK_TYPE_R8A779G0_PLL6,
+	CLK_TYPE_R8A779G0_SDSCR,
+	CLK_TYPE_R8A779G0_SD,
+	CLK_TYPE_R8A779G0_RPCSRC,
+	CLK_TYPE_R8A779G0_RPC,
+	CLK_TYPE_R8A779G0_RPCD2,
+	CLK_TYPE_R8A779G0_MDSEL,	/* Select parent/divider using mode pin */
+	CLK_TYPE_R8A779G0_OSC,		/* OSC EXTAL pre-divider and fixed divider */
+
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN4_SOC_BASE,
 };
