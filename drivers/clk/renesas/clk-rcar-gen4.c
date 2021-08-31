@@ -36,6 +36,59 @@ static const struct clk_div_table cpg_rpc_div_table[] = {
 	{ 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 0, 0 },
 };
 
+/*
+ * SDn Clock
+ */
+
+/* CPG_SDSRC_SEL[30:29] */
+static const struct clk_div_table cpg_sdsrc_div_table[] = {
+	{ 0, 4 }, { 1, 5 }, { 2, 6 }, { 0, 0 },
+};
+
+#define CPG_SD_STP_HCK		BIT(9)
+#define CPG_SD_STP_CK		BIT(8)
+
+#define CPG_SD_STP_MASK		(CPG_SD_STP_HCK | CPG_SD_STP_CK)
+#define CPG_SD_FC_MASK		(0x7 << 2 | 0x3 << 0)
+
+#define CPG_SD_DIV_TABLE_DATA(stp_hck, sd_srcfc, sd_fc, sd_div) \
+{ \
+	.val = ((stp_hck) ? CPG_SD_STP_HCK : 0) | \
+	       ((sd_srcfc) << 2) | \
+	       ((sd_fc) << 0), \
+	.div = (sd_div), \
+}
+
+/* SDn divider
+ *          sd_srcfc   sd_fc   div
+ * stp_hck  (div)      (div)     = sd_srcfc x sd_fc
+ *--------------------------------------------------------
+ *  0        0 (1)      1 (4)      4
+ *  0        1 (2)      1 (4)      8
+ *  1        2 (4)      1 (4)     16
+ *  1        3 (8)      1 (4)     32
+ *  1        4 (16)     1 (4)     64
+ *  0        0 (1)      0 (2)      2
+ *  0        1 (2)      0 (2)      4
+ *  1        2 (4)      0 (2)      8
+ *  1        3 (8)      0 (2)     16
+ *  1        4 (16)     0 (2)     32
+ */
+static const struct clk_div_table cpg_sd_div_table[] = {
+/*	CPG_SD_DIV_TABLE_DATA(stp_hck,  sd_srcfc,   sd_fc,  sd_div) */
+	CPG_SD_DIV_TABLE_DATA(0,        0,          1,        4),
+	CPG_SD_DIV_TABLE_DATA(0,        1,          1,        8),
+	CPG_SD_DIV_TABLE_DATA(1,        2,          1,       16),
+	CPG_SD_DIV_TABLE_DATA(1,        3,          1,       32),
+	CPG_SD_DIV_TABLE_DATA(1,        4,          1,       64),
+	CPG_SD_DIV_TABLE_DATA(0,        0,          0,        2),
+	CPG_SD_DIV_TABLE_DATA(0,        1,          0,        4),
+	CPG_SD_DIV_TABLE_DATA(1,        2,          0,        8),
+	CPG_SD_DIV_TABLE_DATA(1,        3,          0,       16),
+	CPG_SD_DIV_TABLE_DATA(1,        4,          0,       32),
+	{ /* Sentinel */ },
+};
+
 static int gen4_clk_get_parent(struct gen4_clk_priv *priv, struct clk *clk,
 			       struct cpg_mssr_info *info, struct clk *parent)
 {
@@ -59,6 +112,37 @@ static int gen4_clk_get_parent(struct gen4_clk_priv *priv, struct clk *clk,
 	}
 
 	return renesas_clk_get_parent(clk, info, parent);
+}
+
+static int gen4_clk_setup_sdif_div(struct clk *clk, ulong rate)
+{
+	struct gen4_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
+	const struct cpg_core_clk *core;
+	struct clk parent;
+	int ret;
+
+	ret = gen4_clk_get_parent(priv, clk, info, &parent);
+	if (ret) {
+		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	if (renesas_clk_is_mod(&parent))
+		return 0;
+
+	ret = renesas_clk_get_core(&parent, info, &core);
+	if (ret)
+		return ret;
+
+	if (core->type != CLK_TYPE_R8A779F0_SD)
+		return 0;
+
+	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
+
+	writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
+
+	return 0;
 }
 
 static int gen4_clk_enable(struct clk *clk)
@@ -321,6 +405,25 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 		      parent_id, div, rate);
 		return rate;
 
+	case CLK_TYPE_R8A779F0_SDSCR:
+		/* CPG_SDSRC_SEL[30:29] */
+		return gen4_clk_get_rate64_div_table(priv, &parent, core,
+					core->offset, 29, 2, cpg_sdsrc_div_table,
+					"S4_SDSCR");
+
+	case CLK_TYPE_R8A779F0_SD:
+		value = readl(priv->base + core->offset);
+		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
+
+		div = _get_table_div(cpg_sd_div_table, value);
+		if (!div)
+			return -EINVAL;
+
+		rate = gen4_clk_get_rate64(&parent) / div;
+		debug("%s[%i] SD clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__, core->parent, div, rate);
+		return rate;
+
 	case CLK_TYPE_R8A779F0_RPCSRC:
 		/* CPG_RPCFC[4:3] */
 		return gen4_clk_get_rate64_div_table(priv, &parent, core,
@@ -353,6 +456,8 @@ static ulong gen4_clk_get_rate(struct clk *clk)
 
 static ulong gen4_clk_set_rate(struct clk *clk, ulong rate)
 {
+	/* Force correct SD-IF divider configuration if applicable */
+	gen4_clk_setup_sdif_div(clk, rate);
 	return gen4_clk_get_rate64(clk);
 }
 
