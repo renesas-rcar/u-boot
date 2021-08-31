@@ -513,6 +513,15 @@ int gen4_clk_probe(struct udevice *dev)
 
 	priv->cpg_mode = cpg_mode;
 
+	if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V4H) {
+		priv->info->status_regs = mstpsr_for_v4h;
+		priv->info->control_regs = mstpcr_for_v4h;
+		priv->info->reset_regs = srcr_for_v4h;
+		priv->info->reset_clear_regs = srstclr_for_v4h;
+	} else {
+		return -EINVAL;
+	}
+
 	ret = clk_get_by_name(dev, "extal", &priv->clk_extal);
 	if (ret < 0)
 		return ret;
