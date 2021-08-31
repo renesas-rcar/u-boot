@@ -30,6 +30,7 @@ struct cpg_mssr_info {
 	unsigned int			mstp_table_size;
 	const char			*reset_node;
 	unsigned int			reset_modemr_offset;
+	unsigned int			reset_modemr1_offset;
 	const char			*extalr_node;
 	const char			*extal_usb_node;
 	unsigned int			mod_clk_base;
