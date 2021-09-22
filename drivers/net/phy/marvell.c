@@ -6,6 +6,7 @@
  * author Andy Fleming
  */
 #include <common.h>
+#include <console.h>
 #include <errno.h>
 #include <phy.h>
 #include <linux/bitops.h>
@@ -103,6 +104,64 @@
 #define MIIM_88E151x_GENERAL_CTRL	20
 #define MIIM_88E151x_MODE_SGMII		1
 #define MIIM_88E151x_RESET_OFFS		15
+
+/* 88E2110 PHY defines */
+/* Copper Line-Side PHY */
+#define MDIO_DEVAD_C			31 /* Control Unit Device */
+#define MDIO_DEVAD_PMA			1  /* T-Unit PMA Control Device */
+#define MDIO_DEVAD_PCS			3  /* T-Unit PCS Control Device */
+#define MDIO_DEVAD_AN			7  /* Auto-Neg Control Device */
+
+/* Host Side PHY */
+#define MDIO_DEVAD_HI			4  /* Host Interface Control Device */
+
+/* C-Unit Control Register */
+#define MIIM_88E2110_PHY_MOD_CONF		0xF000
+#define MV_SPEED_MASK				(0x3 << 6)
+#define MV_SPEED_100				BIT(6)
+#define MV_SPEED_1000				BIT(7)
+#define MIIM_88E2110_PHY_PORT_RS		0xF001
+#define MIIM_88E2110_PHY_PORT_CTRL		0xC04A
+#define PORT_RS					BIT(15)
+#define MAC_TYPE_MASK				0x7
+#define SXGMII					0x0
+#define SGMII_AN_ON				0x4
+#define SGMII_AN_OFF				0x5
+
+/* PMA Register */
+#define MIIM_88E2110_PHY_PMAPMD_CTRL		0x0000
+#define MIIM_88E2110_PHY_NGBASE_EXCTRL		0xC000
+#define MIIM_88E2110_PHY_BOOTSTAT		0xC050
+#define BOOT_FATAL				BIT(0)
+
+/* PCS Register */
+#define MIIM_88E2110_PHY_PCS_CTRL1		0x0000
+#define MIIM_88E2110_PHY_AVPCS_CTRL		0x8000
+#define MIIM_88E2110_PHY_STATUS			0x8008
+#define PHY_LINK				BIT(10)
+#define PHY_DUPLEX				BIT(13)
+#define PHY_LINK_SPEED				(0x3 << 14)
+#define PHY_LINK_100				(0x1 << 14)
+#define PHY_LINK_1000				(0x2 << 14)
+
+/* Host Interface Register */
+#define MIIM_88E2110_PHY_1000BASEX		0xA003
+#define MIIM_88E2110_PHY_SD_CTRL1		0xF003
+#define MIIM_88E2110_PHY_SD_CTRL2		0x800F
+#define SD_INIT					BIT(15)
+#define DIS_AUTO_INIT				BIT(13)
+
+/* Auto-Neg Register */
+#define MIIM_88E2110_PHY_AN_CTRL		0x0000
+#define AN_ENABLE				BIT(12)
+#define MIIM_88E2110_PHY_AN_STAT		0x0001
+#define AN_COMPLETE				BIT(5)
+#define AN_CAPABLE				BIT(3)
+#define AN_LINK_STAT				BIT(2)
+
+#define PHY_TIMEOUT				10000
+#define LINK_UP					1
+#define LINK_DOWN				0
 
 static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)
@@ -590,6 +649,237 @@ static int m88e1680_config(struct phy_device *phydev)
 	return 0;
 }
 
+#ifdef MV2110_LOOPBACK
+
+/* Loopback Set */
+static int m88e2110_loopback_set(struct phy_device *phydev)
+{
+	u16 reg;
+
+	reg = phy_read(phydev, MDIO_DEVAD_HI, MIIM_88E2110_PHY_SD_CTRL1);
+	reg &= ~(BIT(15) | BIT(14) | BIT(13) | 0x3f);
+	reg |= BIT(12);
+	phy_write(phydev, MDIO_DEVAD_HI, MIIM_88E2110_PHY_SD_CTRL1, reg);
+	reg = phy_read(phydev, MDIO_DEVAD_HI, MIIM_88E2110_PHY_SD_CTRL1);
+	printf("\n%s : PHY Device 4, reg 0xf003 = 0x%x", __func__, reg);
+
+	return 0;
+}
+
+#endif
+
+/* Marvell 88E2110 */
+static int check_T_unit_linkup(struct phy_device *phydev)
+{
+	u16 reg;
+	int timeout = 0;
+
+	while (1) {
+		reg = phy_read(phydev, MDIO_DEVAD_PCS, MIIM_88E2110_PHY_STATUS);
+		if (reg & PHY_LINK)
+			return 0;
+
+		if (timeout > PHY_TIMEOUT)
+			return -ETIMEDOUT;
+
+		timeout++;
+		mdelay(1);
+	}
+}
+
+static int check_H_unit_linkup(struct phy_device *phydev)
+{
+	u16 reg;
+	int timeout = 0;
+
+	while (1) {
+		reg = phy_read(phydev, MDIO_DEVAD_HI, MIIM_88E2110_PHY_1000BASEX);
+		if (reg & PHY_LINK)
+			return 0;
+
+		if (timeout > PHY_TIMEOUT)
+			return -ETIMEDOUT;
+
+		timeout++;
+		mdelay(1);
+	}
+}
+
+static int m88e2110_config(struct phy_device *phydev)
+{
+	ofnode node = phy_get_ofnode(phydev);
+	u16 reg;
+	int timeout = 0;
+
+	if (!ofnode_valid(node)) {
+		printf("\n Not found PHY device");
+		return -EINVAL;
+	}
+
+	/* Check Boot Status */
+	reg = phy_read(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_BOOTSTAT);
+
+	if (reg & BOOT_FATAL) {
+		printf("\n %s : PHY failed to boot, ret=0x%x", __func__, reg);
+		return -EINVAL;
+	}
+
+	/* Confirm Port Status */
+	reg = phy_read(phydev, MDIO_DEVAD_C, MIIM_88E2110_PHY_PORT_RS);
+	if (!reg) {
+		printf("\n %s : Port Error, Port status = 0x%x ", __func__, reg);
+		return -EINVAL;
+	}
+
+	/* Check that the PHY interface type is compatible */
+	if (phydev->interface != PHY_INTERFACE_MODE_MII &&
+	    phydev->interface != PHY_INTERFACE_MODE_SGMII &&
+	    phydev->interface != PHY_INTERFACE_MODE_USXGMII) {
+		printf("\n %s: PHY interface type does not support", __func__);
+		return -ENODEV;
+	}
+
+	/* RSW2_SGMII_1G */
+	reg = phy_read(phydev, MDIO_DEVAD_C, MIIM_88E2110_PHY_MOD_CONF);
+	reg &= ~MV_SPEED_MASK;
+	reg |= MV_SPEED_1000;
+	phy_write(phydev, MDIO_DEVAD_C, MIIM_88E2110_PHY_MOD_CONF, reg);
+
+	/* Port Reset */
+	reg = phy_read(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_PORT_CTRL);
+	reg |= PORT_RS;
+	phy_write(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_PORT_CTRL, reg);
+	phy_write(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_PORT_CTRL, reg);
+	reg = phy_read(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_PORT_CTRL);
+
+	/* Port Control: Set MACTYPE = SXGMII */
+	if ((reg & MAC_TYPE_MASK) != SGMII_AN_ON) {
+		reg &= ~MAC_TYPE_MASK;
+		reg |= PORT_RS | SGMII_AN_ON;
+		phy_write(phydev, MDIO_DEVAD_PMA, MIIM_88E2110_PHY_PORT_CTRL, reg);
+
+		/* SerDes Init */
+		reg = phy_read(phydev, MDIO_DEVAD_AN, MIIM_88E2110_PHY_SD_CTRL2);
+		reg |= SD_INIT | DIS_AUTO_INIT;
+		phy_write(phydev, MDIO_DEVAD_AN, MIIM_88E2110_PHY_SD_CTRL2, reg);
+
+		do {
+			reg = phy_read(phydev, MDIO_DEVAD_AN, MIIM_88E2110_PHY_SD_CTRL2);
+
+			if (timeout > PHY_TIMEOUT)
+				return -ETIMEDOUT;
+
+			timeout++;
+			mdelay(1);
+		} while (reg & SD_INIT);
+
+		reg &= ~DIS_AUTO_INIT;
+		phy_write(phydev, MDIO_DEVAD_AN, MIIM_88E2110_PHY_SD_CTRL2, reg);
+	}
+
+	return 0;
+}
+
+/* Parse the 88E2110's status register for speed and duplex
+ * information
+ */
+static uint m88e2110_parse_status(struct phy_device *phydev)
+{
+	u16 reg;
+	int i = 0;
+
+	reg = phy_read(phydev, MDIO_DEVAD_PCS, MIIM_88E2110_PHY_STATUS);
+
+	if (!(reg & PHY_LINK)) {
+		puts("Waiting for PHY realtime link");
+		while (!(reg & PHY_LINK)) {
+			/* Timeout reached ? */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts(" TIMEOUT !\n");
+				phydev->link = LINK_DOWN;
+				break;
+			}
+
+			if ((i++ % 1000) == 0)
+				putc('.');
+			udelay(1000);
+			reg = phy_read(phydev, MDIO_DEVAD_PCS, MIIM_88E2110_PHY_STATUS);
+		}
+		puts(" done\n");
+		mdelay(500);    /* another 500 ms (results in faster booting) */
+
+		if (reg & PHY_LINK)
+			phydev->link = LINK_UP;
+		else
+			phydev->link = LINK_DOWN;
+	}
+
+	if (reg & PHY_DUPLEX)
+		phydev->duplex = DUPLEX_FULL;
+	else
+		phydev->duplex = DUPLEX_HALF;
+
+	switch (reg & PHY_LINK_SPEED) {
+	case PHY_LINK_1000:
+		phydev->speed = SPEED_1000;
+		break;
+	case PHY_LINK_100:
+		phydev->speed = SPEED_100;
+		break;
+	default:
+		printf("\n %s: PHY link speed does not support", __func__);
+		break;
+	}
+
+	return 0;
+}
+
+static int m88e2110_update_link(struct phy_device *phydev)
+{
+	u16 reg;
+	int ret;
+
+	/* Check T-Unit link status */
+	ret = check_T_unit_linkup(phydev);
+	if (ret) {
+		reg = phy_read(phydev, MDIO_DEVAD_PCS, MIIM_88E2110_PHY_STATUS);
+		printf("\n %s : MPHY T-Unit Link down! 3.8008 = 0x%x", __func__, reg);
+		phydev->link = LINK_DOWN;
+		return ret;
+	}
+
+	/* Check H-Unit link status */
+	ret = check_H_unit_linkup(phydev);
+	if (ret) {
+		reg = phy_read(phydev, MDIO_DEVAD_HI, MIIM_88E2110_PHY_1000BASEX);
+		printf("\n %s : MPHY H-Unit Linkup Timeout! 4.A003 = 0x%x", __func__, reg);
+		phydev->link = LINK_DOWN;
+		return ret;
+	}
+
+	phydev->link = LINK_UP;
+	return 0;
+
+#ifdef MV2110_LOOPBACK
+	m88e2110_loopback_set(phydev);
+#endif
+}
+
+static int m88e2110_startup(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = m88e2110_update_link(phydev);
+	if (ret)
+		return ret;
+
+	ret = m88e2110_parse_status(phydev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static struct phy_driver M88E1011S_driver = {
 	.name = "Marvell 88E1011S",
 	.uid = 0x1410c60,
@@ -692,6 +982,16 @@ static struct phy_driver M88E1680_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E2110_driver = {
+	.name = "Marvell 88E2110",
+	.uid = 0x2b09b0,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &m88e2110_config,
+	.startup = &m88e2110_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_marvell_init(void)
 {
 	phy_register(&M88E1310_driver);
@@ -704,6 +1004,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1011S_driver);
 	phy_register(&M88E151x_driver);
 	phy_register(&M88E1680_driver);
+	phy_register(&M88E2110_driver);
 
 	return 0;
 }
