@@ -163,8 +163,9 @@ struct udevice {
 #endif
 };
 
-/* Maximum sequence number supported */
+/* Maximum sequence number supported and associated string length */
 #define DM_MAX_SEQ	999
+#define DM_MAX_SEQ_STR	3
 
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
