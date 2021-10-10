@@ -44,6 +44,13 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+/* Inhibit U-Boot relocation. */
+int mach_cpu_init(void)
+{
+	gd->flags |= GD_FLG_SKIP_RELOC;
+	return 0;
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 static int is_mem_overlap(void *blob, int first_mem_node, int curr_mem_node)
 {
