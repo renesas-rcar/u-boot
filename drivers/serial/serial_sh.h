@@ -216,6 +216,10 @@ struct uart_port {
 #define SCFCR_TCRST 0x4000
 #define SCFCR_MCE   0x0008
 
+/* HSSRR */
+#define HSSRR_SRE	BIT(15)
+#define HSSRR_SRCYC8	0x0007
+
 #define SCI_MAJOR		204
 #define SCI_MINOR_START		8
 
@@ -245,7 +249,8 @@ struct uart_port {
 
 #define CPU_SCIx_FNS(name, sci_offset, sci_size, scif_offset, scif_size)\
 	static inline unsigned int sci_##name##_in(struct uart_port *port) {\
-		if (port->type == PORT_SCIF || port->type == PORT_SCIFB) {\
+		if (port->type == PORT_SCIF || port->type == PORT_SCIFB ||\
+		    port->type == PORT_HSCIF) {\
 			SCI_IN(scif_size, scif_offset)\
 		} else { /* PORT_SCI or PORT_SCIFA */\
 			SCI_IN(sci_size, sci_offset);\
@@ -253,7 +258,8 @@ struct uart_port {
 	}\
 static inline void sci_##name##_out(struct uart_port *port,\
 				unsigned int value) {\
-	if (port->type == PORT_SCIF || port->type == PORT_SCIFB) {\
+	if (port->type == PORT_SCIF || port->type == PORT_SCIFB ||\
+	    port->type == PORT_HSCIF) {\
 		SCI_OUT(scif_size, scif_offset, value)\
 	} else {	/* PORT_SCI or PORT_SCIFA */\
 		SCI_OUT(sci_size, sci_offset, value);\
@@ -419,7 +425,9 @@ SCIF_FNS(SCSPTR,                        0,  0, 0x20, 16)
 #endif
 SCIF_FNS(SCLSR,                         0,  0, 0x24, 16)
 #endif
-SCIF_FNS(DL,				0,  0, 0x0,  0) /* dummy */
+SCIF_FNS(DL,				0,  0, 0x30, 16)
+SCIF_FNS(CKS,				0,  0, 0x34, 16)
+SCIF_FNS(HSSRR,				0,  0, 0x40, 16) /* HSCIF only */
 #endif
 #define sci_in(port, reg) sci_##reg##_in(port)
 #define sci_out(port, reg, value) sci_##reg##_out(port, value)
@@ -496,6 +504,15 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
  #else
   #define SCBRR_VALUE(bps, clk) (clk / bps / 32 - 1) /* Internal Clock */
  #endif
+#elif defined(CONFIG_RCAR_GEN4)
+static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
+{
+	if (port->type == PORT_SCIF)
+		return (clk + 16 * bps) / (32 * bps) - 1;
+	else /* PORT_HSCIF */
+		return clk / bps / 8 / 2 - 1; /* Internal Clock, Sampling rate = 8 */
+}
+#define SCBRR_VALUE(bps, clk) scbrr_calc(port, bps, clk)
 #else /* Generic SH */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
