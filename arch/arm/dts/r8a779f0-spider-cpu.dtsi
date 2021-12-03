@@ -13,11 +13,11 @@
 	compatible = "renesas,spider-cpu", "renesas,r8a779f0";
 
 	aliases {
-		serial0 = &scif3;
+		serial0 = &hscif0;
 	};
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		stdout-path = "serial0:1843200n8";
 	};
 
 	memory@48000000 {
@@ -145,7 +145,7 @@
 
 	uart-has-rtscts;
 	/* Please use exclusively to the hscif0 node */
-	status = "okay";
+	status = "disabed";
 };
 
 &hscif0 {
@@ -154,7 +154,7 @@
 
 	uart-has-rtscts;
 	/* Please use exclusively to the scif3 node */
-	status = "disabled";
+	status = "okay";
 };
 
 &scif_clk {
