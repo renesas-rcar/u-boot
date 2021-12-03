@@ -57,6 +57,9 @@ static void sh_serial_init_generic(struct uart_port *port)
 #if defined(CONFIG_RZA1)
 	sci_out(port, SCSPTR, 0x0003);
 #endif
+
+	if (port->type == PORT_HSCIF)
+		sci_out(port, HSSRR, HSSRR_SRE | HSSRR_SRCYC8);
 }
 
 static void
@@ -205,6 +208,7 @@ static const struct udevice_id sh_serial_id[] ={
 	{.compatible = "renesas,sci", .data = PORT_SCI},
 	{.compatible = "renesas,scif", .data = PORT_SCIF},
 	{.compatible = "renesas,scifa", .data = PORT_SCIFA},
+	{.compatible = "renesas,hscif", .data = PORT_HSCIF},
 	{}
 };
 
