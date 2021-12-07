@@ -1145,7 +1145,6 @@ static void rswitch_stop(struct udevice *dev)
 	struct rswitch_priv *priv = dev_get_priv(dev);
 
 	phy_shutdown(priv->etha.phydev);
-	rswitch_reset(priv);
 }
 
 static int rswitch_write_hwaddr(struct udevice *dev)
