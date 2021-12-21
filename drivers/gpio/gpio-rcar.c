@@ -194,6 +194,7 @@ static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,gpio-r8a77995" },
 	{ .compatible = "renesas,gpio-r8a779a0", .data = RCAR_GPIO_HAS_INEN },
 	{ .compatible = "renesas,gpio-r8a779f0", .data = RCAR_GPIO_HAS_INEN },
+	{ .compatible = "renesas,gpio-r8a779g0", .data = RCAR_GPIO_HAS_INEN },
 	{ .compatible = "renesas,rcar-gen2-gpio" },
 	{ .compatible = "renesas,rcar-gen3-gpio" },
 	{ /* sentinel */ }
