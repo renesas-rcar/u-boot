@@ -804,6 +804,13 @@ ifdef CONFIG_RCAR_GEN3
 DTC_FLAGS += -R 4 -p 0x1000
 endif
 
+dtb-$(CONFIG_RCAR_GEN4) += \
+	r8a779g0-whitehawk-u-boot.dtb
+
+ifdef CONFIG_RCAR_GEN4
+DTC_FLAGS += -R 4 -p 0x1000
+endif
+
 dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach-u-boot.dtb
 
