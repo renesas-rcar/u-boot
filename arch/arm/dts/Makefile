@@ -808,7 +808,8 @@ DTC_FLAGS += -R 4 -p 0x1000
 endif
 
 dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779f0-spider-u-boot.dtb
+	r8a779f0-spider-u-boot.dtb \
+	r8a779g0-whitehawk-u-boot.dtb
 
 ifdef CONFIG_RCAR_GEN4
 DTC_FLAGS += -R 4 -p 0x1000
