@@ -242,6 +242,12 @@ config TARGET_SPIDER
 	help
 	  Support for Renesas R-Car Gen4 Spider platform
 
+config TARGET_WHITEHAWK
+	bool "White Hawk board"
+	imply R8A779G0
+	help
+	  Support for Renesas R-Car Gen4 White Hawk platform
+
 endchoice
 
 config SYS_SOC
@@ -249,6 +255,7 @@ config SYS_SOC
 
 source "board/renesas/falcon/Kconfig"
 source "board/renesas/spider/Kconfig"
+source "board/renesas/whitehawk/Kconfig"
 
 config SYS_MALLOC_F_LEN
 	default 0x8000 if RCAR_GEN4
