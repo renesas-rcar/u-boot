@@ -18,6 +18,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define EXTAL_CLK	16666666u
+
+static void init_generic_timer(void)
+{
+	u32 freq;
+
+	/* Set frequency data in CNTFID0 */
+	freq = EXTAL_CLK;
+
+	/* Update memory mapped and register based freqency */
+	asm volatile ("msr cntfrq_el0, %0" :: "r" (freq));
+	writel(freq, CNTFID0);
+
+	/* Enable counter */
+	setbits_le32(CNTCR_BASE, CNTCR_EN);
+}
+
+void s_init(void)
+{
+	if (current_el() == 3)
+		init_generic_timer();
+}
+
 int board_early_init_f(void)
 {
 	/* Unlock CPG access */
