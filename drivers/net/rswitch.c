@@ -1199,12 +1199,7 @@ static int rswitch_probe(struct udevice *dev)
 	pdata->iobase = dev_read_addr_size_name(dev, "iobase", &size);
 	priv->addr = map_physmem(pdata->iobase, size, MAP_NOCACHE);
 
-	/*
-	 * TODO: Use only one port so parse from U-Boot env
-	 *       then assign index for etha
-	 * Currently, fixed to use port 0
-	 */
-	etha->index = 0;
+	etha->index = CONFIG_RENESAS_ETHER_SWITCH_DEFAULT_PORT;
 	etha->addr = priv->addr + RSWITCH_ETHA_OFFSET + etha->index * RSWITCH_ETHA_SIZE;
 
 	serdes_addr = dev_read_addr_size_name(dev, "serdes", &size);
