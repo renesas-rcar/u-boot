@@ -572,6 +572,13 @@ config RENESAS_ETHER_SWITCH
 	  This driver implements support for the Renesas Ethernet Switch
 	  which is available on R-Car S4 SoC (r8a779f0).
 
+config RENESAS_ETHER_SWITCH_DEFAULT_PORT
+	int "Renesas Ethernet Switch default port number"
+	depends on RENESAS_ETHER_SWITCH
+	default 0
+	help
+	  Default port number for the Renesas Ethernet Switch driver.
+
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
 	depends on MPC8xx
