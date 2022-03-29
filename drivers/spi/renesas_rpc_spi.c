@@ -453,17 +453,9 @@ static const struct dm_spi_ops rpc_spi_ops = {
 };
 
 static const struct udevice_id rpc_spi_ids[] = {
-	{ .compatible = "renesas,rpc-r7s72100" },
-	{ .compatible = "renesas,rpc-r8a7795" },
-	{ .compatible = "renesas,rpc-r8a7796" },
-	{ .compatible = "renesas,rpc-r8a77965" },
-	{ .compatible = "renesas,rpc-r8a77970" },
-	{ .compatible = "renesas,rpc-r8a77980" },
-	{ .compatible = "renesas,rpc-r8a77995" },
-	{ .compatible = "renesas,rcar-gen3-rpc" },
-	{ .compatible = "renesas,rpc-r8a779a0" },
-	{ .compatible = "renesas,rpc-r8a779f0" },
-	{ .compatible = "renesas,rpc-r8a779g0" },
+	{ .compatible = "renesas,r7s72100-rpc-if" },
+	{ .compatible = "renesas,rcar-gen3-rpc-if" },
+	{ .compatible = "renesas,rcar-gen4-rpc-if" },
 	{ }
 };
 
