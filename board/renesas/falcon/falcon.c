@@ -98,7 +98,8 @@ int board_init(void)
 		init_gic_v3();
 
 	/* Enable RWDT reset */
-	writel(RST_RWDT, RST_WDTRSTCR);
+	if (current_el() == 3)
+		writel(RST_RWDT, RST_WDTRSTCR);
 
 	return 0;
 }
