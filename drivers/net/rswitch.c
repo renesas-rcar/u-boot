@@ -1059,13 +1059,10 @@ static int rswitch_phy_config(struct udevice *dev)
 	struct rswitch_etha *etha = &priv->etha;
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(etha->bus, mask, pdata->phy_interface);
+	phydev = phy_connect(etha->bus, 1, dev, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev);
 
 	etha->phydev = phydev;
 	phydev->speed = 1000;
