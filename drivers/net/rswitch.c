@@ -1058,9 +1058,16 @@ static int rswitch_phy_config(struct udevice *dev)
 	struct rswitch_priv *priv = dev_get_priv(dev);
 	struct rswitch_etha *etha = &priv->etha;
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct ofnode_phandle_args phandle_args;
 	struct phy_device *phydev;
+	int phy_addr;
 
-	phydev = phy_connect(etha->bus, 1, dev, pdata->phy_interface);
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0, &phandle_args))
+		phy_addr = -1;
+	else
+		phy_addr = ofnode_read_u32_default(phandle_args.node, "reg", 1);
+
+	phydev = phy_connect(etha->bus, phy_addr, dev, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
 
