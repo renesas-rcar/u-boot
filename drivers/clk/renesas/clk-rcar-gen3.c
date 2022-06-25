@@ -24,6 +24,7 @@
 
 #include "renesas-cpg-mssr.h"
 #include "rcar-gen3-cpg.h"
+#include "rcar-cpg-lib.h"
 
 #define CPG_PLL0CR		0x00d8
 #define CPG_PLL2CR		0x002c
@@ -65,23 +66,6 @@ static int gen3_clk_disable(struct clk *clk)
 	return renesas_clk_endisable(clk, priv->base, priv->info, false);
 }
 
-struct clk_div_table {
-	u32 val;
-	unsigned int div;
-};
-
-#define SDnSRCFC_SHIFT 2
-#define STPnHCK	BIT(9 - SDnSRCFC_SHIFT)
-
-static const struct clk_div_table cpg_sdh_div_table[] = {
-	{ 0, 1 }, { 1, 2 }, { STPnHCK | 2, 4 }, { STPnHCK | 3, 8 },
-	{ STPnHCK | 4, 16 }, { 0, 0 },
-};
-
-static const struct clk_div_table cpg_sd_div_table[] = {
-	{ 0, 2 }, { 1, 4 }, { 0, 0 },
-};
-
 static const struct clk_div_table r8a77970_cpg_sd0h_div_table[] = {
 	{  0,  2 }, {  1,  3 }, {  2,  4 }, {  3,  6 },
 	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
@@ -98,53 +82,6 @@ static const struct clk_div_table cpg_rpcsrc_div_table[] = {
 	{ 2, 5 }, { 3, 6 }, { 0, 0 },
 };
 
-static const struct clk_div_table cpg_rpc_div_table[] = {
-	{ 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 0, 0 },
-};
-
-static unsigned int _get_table_div(const struct clk_div_table *table, u32 value)
-{
-	const struct clk_div_table *clkt;
-
-	for (clkt = table; clkt->div; clkt++)
-		if (clkt->val == value)
-			return clkt->div;
-	return 0;
-}
-
-static unsigned int _get_table_val(const struct clk_div_table *table, unsigned int div)
-{
-	const struct clk_div_table *clkt;
-
-	for (clkt = table; clkt->div; clkt++)
-		if (clkt->div == div)
-			return clkt->val;
-	return 0;
-}
-
-#define div_mask(width)	((1 << (width)) - 1)
-
-static u64 rcar_clk_get_rate64_div_table(unsigned int parent, u64 parent_rate,
-					 void __iomem *reg, u8 shift, u8 width,
-					 const struct clk_div_table *table, char *name)
-{
-	u32 value, div;
-	u64 rate;
-
-	value = readl(reg) >> shift;
-	value &= div_mask(width);
-
-	div = _get_table_div(table, value);
-	if (!div)
-		return -EINVAL;
-
-	rate = parent_rate / div;
-	debug("%s[%i] %s clk: parent=%i div=%u => rate=%llu\n",
-	      __func__, __LINE__, name, parent, div, rate);
-
-	return rate;
-}
-
 static u64 gen3_clk_get_rate64(struct clk *clk);
 
 static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
@@ -154,7 +91,6 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 	const struct cpg_core_clk *core;
 	struct clk parent;
 	int ret;
-	u32 value = 0, reg_val = 0, div = 0;
 
 	ret = gen3_clk_get_parent(priv, clk, info, &parent);
 	if (ret) {
@@ -173,51 +109,22 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 	case CLK_TYPE_GEN3_SDH:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SDH:
-		div = gen3_clk_get_rate64(&parent) / rate;
-		value = _get_table_val(cpg_sdh_div_table, div);
-		if (!value)
-			return -EINVAL;
-
-		reg_val = readl(priv->base + core->offset);
-		reg_val &= GENMASK(9, 2);
-		reg_val |= value << 2;
-		writel(reg_val, priv->base + core->offset);
-
-		debug("%s[%i] SDH clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
-		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
-		break;
+		return rcar_clk_set_rate64_sdh(core->parent,
+					       gen3_clk_get_rate64(&parent),
+					       rate, priv->base + core->offset);
 
 	case CLK_TYPE_GEN3_SD:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
-		div = gen3_clk_get_rate64(&parent) / rate;
-		value = _get_table_val(cpg_sd_div_table, div);
-		if (!value)
-			return -EINVAL;
-
-		reg_val = readl(priv->base + core->offset);
-		reg_val &= GENMASK(1, 0);
-		reg_val |= value << 0;
-		writel(reg_val, priv->base + core->offset);
-
-		debug("%s[%i] SD clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
-		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
-		break;
+		return rcar_clk_set_rate64_sd(core->parent,
+					      gen3_clk_get_rate64(&parent),
+					      rate, priv->base + core->offset);
 
 	case CLK_TYPE_R8A77970_SD0:
-		div = gen3_clk_get_rate64(&parent) / rate;
-		value = _get_table_val(cpg_sd_div_table, div);
-		if (!value)
-			return -EINVAL;
-
-		reg_val = readl(priv->base + core->offset);
-		reg_val &= GENMASK(7, 4);
-		reg_val |= value << 4;
-		writel(reg_val, priv->base + core->offset);
-
-		debug("%s[%i] SD clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
-		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
-		break;
+		return rcar_clk_set_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     rate, priv->base + core->offset,
+						     4, 4, r8a77970_cpg_sd0_div_table, "SD");
 	}
 
 	return 0;
@@ -360,11 +267,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_GEN3_SDH:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SDH:
-		return rcar_clk_get_rate64_div_table(core->parent,
-						     gen3_clk_get_rate64(&parent),
-						     priv->base + core->offset,
-						     SDnSRCFC_SHIFT, 8,
-						     cpg_sdh_div_table, "SDH");
+		return rcar_clk_get_rate64_sdh(core->parent,
+					       gen3_clk_get_rate64(&parent),
+					       priv->base + core->offset);
 
 	case CLK_TYPE_R8A77970_SD0H:
 		return rcar_clk_get_rate64_div_table(core->parent,
@@ -375,10 +280,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_GEN3_SD:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
-		return rcar_clk_get_rate64_div_table(core->parent,
-						     gen3_clk_get_rate64(&parent),
-						     priv->base + core->offset, 0, 2,
-						     cpg_sd_div_table, "SD");
+		return rcar_clk_get_rate64_sd(core->parent,
+					      gen3_clk_get_rate64(&parent),
+					      priv->base + core->offset);
 
 	case CLK_TYPE_R8A77970_SD0:
 		return rcar_clk_get_rate64_div_table(core->parent,
@@ -423,18 +327,13 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_RPC:
-		return rcar_clk_get_rate64_div_table(core->parent,
-						     gen3_clk_get_rate64(&parent),
-						     priv->base + CPG_RPCCKCR, 0, 3,
-						     cpg_rpc_div_table, "RPC");
+		return rcar_clk_get_rate64_rpc(core->parent,
+					       gen3_clk_get_rate64(&parent),
+					       priv->base + CPG_RPCCKCR);
 
 	case CLK_TYPE_GEN3_RPCD2:
-		rate = gen3_clk_get_rate64(&parent) / 2;
-
-		debug("%s[%i] RPCD2 clk: parent=%i => rate=%llu\n",
-		      __func__, __LINE__, core->parent, rate);
-
-		return rate;
+		return rcar_clk_get_rate64_rpcd2(core->parent,
+						 gen3_clk_get_rate64(&parent));
 
 	}
 
