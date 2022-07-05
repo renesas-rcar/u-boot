@@ -153,6 +153,44 @@ static int gen3_clk_disable(struct clk *clk)
 	return renesas_clk_endisable(clk, priv->base, priv->info, false);
 }
 
+struct clk_div_table {
+	u32 val;
+	unsigned int div;
+};
+
+static unsigned int _get_table_div(const struct clk_div_table *table, u32 value)
+{
+	const struct clk_div_table *clkt;
+
+	for (clkt = table; clkt->div; clkt++)
+		if (clkt->val == value)
+			return clkt->div;
+	return 0;
+}
+
+#define div_mask(width)	((1 << (width)) - 1)
+
+static u64 rcar_clk_get_rate64_div_table(unsigned int parent, u64 parent_rate,
+					 void __iomem *reg, u8 shift, u8 width,
+					 const struct clk_div_table *table, char *name)
+{
+	u32 value, div;
+	u64 rate;
+
+	value = readl(reg) >> shift;
+	value &= div_mask(width);
+
+	div = _get_table_div(table, value);
+	if (!div)
+		return -EINVAL;
+
+	rate = parent_rate / div;
+	debug("%s[%i] %s clk: parent=%i div=%u => rate=%llu\n",
+	      __func__, __LINE__, name, parent, div, rate);
+
+	return rate;
+}
+
 static u64 gen3_clk_get_rate64(struct clk *clk);
 
 static u64 gen3_clk_get_rate64_pll_mul_reg(struct gen3_clk_priv *priv,
