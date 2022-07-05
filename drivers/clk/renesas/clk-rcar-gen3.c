@@ -357,6 +357,36 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						     priv->base + CPG_RPCCKCR, 3, 2,
 						     cpg_rpcsrc_div_table, "RPCSRC");
 
+	case CLK_TYPE_GEN3_E3_RPCSRC:
+		/*
+		 * Register RPCSRC as fixed factor clock based on the
+		 * MD[4:1] pins and CPG_RPCCKCR[4:3] register value for
+		 * which has been set prior to booting the kernel.
+		 */
+		value = (readl(priv->base + CPG_RPCCKCR) & GENMASK(4, 3)) >> 3;
+
+		switch (value) {
+		case 0:
+			div = 5;
+			break;
+		case 1:
+			div = 3;
+			break;
+		case 2:
+			div = core->div;
+			break;
+		case 3:
+		default:
+			div = 2;
+			break;
+		}
+
+		rate = gen3_clk_get_rate64(&parent) / div;
+		debug("%s[%i] E3/D3 RPCSRC clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__, (core->parent >> 16) & 0xffff, div, rate);
+
+		return rate;
+
 	case CLK_TYPE_GEN3_RPC:
 		return rcar_clk_get_rate64_div_table(core->parent,
 						     gen3_clk_get_rate64(&parent),

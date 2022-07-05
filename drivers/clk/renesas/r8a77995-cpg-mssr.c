@@ -71,7 +71,7 @@ static const struct cpg_core_clk r8a77995_core_clks[] = {
 	DEF_FIXED(".s3",       CLK_S3,             CLK_PLL1,       6, 1),
 	DEF_FIXED(".sdsrc",    CLK_SDSRC,          CLK_PLL1,       2, 1),
 
-	DEF_FIXED_RPCSRC_E3(".rpcsrc", CLK_RPCSRC, CLK_PLL0, CLK_PLL1),
+	DEF_FIXED_RPCSRC_D3(".rpcsrc", CLK_RPCSRC, CLK_PLL0, CLK_PLL1),
 
 	DEF_BASE("rpc",		R8A77995_CLK_RPC, CLK_TYPE_GEN3_RPC,
 		 CLK_RPCSRC),
