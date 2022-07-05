@@ -29,11 +29,6 @@
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
 
-#define CPG_RPC_PREDIV_MASK	0x3
-#define CPG_RPC_PREDIV_OFFSET	3
-#define CPG_RPC_POSTDIV_MASK	0x7
-#define CPG_RPC_POSTDIV_OFFSET	0
-
 /*
  * SDn Clock
  */
@@ -158,6 +153,14 @@ struct clk_div_table {
 	unsigned int div;
 };
 
+static const struct clk_div_table cpg_rpcsrc_div_table[] = {
+	{ 2, 5 }, { 3, 6 }, { 0, 0 },
+};
+
+static const struct clk_div_table cpg_rpc_div_table[] = {
+	{ 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 0, 0 },
+};
+
 static unsigned int _get_table_div(const struct clk_div_table *table, u32 value)
 {
 	const struct clk_div_table *clkt;
@@ -223,7 +226,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	const struct cpg_core_clk *core;
 	const struct rcar_gen3_cpg_pll_config *pll_config =
 					priv->cpg_pll_config;
-	u32 value, div, prediv, postdiv;
+	u32 value, div;
 	u64 rate = 0;
 	int i, ret;
 
@@ -348,38 +351,25 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 		return -EINVAL;
 
+	case CLK_TYPE_GEN3_RPCSRC:
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + CPG_RPCCKCR, 3, 2,
+						     cpg_rpcsrc_div_table, "RPCSRC");
+
 	case CLK_TYPE_GEN3_RPC:
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + CPG_RPCCKCR, 0, 3,
+						     cpg_rpc_div_table, "RPC");
+
 	case CLK_TYPE_GEN3_RPCD2:
-		rate = gen3_clk_get_rate64(&parent);
+		rate = gen3_clk_get_rate64(&parent) / 2;
 
-		value = readl(priv->base + CPG_RPCCKCR);
+		debug("%s[%i] RPCD2 clk: parent=%i => rate=%llu\n",
+		      __func__, __LINE__, core->parent, rate);
 
-		prediv = (value >> CPG_RPC_PREDIV_OFFSET) &
-			 CPG_RPC_PREDIV_MASK;
-		if (prediv == 2)
-			rate /= 5;
-		else if (prediv == 3)
-			rate /= 6;
-		else
-			return -EINVAL;
-
-		postdiv = (value >> CPG_RPC_POSTDIV_OFFSET) &
-			  CPG_RPC_POSTDIV_MASK;
-
-		if (postdiv % 2 != 0) {
-			rate /= postdiv + 1;
-
-			if (core->type == CLK_TYPE_GEN3_RPCD2)
-				rate /= 2;
-
-			debug("%s[%i] RPC clk: parent=%i prediv=%i postdiv=%i => rate=%llu\n",
-			      __func__, __LINE__,
-			      core->parent, prediv, postdiv, rate);
-
-			return rate;
-		}
-
-		return -EINVAL;
+		return rate;
 
 	}
 
