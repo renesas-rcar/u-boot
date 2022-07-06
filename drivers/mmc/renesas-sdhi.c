@@ -358,13 +358,20 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	bool hs400 = (mmc->selected_mode == MMC_HS_400);
 	int ret, taps = hs400 ? priv->nrtaps : 8;
-	unsigned long new_tap;
+	unsigned long new_tap, wanted_clock = 200000000;
 	u32 reg;
+	u8 clkh_shift = 0;
+	struct clk *clkh = &priv->clkh;
 
-	if (taps == 4)	/* HS400 on 4tap SoC needs different clock */
-		ret = clk_set_rate(&priv->clk, 400000000);
-	else
-		ret = clk_set_rate(&priv->clk, 200000000);
+	if (clkh && !priv->needs_clkh_fallback) {
+		/* HS400 on 4tap SoC needs different clock */
+		clkh_shift = (taps == 4) && hs400 ? 1 : 2;
+		ret = clk_set_rate(&priv->clkh, wanted_clock << clkh_shift);
+		if (ret < 0)
+			return ret;
+	}
+
+	ret = clk_set_rate(&priv->clk, wanted_clock);
 	if (ret < 0)
 		return ret;
 
@@ -973,6 +980,11 @@ static int renesas_sdhi_probe(struct udevice *dev)
 		dev_err(dev, "failed to get host clock\n");
 		return ret;
 	}
+
+	/* optional SDnH clock */
+	ret = clk_get_by_name(dev, "clkh", &priv->clkh);
+	if (ret < 0)
+		dev_dbg(dev, "failed to get clkh\n");
 
 	/* set to max rate */
 	ret = clk_set_rate(&priv->clk, 200000000);
