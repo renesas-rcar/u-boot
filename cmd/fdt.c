@@ -844,6 +844,29 @@ static int is_printable_string(const void *data, int len)
 	/* printable or a null byte (concatenated strings) */
 	while (((*s == '\0') || isprint(*s) || isspace(*s)) && (len > 0)) {
 		/*
+		 * FIXME:
+		 * We might see the case where the parsed property value,
+		 * in this case it is a 32-bit integer, identified as a printable
+		 * string or a null byte (concatenated strings) because of its
+		 * last character happens to be:
+		 *   0x00 (null character), 0xB (vertical tab character) or
+		 *   0x10 (line feed character)
+		 * In this situation, if the string is identified as printable
+		 * string, it will be displayed as character instead of hex value
+		 *
+		 * When the isprint() condition is true, there are two possibilities:
+		 * 1) The character is ASCII character (except the first 32)
+		 * 2) The character is extended ASCII character
+		 *
+		 * As temporary workaround, mark the extended ASCII character as
+		 * not printable. This is less intrusive way to reduce the NG rate
+		 * since no common device tree would include the character in
+		 * extended ASCII character range
+		 */
+		if (!isascii(*s))
+			return 0;
+
+		/*
 		 * If we see a null, there are three possibilities:
 		 * 1) If len == 1, it is the end of the string, printable
 		 * 2) Next character also a null, not printable.
