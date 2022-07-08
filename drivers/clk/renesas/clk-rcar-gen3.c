@@ -106,19 +106,12 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 		return ret;
 
 	switch (core->type) {
-	case CLK_TYPE_GEN3_SDH:
-		fallthrough;
-	case CLK_TYPE_R8A779A0_SDH:
-		return rcar_clk_set_rate64_sdh(core->parent,
-					       gen3_clk_get_rate64(&parent),
-					       rate, priv->base + core->offset);
-
 	case CLK_TYPE_GEN3_SD:
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
-		return rcar_clk_set_rate64_sd(core->parent,
-					      gen3_clk_get_rate64(&parent),
-					      rate, priv->base + core->offset);
+		writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
+		debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
+		break;
 
 	case CLK_TYPE_R8A77970_SD0:
 		return rcar_clk_set_rate64_div_table(core->parent,
