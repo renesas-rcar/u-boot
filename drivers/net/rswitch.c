@@ -353,7 +353,7 @@ static inline void rswitch_invalidate_dcache(u32 addr, u32 len)
 
 void rswitch_modify(struct rswitch_etha *etha, enum rswitch_reg reg, u32 clear, u32 set)
 {
-	writel((readl(etha->addr + reg) & ~clear) | set, reg);
+	writel((readl(etha->addr + reg) & ~clear) | set, etha->addr + reg);
 }
 
 #define RSWITCH_TIMEOUT_MS	1000
