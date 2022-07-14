@@ -271,8 +271,8 @@ struct rswitch_gwca {
 
 /* Decriptor */
 #define RSWITCH_NUM_BASE_DESC		2
-#define RSWITCH_TX_CHAIN_INDEX		0
-#define RSWITCH_RX_CHAIN_INDEX		1
+#define RSWITCH_TX_CHAIN_INDEX		1
+#define RSWITCH_RX_CHAIN_INDEX		0
 #define RSWITCH_NUM_TX_DESC		8
 #define RSWITCH_NUM_RX_DESC		8
 
@@ -336,6 +336,7 @@ struct rswitch_priv {
 	struct clk		rsw_clk;
 	struct clk		phy_clk;
 
+	bool			parallel_mode;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -766,20 +767,31 @@ static int rswitch_check_link(struct rswitch_etha *etha)
 
 static int rswitch_reset(struct rswitch_priv *priv)
 {
-	int ret;
+	int ret = 0;
 
-	setbits_le32(priv->addr + RRC, RRC_RR);
-	clrbits_le32(priv->addr + RRC, RRC_RR);
+	if (!priv->parallel_mode) {
+		setbits_le32(priv->addr + RRC, RRC_RR);
+		clrbits_le32(priv->addr + RRC, RRC_RR);
 
-	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
-	if (ret)
-		return ret;
+		ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
+		if (ret)
+			return ret;
 
-	ret = rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
-	if (ret)
-		return ret;
+		ret = rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
+		if (ret)
+			return ret;
+	} else {
+		/* Wait until the GWCA.GWMC used by G4MH/CR52 becomes OPERATION */
+		int retry = 100;
 
-	return 0;
+		do {
+			ret = rswitch_reg_wait(priv->addr, RSWITCH_GWCA_OFFSET + GWMS,
+					       GWMS_OPS_MASK, GWMC_OPC_OPERATION);
+			retry--;
+		} while (ret && retry != 0);
+	}
+
+	return ret;
 }
 
 static void rswitch_bat_desc_init(struct rswitch_priv *priv)
@@ -1022,33 +1034,39 @@ static int rswitch_init(struct rswitch_priv *priv)
 	if (ret)
 		return ret;
 
-	ret = rswitch_serdes_init(&priv->etha);
-	if (ret)
-		return ret;
+	if (!priv->parallel_mode) {
+		ret = rswitch_serdes_init(&priv->etha);
+		if (ret)
+			return ret;
 
-	ret = phy_startup(etha->phydev);
-	if (ret)
-		return ret;
+		ret = phy_startup(etha->phydev);
+		if (ret)
+			return ret;
+	}
 
 	rswitch_bat_desc_init(priv);
 	rswitch_tx_desc_init(priv);
 	rswitch_rx_desc_init(priv);
 
-	rswitch_clock_enable(priv);
+	if (!priv->parallel_mode) {
+		rswitch_clock_enable(priv);
 
-	ret = rswitch_bpool_init(priv);
-	if (ret)
-		return ret;
+		ret = rswitch_bpool_init(priv);
+		if (ret)
+			return ret;
 
-	rswitch_mfwd_init(priv);
+		rswitch_mfwd_init(priv);
+	}
 
 	ret = rswitch_gwca_init(priv);
 	if (ret)
 		return ret;
 
-	ret = rswitch_etha_init(priv);
-	if (ret)
-		return ret;
+	if (!priv->parallel_mode) {
+		ret = rswitch_etha_init(priv);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -1175,7 +1193,39 @@ static void rswitch_stop(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
 
-	phy_shutdown(priv->etha.phydev);
+	if (!priv->parallel_mode)
+		phy_shutdown(priv->etha.phydev);
+}
+
+static int rswitch_read_rom_hwaddr(struct udevice *dev)
+{
+	struct rswitch_priv *priv = dev_get_priv(dev);
+	struct rswitch_etha *etha = &priv->etha;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	u32 maca = readl(etha->addr + MRMAC0);
+	u32 macb = readl(etha->addr + MRMAC1);
+	char buf[ARP_HLEN_ASCII + 1];
+
+	if (!priv->parallel_mode)
+		return -EOPNOTSUPP;
+
+	pdata->enetaddr[0] = (maca >>  8) & 0xff;
+	pdata->enetaddr[1] = (maca >>  0) & 0xff;
+	pdata->enetaddr[2] = (macb >> 24) & 0xff;
+	pdata->enetaddr[3] = (macb >> 16) & 0xff;
+	pdata->enetaddr[4] = (macb >>  8) & 0xff;
+	pdata->enetaddr[5] = (macb >>  0) & 0xff;
+
+	/*
+	 * In case parallel mode enabled, the value from ROM will be used
+	 * regardless the one in environment variable.
+	 */
+	if (is_valid_ethaddr(pdata->enetaddr)) {
+		sprintf(buf, "%pM", pdata->enetaddr);
+		env_set("ethaddr", buf);
+	}
+
+	return !is_valid_ethaddr(pdata->enetaddr);
 }
 
 static int rswitch_write_hwaddr(struct udevice *dev)
@@ -1202,6 +1252,10 @@ static int rswitch_probe(struct udevice *dev)
 	fdt_addr_t serdes_addr;
 	fdt_size_t size;
 	int ret;
+	char *s;
+
+	s = env_get("rswitch.parallel_mode");
+	priv->parallel_mode = ((int)simple_strtol(s, NULL, 10) == 1) ? true : false;
 
 	pdata->iobase = dev_read_addr_size_name(dev, "iobase", &size);
 	priv->addr = map_physmem(pdata->iobase, size, MAP_NOCACHE);
@@ -1219,6 +1273,9 @@ static int rswitch_probe(struct udevice *dev)
 	gwca->index = GWCA_TO_HW_INDEX(gwca->index);
 
 	etha->enetaddr = pdata->enetaddr;
+
+	if (priv->parallel_mode)
+		return 0;
 
 	ret = clk_get_by_name(dev, "rsw2", &priv->rsw_clk) |
 	      clk_get_by_name(dev, "eth-phy", &priv->phy_clk);
@@ -1272,11 +1329,14 @@ static int rswitch_remove(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
 
-	clk_disable(&priv->rsw_clk);
-	clk_disable(&priv->phy_clk);
+	if (!priv->parallel_mode) {
+		clk_disable(&priv->rsw_clk);
+		clk_disable(&priv->phy_clk);
 
-	free(priv->etha.phydev);
-	mdio_unregister(priv->etha.bus);
+		free(priv->etha.phydev);
+		mdio_unregister(priv->etha.bus);
+	}
+
 	unmap_physmem(priv->addr, MAP_NOCACHE);
 	unmap_physmem(priv->etha.serdes_addr, MAP_NOCACHE);
 
@@ -1316,6 +1376,7 @@ static const struct eth_ops rswitch_ops = {
 	.free_pkt	= rswitch_free_pkt,
 	.stop		= rswitch_stop,
 	.write_hwaddr	= rswitch_write_hwaddr,
+	.read_rom_hwaddr = rswitch_read_rom_hwaddr,
 };
 
 static const struct udevice_id rswitch_ids[] = {
