@@ -1213,8 +1213,8 @@ static int rswitch_probe(struct udevice *dev)
 	etha->serdes_common_addr = map_physmem(serdes_addr, size, MAP_NOCACHE);
 	etha->serdes_addr = etha->serdes_common_addr + etha->index * RSWITCH_SERDES_OFFSET;
 
-	/* Use only one port so always use (forward to) GWCA0 */
-	gwca->index = 0;
+	/* Use only one port so always use (forward to) GWCA1 */
+	gwca->index = 1;
 	gwca->addr = priv->addr + RSWITCH_GWCA_OFFSET + gwca->index * RSWITCH_GWCA_SIZE;
 	gwca->index = GWCA_TO_HW_INDEX(gwca->index);
 
