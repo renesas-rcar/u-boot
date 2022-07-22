@@ -1109,7 +1109,7 @@ static int rswitch_send(struct udevice *dev, void *packet, int len)
 	rswitch_flush_dcache((uintptr_t)desc, sizeof(*desc));
 
 	/* Start tranmission */
-	gwtrc_index = RSWITCH_TX_CHAIN_INDEX % 32;
+	gwtrc_index = RSWITCH_TX_CHAIN_INDEX / 32;
 	val = readl(gwca->addr + GWTRC(gwtrc_index));
 	writel(val | BIT(RSWITCH_TX_CHAIN_INDEX), gwca->addr + GWTRC(gwtrc_index));
 
