@@ -55,6 +55,16 @@
 		regulator-boot-on;
 		regulator-always-on;
 	};
+
+	vccq_sdhi: regulator-vccq-sdhi {
+		compatible = "regulator-gpio";
+		regulator-name = "SDHI VccQ";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		gpios-states = <1>;
+		states = <3300000 1>, <1800000 0>;
+		gpios = <&gpio8 12 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &extal_clk {
@@ -88,6 +98,22 @@
 	clock-frequency = <400000>;
 };
 
+#ifdef SD_CARD_SUPPORT
+&mmc0 {
+	pinctrl-0 = <&sd_pins>;
+	pinctrl-1 = <&sd_pins_uhs>;
+	pinctrl-names = "default", "state_uhs";
+
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&vccq_sdhi>;
+	cd-gpios = <&gpio3 11 GPIO_ACTIVE_LOW>;
+	wp-gpios = <&gpio3 12 GPIO_ACTIVE_HIGH>;
+	bus-width = <4>;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	status = "okay";
+};
+#else
 &mmc0 {
 	pinctrl-0 = <&mmc_pins>;
 	pinctrl-1 = <&mmc_pins>;
@@ -104,6 +130,7 @@
 	full-pwr-cycle-in-suspend;
 	status = "okay";
 };
+#endif
 
 &pfc {
 	pinctrl-0 = <&scif_clk_pins>;
@@ -119,11 +146,25 @@
 		function = "i2c5";
 	};
 
+#ifdef SD_CARD_SUPPORT
+	sd_pins: sd {
+		groups = "mmc_data4", "mmc_ctrl";
+		function = "mmc";
+		power-source = <3300>;
+	};
+
+	sd_pins_uhs: sd_uhs {
+		groups = "mmc_data4", "mmc_ctrl";
+		function = "mmc";
+		power-source = <1800>;
+	};
+#else
 	mmc_pins: mmc {
 		groups = "mmc_data8", "mmc_ctrl", "mmc_ds";
 		function = "mmc";
 		power-source = <1800>;
 	};
+#endif
 
 	scif0_pins: scif0 {
 		groups = "scif0_data", "scif0_ctrl", "scif0_clk";
