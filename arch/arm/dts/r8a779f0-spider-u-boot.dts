@@ -40,3 +40,9 @@
 		spi-max-frequency = <40000000>;
 	};
 };
+
+#ifdef SD_CARD_SUPPORT
+&vcc_sdhi {
+	u-boot,off-on-delay-us = <20000>;
+};
+#endif
