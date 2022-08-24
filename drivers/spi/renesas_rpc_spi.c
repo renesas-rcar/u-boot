@@ -209,11 +209,11 @@ static u32 rpc_spi_get_strobe_delay(void)
 	/*
 	 * NOTE: RPC_PHYCNT_STRTIM value:
 	 *       0: On H3 ES1.x (not supported in mainline U-Boot)
-	 *       6: On M3
+	 *       6: On M3 ES1.x
 	 *       7: On other R-Car Gen3
 	 *      15: On R-Car Gen4
 	 */
-	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796)
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796 && rmobile_get_cpu_rev_integer() == 1)
 		return RPC_PHYCNT_STRTIM(6);
 	else if (cpu_type == RMOBILE_CPU_TYPE_R8A779F0 ||
 		 cpu_type == RMOBILE_CPU_TYPE_R8A779G0)
