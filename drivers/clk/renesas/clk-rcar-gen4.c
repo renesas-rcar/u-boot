@@ -465,12 +465,12 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_R8A779F0_SDSCR:
 		/* CPG_SDSRC_SEL[30:29] */
 		return gen4_clk_get_rate64_div_table(priv, &parent, core,
-					core->offset, 29, 2, cpg_sdsrc_div_table,
+					CPG_SD0CKCR1, 29, 2, cpg_sdsrc_div_table,
 					"S4_SDSCR");
 	case CLK_TYPE_R8A779G0_SDSCR:
 		/* CPG_SDSRC_SEL[30:29] */
 		return gen4_clk_get_rate64_div_table(priv, &parent, core,
-					core->offset, 29, 2, cpg_sdsrc_div_table,
+					CPG_SD0CKCR1, 29, 2, cpg_sdsrc_div_table,
 					"V4H_SDSCR");
 
 	case CLK_TYPE_R8A779F0_SD:
