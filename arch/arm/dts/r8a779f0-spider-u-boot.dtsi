@@ -11,6 +11,11 @@
 	aliases {
 		spi0 = &rpc;
 	};
+
+	memory@48000000 {
+		/* Reserved the first 128MB (Secure area), the last 512MB (CR) */
+		reg = <0x0 0x48000000 0x0 0x58000000>;
+	};
 };
 
 &pfc {
