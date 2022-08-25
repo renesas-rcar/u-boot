@@ -138,6 +138,7 @@
 #define PRC_PHYCNT_OCTA_SA	BIT(23)
 #define PRC_PHYCNT_EXDS		BIT(21)
 #define RPC_PHYCNT_OCT		BIT(20)
+#define RPC_PHYCNT_HS		BIT(18)
 #define RPC_PHYCNT_STRTIM(v)	(((v) & 0x7) << 15)
 #define RPC_PHYCNT_STRTIM2(v)	(((v) & 0x7) << 15 | ((v) & 0x8) << 24)
 #define RPC_PHYCNT_WBUF2	BIT(4)
@@ -226,6 +227,10 @@ static int rpc_spi_claim_bus(struct udevice *dev, bool manual)
 {
 	struct udevice *bus = dev->parent;
 	struct rpc_spi_priv *priv = dev_get_priv(bus);
+
+	/* DMA Transfer is not supported */
+	writel(readl(priv->regs + RPC_PHYCNT) & ~RPC_PHYCNT_HS,
+	       priv->regs + RPC_PHYCNT);
 
 	/* NOTE: The 0x260 are undocumented bits, but they must be set. */
 	writel(RPC_PHYCNT_CAL | rpc_spi_get_strobe_delay() | 0x260,
