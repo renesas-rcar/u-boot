@@ -35,6 +35,8 @@ int arch_reserve_stacks(void)
 	return 0;
 }
 
+#if !defined(CONFIG_TARGET_EAGLE)
+#if !defined(CONFIG_TARGET_DRAAK)
 static ulong get_sp(void)
 {
 	ulong ret;
@@ -47,3 +49,5 @@ void arch_lmb_reserve(struct lmb *lmb)
 {
 	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 16384);
 }
+#endif
+#endif
