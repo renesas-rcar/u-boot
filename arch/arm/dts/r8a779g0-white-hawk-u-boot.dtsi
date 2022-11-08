@@ -11,6 +11,17 @@
 	aliases {
 		spi0 = &rpc;
 	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cr_region: linux,cr_region@60000000 {
+			no-map;
+			reg = <0x00000000 0x60000000 0x0 0x20000000>;
+		};
+	};
 };
 
 &avb1 {
