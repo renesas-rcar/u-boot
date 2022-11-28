@@ -687,30 +687,8 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	struct rswitch_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
 	int val;
-	int reg;
 
-	/* Change to disable mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
-
-	/* Change to config mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
-
-	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
-
-	/* Set Station Management Mode : Clause 45 */
-	rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
-
-	/* Access PHY register */
 	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
-
-	/* Disale Station Management Clock */
-	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0);
-
-	/* Change to disable mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
 
 	return val;
 }
@@ -719,30 +697,8 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 {
 	struct rswitch_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
-	int reg;
 
-	/* Change to disable mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
-
-	/* Change to config mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
-
-	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
-
-	/* Set Station Management Mode : Clause 45 */
-	rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
-
-	/* Access PHY register */
 	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
-
-	/* Disale Station Management Clock */
-	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0);
-
-	/* Change to disable mode */
-	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
 
 	return 0;
 }
@@ -913,6 +869,7 @@ static void rswitch_mfwd_init(struct rswitch_priv *priv)
 static void rswitch_rmac_init(struct rswitch_etha *etha)
 {
 	unsigned char *mac = etha->enetaddr;
+	u32 reg;
 
 	/* Set MAC address */
 	writel((mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) | mac[5],
@@ -924,6 +881,14 @@ static void rswitch_rmac_init(struct rswitch_etha *etha)
 	writel(MPIC_PIS_GMII | MPIC_LSC_1000, etha->addr + MPIC);
 
 	writel(0x07E707E7, etha->addr + MRAFC);
+
+	/* Enable Station Management clock */
+	reg = readl(etha->addr + MPIC);
+	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
+	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
+
+	/* Set Station Management Mode : Clause 45 */
+	rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
 }
 
 static int rswitch_gwca_mcast_table_reset(struct rswitch_gwca *gwca)
@@ -1017,57 +982,6 @@ static int rswitch_etha_init(struct rswitch_priv *priv)
 	if (ret)
 		return ret;
 
-	/* Link Verification */
-	ret = rswitch_check_link(etha);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
-static int rswitch_init(struct rswitch_priv *priv)
-{
-	struct rswitch_etha *etha = &priv->etha;
-	int ret;
-
-	ret = rswitch_reset(priv);
-	if (ret)
-		return ret;
-
-	if (!priv->parallel_mode) {
-		ret = rswitch_serdes_init(&priv->etha);
-		if (ret)
-			return ret;
-
-		ret = phy_startup(etha->phydev);
-		if (ret)
-			return ret;
-	}
-
-	rswitch_bat_desc_init(priv);
-	rswitch_tx_desc_init(priv);
-	rswitch_rx_desc_init(priv);
-
-	if (!priv->parallel_mode) {
-		rswitch_clock_enable(priv);
-
-		ret = rswitch_bpool_init(priv);
-		if (ret)
-			return ret;
-
-		rswitch_mfwd_init(priv);
-	}
-
-	ret = rswitch_gwca_init(priv);
-	if (ret)
-		return ret;
-
-	if (!priv->parallel_mode) {
-		ret = rswitch_etha_init(priv);
-		if (ret)
-			return ret;
-	}
-
 	return 0;
 }
 
@@ -1097,14 +1011,66 @@ static int rswitch_phy_config(struct udevice *dev)
 	return 0;
 }
 
-static int rswitch_start(struct udevice *dev)
+static int rswitch_init(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = rswitch_init(priv);
+	ret = rswitch_reset(priv);
 	if (ret)
 		return ret;
+
+	rswitch_bat_desc_init(priv);
+	rswitch_tx_desc_init(priv);
+	rswitch_rx_desc_init(priv);
+
+	if (!priv->parallel_mode) {
+		rswitch_clock_enable(priv);
+
+		ret = rswitch_bpool_init(priv);
+		if (ret)
+			return ret;
+
+		rswitch_mfwd_init(priv);
+	}
+
+	ret = rswitch_gwca_init(priv);
+	if (ret)
+		return ret;
+
+	if (!priv->parallel_mode) {
+		ret = rswitch_etha_init(priv);
+		if (ret)
+			return ret;
+
+		ret = rswitch_phy_config(dev);
+		if (ret)
+			return ret;
+
+		ret = rswitch_serdes_init(&priv->etha);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int rswitch_start(struct udevice *dev)
+{
+	struct rswitch_priv *priv = dev_get_priv(dev);
+
+	if (!priv->parallel_mode) {
+		int ret;
+
+		ret = phy_startup(priv->etha.phydev);
+		if (ret)
+			return ret;
+
+		/* Link Verification */
+		ret = rswitch_check_link(&priv->etha);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -1308,7 +1274,7 @@ static int rswitch_probe(struct udevice *dev)
 	ret = clk_enable(&priv->rsw_clk) &
 	      clk_enable(&priv->phy_clk);
 
-	ret = rswitch_phy_config(dev);
+	ret = rswitch_init(dev);
 	if (ret)
 		goto err_mdio_reset;
 
