@@ -1006,6 +1006,11 @@ static int rswitch_phy_config(struct udevice *dev)
 	etha->phydev = phydev;
 	phydev->speed = 1000;
 
+	/* Add workaround to let phy_{read/write}_mmd() know
+	 * it can be accessed via PHY clause 45 directly.
+	 */
+	phydev->drv->features = PHY_10G_FEATURES;
+
 	phy_config(phydev);
 
 	return 0;
