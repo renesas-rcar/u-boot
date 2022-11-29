@@ -12,6 +12,7 @@
 #include <command.h>
 #include <dm.h>
 #include <miiphy.h>
+#include <phy.h>
 
 typedef struct _MII_field_desc_t {
 	ushort hi;
@@ -257,14 +258,16 @@ static char last_op[2];
 static uint last_data;
 static uint last_addr_lo;
 static uint last_addr_hi;
+static uint last_devad_lo;
+static uint last_devad_hi;
 static uint last_reg_lo;
 static uint last_reg_hi;
 static uint last_mask;
 
 static void extract_range(
 	char * input,
-	unsigned char * plo,
-	unsigned char * phi)
+	unsigned short *plo,
+	unsigned short *phi)
 {
 	char * end;
 	*plo = simple_strtoul(input, &end, 16);
@@ -277,15 +280,98 @@ static void extract_range(
 	}
 }
 
+static void extract_reg_range(char *input, unsigned short *devadlo, unsigned short *devadhi,
+			      unsigned short *reglo, unsigned short *reghi)
+{
+	char *regstr;
+
+	regstr = strrchr(input, '.');
+
+	if (regstr) {
+		char devadstr[32];
+
+		strncpy(devadstr, input, regstr - input);
+		devadstr[regstr - input] = '\0';
+
+		extract_range(devadstr, devadlo, devadhi);
+
+		regstr++;
+	} else {
+		*devadlo = *devadhi = MDIO_DEVAD_NONE;
+
+		regstr = input;
+	}
+
+	extract_range(regstr, reglo, reghi);
+}
+
+enum read_print_info {
+	NO_PRINT,
+	PRINT_DATA,
+	PRINT_ALL,
+};
+
+static int do_mii_read(struct mii_dev *bus, unsigned short addr, unsigned short devad,
+		       unsigned short reg, enum read_print_info print_info)
+{
+	int val = phy_read_mmd(bus->phymap[addr], devad, reg);
+
+	if (val < 0) {
+		if (devad == MDIO_DEVAD_NONE)
+			printf("Error reading from the PHY addr=%02x reg=%02x\n", addr, reg);
+		else
+			printf("Error reading from the PHY addr=%02x devad = %02x reg=%02x\n",
+			       addr, devad, reg);
+	} else {
+		if (print_info == PRINT_ALL)
+			printf("addr=%02x devad=%02x reg=%02x data=",
+			       (uint)addr, (uint)devad, (uint)reg);
+		if (print_info != NO_PRINT)
+			printf("%04X\n", val & 0x0000FFFF);
+	}
+
+	return val;
+}
+
+static int do_mii_write(struct mii_dev *bus, unsigned short addr, unsigned short devad,
+			unsigned short reg, unsigned short data)
+{
+	int ret = phy_write_mmd(bus->phymap[addr], devad, reg, data);
+
+	if (ret) {
+		if (devad == MDIO_DEVAD_NONE)
+			printf("Error writing to the PHY addr=%02x reg=%02x\n", addr, reg);
+		else
+			printf("Error writing to the PHY addr=%02x devad=%02x\n reg=%02x\n",
+			       addr, devad, reg);
+	}
+
+	return ret;
+}
+
+static int do_mii_modify(struct mii_dev *bus, unsigned char addr, unsigned char devad,
+			 unsigned int reg, unsigned short data, unsigned short mask)
+{
+	int val = do_mii_read(bus, addr, devad, reg, NO_PRINT);
+
+	if (val < 0)
+		return val;
+
+	val = (val & ~mask) | (data & mask);
+
+	return do_mii_write(bus, addr, devad, reg, val);
+}
+
 /* ---------------------------------------------------------------- */
 static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char		op[2];
-	unsigned char	addrlo, addrhi, reglo, reghi;
-	unsigned char	addr, reg;
-	unsigned short	data, mask;
-	int		rcode = 0;
+	unsigned short	addrlo, addrhi, devadlo, devadhi, reglo, reghi;
+	unsigned short	addr, reg, data, mask;
+	unsigned int	devad;
+	int		ret, rcode = 0;
 	const char	*devname;
+	struct mii_dev  *bus;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -302,6 +388,8 @@ static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	op[1] = last_op[1];
 	addrlo = last_addr_lo;
 	addrhi = last_addr_hi;
+	devadlo = last_devad_lo;
+	devadhi = last_devad_hi;
 	reglo  = last_reg_lo;
 	reghi  = last_reg_hi;
 	data   = last_data;
@@ -317,7 +405,7 @@ static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (argc >= 3)
 			extract_range(argv[2], &addrlo, &addrhi);
 		if (argc >= 4)
-			extract_range(argv[3], &reglo, &reghi);
+			extract_reg_range(argv[3], &devadlo, &devadhi, &reglo, &reghi);
 		if (argc >= 5)
 			data = simple_strtoul(argv[4], NULL, 16);
 		if (argc >= 6)
@@ -331,6 +419,9 @@ static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	/* use current device */
 	devname = miiphy_get_current_dev();
+	bus = mdio_get_current_dev();
+	if (!bus)
+		return 1;
 
 	/*
 	 * check info/read/write.
@@ -367,56 +458,42 @@ static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		}
 	} else if (op[0] == 'r') {
 		for (addr = addrlo; addr <= addrhi; addr++) {
-			for (reg = reglo; reg <= reghi; reg++) {
-				data = 0xffff;
-				if (miiphy_read (devname, addr, reg, &data) != 0) {
-					printf(
-					"Error reading from the PHY addr=%02x reg=%02x\n",
-						addr, reg);
-					rcode = 1;
-				} else {
-					if ((addrlo != addrhi) || (reglo != reghi))
-						printf("addr=%02x reg=%02x data=",
-							(uint)addr, (uint)reg);
-					printf("%04X\n", data & 0x0000FFFF);
+			for (devad = devadlo; devad <= devadhi; devad++) {
+				for (reg = reglo; reg <= reghi; reg++) {
+					enum read_print_info print_info = PRINT_ALL;
+
+					if (addrlo == addrhi && devadlo == devadhi &&
+					    reglo == reghi)
+						print_info = PRINT_DATA;
+
+					ret = do_mii_read(bus, addr, devad, reg, print_info);
+					if (ret < 0)
+						rcode = 1;
 				}
 			}
-			if ((addrlo != addrhi) && (reglo != reghi))
-				printf("\n");
 		}
 	} else if (op[0] == 'w') {
 		for (addr = addrlo; addr <= addrhi; addr++) {
-			for (reg = reglo; reg <= reghi; reg++) {
-				if (miiphy_write (devname, addr, reg, data) != 0) {
-					printf("Error writing to the PHY addr=%02x reg=%02x\n",
-						addr, reg);
-					rcode = 1;
+			for (devad = devadlo; devad <= devadhi; devad++) {
+				for (reg = reglo; reg <= reghi; reg++) {
+					ret = do_mii_write(bus, addr, devad, reg, data);
+					if (ret)
+						rcode = 1;
 				}
 			}
 		}
 	} else if (op[0] == 'm') {
 		for (addr = addrlo; addr <= addrhi; addr++) {
-			for (reg = reglo; reg <= reghi; reg++) {
-				unsigned short val = 0;
-				if (miiphy_read(devname, addr,
-						reg, &val)) {
-					printf("Error reading from the PHY");
-					printf(" addr=%02x", addr);
-					printf(" reg=%02x\n", reg);
-					rcode = 1;
-				} else {
-					val = (val & ~mask) | (data & mask);
-					if (miiphy_write(devname, addr,
-							 reg, val)) {
-						printf("Error writing to the PHY");
-						printf(" addr=%02x", addr);
-						printf(" reg=%02x\n", reg);
+			for (devad = devadlo; devad <= devadhi; devad++) {
+				for (reg = reglo; reg <= reghi; reg++) {
+					ret = do_mii_modify(bus, addr, devad, reg, data, mask);
+					if (ret)
 						rcode = 1;
-					}
 				}
 			}
 		}
 	} else if (strncmp(op, "du", 2) == 0) {
+		/* TODO: Support PHY clause 45 */
 		ushort regs[MII_STAT1000 + 1];  /* Last reg is 0x0a */
 		int ok = 1;
 		if (reglo > MII_STAT1000 || reghi > MII_STAT1000) {
@@ -467,13 +544,13 @@ static int do_mii(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	mii, 6, 1, do_mii,
 	"MII utility commands",
-	"device                            - list available devices\n"
-	"mii device <devname>                  - set current device\n"
-	"mii info   <addr>                     - display MII PHY info\n"
-	"mii read   <addr> <reg>               - read  MII PHY <addr> register <reg>\n"
-	"mii write  <addr> <reg> <data>        - write MII PHY <addr> register <reg>\n"
-	"mii modify <addr> <reg> <data> <mask> - modify MII PHY <addr> register <reg>\n"
-	"                                        updating bits identified in <mask>\n"
-	"mii dump   <addr> <reg>               - pretty-print <addr> <reg> (0-5 only)\n"
+	"device                                       - list available devices\n"
+	"mii device <devname>                             - set current device\n"
+	"mii info   <addr>                                - display MII PHY info\n"
+	"mii read   <addr> [<devad>.]<reg>                - read  MII PHY <addr> register at [<devad>.]<reg>\n"
+	"mii write  <addr> [<devad>.]<reg> <data>         - write MII PHY <addr> register <reg>\n"
+	"mii modify <addr> [<devad>.]<reg> <data> <mask>  - modify MII PHY <addr> register <reg>\n"
+	"                                                   updating bits identified in <mask>\n"
+	"mii dump   <addr> <reg>                          - pretty-print <addr> <reg> (PHY clause 22, 0-5 only)\n"
 	"Addr and/or reg may be ranges, e.g. 2-7."
 );
