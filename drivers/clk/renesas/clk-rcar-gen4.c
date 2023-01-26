@@ -100,7 +100,6 @@ static int gen4_clk_setup_sdif_div(struct clk *clk, ulong rate)
 
 static u64 gen4_clk_get_rate64_pll_mul_reg(struct gen4_clk_priv *priv,
 					   struct clk *parent,
-					   const struct cpg_core_clk *core,
 					   u32 mul_reg, u32 mult, u32 div,
 					   char *name)
 {
@@ -115,8 +114,8 @@ static u64 gen4_clk_get_rate64_pll_mul_reg(struct gen4_clk_priv *priv,
 
 	rate = gen4_clk_get_rate64(parent) * mult / div;
 
-	debug("%s[%i] %s clk: parent=%i mult=%u div=%u => rate=%llu\n",
-	      __func__, __LINE__, name, core->parent, mult, div, rate);
+	debug("%s[%i] %s clk: mult=%u div=%u => rate=%llu\n",
+	      __func__, __LINE__, name, mult, div, rate);
 	return rate;
 }
 
@@ -170,46 +169,46 @@ static u64 gen4_clk_get_rate64(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN4_MAIN:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, 1, pll_config->extal_div,
 						"MAIN");
 
 	case CLK_TYPE_GEN4_PLL1:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll1_mult,
 						pll_config->pll1_div, "PLL1");
 
 	case CLK_TYPE_GEN4_PLL2:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll2_mult,
 						pll_config->pll2_div, "PLL2");
 
 	case CLK_TYPE_GEN4_PLL3:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll3_mult,
 						pll_config->pll3_div, "PLL3");
 
 	case CLK_TYPE_GEN4_PLL4:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll4_mult,
 						pll_config->pll4_div, "PLL4");
 
 	case CLK_TYPE_GEN4_PLL5:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll5_mult,
 						pll_config->pll5_div, "PLL5");
 
 	case CLK_TYPE_GEN4_PLL6:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll6_mult,
 						pll_config->pll6_div, "PLL6");
 
 	case CLK_TYPE_GEN4_PLL2X_3X:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						core->offset, 0, 0, "PLL2X_3X");
 
 	case CLK_TYPE_FF:
-		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen4_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, core->mult, core->div,
 						"FIXED");
 

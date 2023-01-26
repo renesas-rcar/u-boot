@@ -123,7 +123,6 @@ static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 
 static u64 gen3_clk_get_rate64_pll_mul_reg(struct gen3_clk_priv *priv,
 					   struct clk *parent,
-					   const struct cpg_core_clk *core,
 					   u32 mul_reg, u32 mult, u32 div,
 					   char *name)
 {
@@ -138,8 +137,8 @@ static u64 gen3_clk_get_rate64_pll_mul_reg(struct gen3_clk_priv *priv,
 
 	rate = (gen3_clk_get_rate64(parent) * mult) / div;
 
-	debug("%s[%i] %s clk: parent=%i mult=%u div=%u => rate=%llu\n",
-	      __func__, __LINE__, name, core->parent, mult, div, rate);
+	debug("%s[%i] %s clk: mult=%u div=%u => rate=%llu\n",
+	      __func__, __LINE__, name, mult, div, rate);
 	return rate;
 }
 
@@ -193,34 +192,34 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return -EINVAL;
 
 	case CLK_TYPE_GEN3_MAIN:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, 1, pll_config->extal_div,
 						"MAIN");
 
 	case CLK_TYPE_GEN3_PLL0:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						CPG_PLL0CR, 0, 0, "PLL0");
 
 	case CLK_TYPE_GEN3_PLL1:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll1_mult,
 						pll_config->pll1_div, "PLL1");
 
 	case CLK_TYPE_GEN3_PLL2:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						CPG_PLL2CR, 0, 0, "PLL2");
 
 	case CLK_TYPE_GEN3_PLL3:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, pll_config->pll3_mult,
 						pll_config->pll3_div, "PLL3");
 
 	case CLK_TYPE_GEN3_PLL4:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						CPG_PLL4CR, 0, 0, "PLL4");
 
 	case CLK_TYPE_FF:
-		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, core->mult, core->div,
 						"FIXED");
 
