@@ -19,6 +19,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/clk-provider.h>
 
 #include <dt-bindings/clock/renesas-cpg-mssr.h>
 

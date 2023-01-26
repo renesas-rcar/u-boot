@@ -13,11 +13,6 @@
 #ifndef __CLK_RENESAS_RCAR_CPG_LIB_H__
 #define __CLK_RENESAS_RCAR_CPG_LIB_H__
 
-struct clk_div_table {
-	u32 val;
-	unsigned int div;
-};
-
 u64 rcar_clk_get_rate64_div_table(unsigned int parent, u64 parent_rate,
 				  void __iomem *reg, u8 shift, u8 width,
 				  const struct clk_div_table *table, char *name);
