@@ -1299,6 +1299,7 @@ err_mdio_alloc:
 static int rswitch_remove(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	if (!priv->parallel_mode) {
 		clk_disable(&priv->rsw_clk);
@@ -1307,6 +1308,11 @@ static int rswitch_remove(struct udevice *dev)
 		free(priv->etha.phydev);
 		mdio_unregister(priv->etha.bus);
 	}
+
+	/* Turn off GWCA to make sure that there will be no new packets */
+	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
+	if (ret)
+		pr_err("Failed to disable GWCA: %d\n", ret);
 
 	unmap_physmem(priv->addr, MAP_NOCACHE);
 	unmap_physmem(priv->etha.serdes_addr, MAP_NOCACHE);
