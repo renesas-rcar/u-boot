@@ -255,7 +255,7 @@ struct rswitch_etha {
 	void __iomem		*serdes_addr;
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
-	unsigned char		*enetaddr;
+	unsigned char		enetaddr[ARP_HLEN_ASCII + 1];
 };
 
 struct rswitch_gwca {
@@ -868,7 +868,7 @@ static void rswitch_mfwd_init(struct rswitch_priv *priv)
 
 static void rswitch_rmac_init(struct rswitch_etha *etha)
 {
-	unsigned char *mac = etha->enetaddr;
+	unsigned char *mac = &etha->enetaddr[0];
 	u32 reg;
 
 	/* Set MAC address */
@@ -1243,7 +1243,7 @@ static int rswitch_probe(struct udevice *dev)
 	gwca->addr = priv->addr + RSWITCH_GWCA_OFFSET + gwca->index * RSWITCH_GWCA_SIZE;
 	gwca->index = GWCA_TO_HW_INDEX(gwca->index);
 
-	etha->enetaddr = pdata->enetaddr;
+	eth_env_get_enetaddr("ethaddr", &etha->enetaddr[0]);
 
 	if (priv->parallel_mode)
 		return 0;
