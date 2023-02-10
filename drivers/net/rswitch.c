@@ -1299,6 +1299,12 @@ err_mdio_alloc:
 static int rswitch_remove(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	/* Turn off GWCA to make sure that there will be no new packets */
+	ret = rswitch_gwca_change_mode(priv, GWMC_OPC_DISABLE);
+	if (ret)
+		pr_err("Failed to disable GWCA: %d\n", ret);
 
 	if (!priv->parallel_mode) {
 		clk_disable(&priv->rsw_clk);
