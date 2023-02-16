@@ -1063,10 +1063,12 @@ static int rswitch_init(struct udevice *dev)
 static int rswitch_start(struct udevice *dev)
 {
 	struct rswitch_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	if (!priv->parallel_mode) {
-		int ret;
-
+	if (priv->parallel_mode) {
+		ret = rswitch_init(dev);
+		return ret;
+	} else {
 		ret = phy_startup(priv->etha.phydev);
 		if (ret)
 			return ret;
