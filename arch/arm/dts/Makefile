@@ -946,16 +946,12 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77990-ebisu-u-boot.dtb \
 	r8a77995-draak-u-boot.dtb
 
-ifdef CONFIG_RCAR_GEN3
-DTC_FLAGS += -R 4 -p 0x1000
-endif
-
 dtb-$(CONFIG_RCAR_GEN4) += \
 	r8a779a0-falcon-u-boot.dtb \
 	r8a779f0-spider-u-boot.dtb \
 	r8a779g0-whitehawk-u-boot.dtb
 
-ifdef CONFIG_RCAR_GEN4
+ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000
 endif
 
