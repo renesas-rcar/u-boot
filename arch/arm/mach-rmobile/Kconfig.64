@@ -170,9 +170,6 @@ config TARGET_ULCB
 
 endchoice
 
-config SYS_SOC
-	default "rmobile"
-
 source "board/renesas/condor/Kconfig"
 source "board/renesas/v3hsk/Kconfig"
 source "board/renesas/draak/Kconfig"
@@ -249,9 +246,6 @@ config TARGET_WHITEHAWK
 	  Support for Renesas R-Car Gen4 White Hawk platform
 
 endchoice
-
-config SYS_SOC
-	default "rmobile"
 
 source "board/renesas/falcon/Kconfig"
 source "board/renesas/spider/Kconfig"
