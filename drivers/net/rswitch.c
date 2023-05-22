@@ -137,7 +137,7 @@ enum rswitch_reg {
 
 #define MPIC_PSMCS_MASK		(0x7f << 16)
 #define MPIC_PSMHT_MASK		(0x06 << 24)
-#define MPIC_MDC_CLK_SET	(0x06050000)
+#define MPIC_MDC_CLK_SET	(0x063f0000)
 
 #define MPSM_MFF_C45		BIT(2)
 #define MPSM_MFF_C22		(0x0 << 2)
