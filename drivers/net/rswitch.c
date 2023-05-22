@@ -25,6 +25,7 @@
 #include <asm/gpio.h>
 
 #define RSWITCH_NUM_HW		5
+#define RSWITCH_SERDES_NUM	3
 
 #define ETHA_TO_GWCA(i)		((i) % 2)
 #define GWCA_TO_HW_INDEX(i)	((i) + 3)
@@ -425,20 +426,17 @@ static void rswitch_agent_clock_ctrl(struct rswitch_priv *priv, int port, int en
 
 static int rswitch_serdes_common_initialize_sram(struct rswitch_etha *etha)
 {
-	int ret;
+	int ret, i;
 
-	ret = rswitch_serdes_reg_wait(etha->serdes_common_addr, VR_XS_PMA_MP_12G_16G_25G_SRAM,
-				      BANK_180, BIT(0), 0x01);
-	if (ret)
-		return ret;
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++) {
+		ret = rswitch_serdes_reg_wait(etha->serdes_common_addr, VR_XS_PMA_MP_12G_16G_25G_SRAM,
+					      BANK_180, BIT(0), 0x01);
+		if (ret)
+			return ret;
+	}
 
 	rswitch_serdes_write32(etha->serdes_common_addr, VR_XS_PMA_MP_12G_16G_25G_SRAM,
 			       BANK_180, 0x3);
-
-	ret = rswitch_serdes_reg_wait(etha->serdes_common_addr, SR_XS_PCS_CTRL1, BANK_300,
-				      BIT(15), 0);
-	if (ret)
-		return ret;
 
 	return 0;
 }
@@ -536,7 +534,7 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha, enum rswitch_serd
 
 static int rswitch_serdes_init(struct rswitch_etha *etha)
 {
-	int ret;
+	int ret, i, val;
 	enum rswitch_serdes_mode mode;
 
 	/* TODO: Support more modes */
@@ -555,14 +553,24 @@ static int rswitch_serdes_init(struct rswitch_etha *etha)
 	if (ret)
 		return ret;
 
-	/* Disable FUSE_OVERRIDE_EN */
-	if (readl(etha->serdes_addr + RSWITCH_SERDES_FUSE_OVERRIDE(etha->index)))
-		writel(0, etha->serdes_addr + RSWITCH_SERDES_FUSE_OVERRIDE(etha->index));
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++) {
+		ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_CTRL1, BANK_300,
+					      BIT(15), 0);
+		if (ret)
+			return ret;
+	}
+
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++)
+		rswitch_serdes_write32(etha->serdes_addr, 0x03d4, BANK_380, 0x443);
+
 
 	/* Set common settings*/
 	ret = rswitch_serdes_common_setting(etha, mode);
 	if (ret)
 		return ret;
+
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++)
+		rswitch_serdes_write32(etha->serdes_addr, 0x03d0, BANK_380, 0x01);
 
 	/* Assert softreset for PHY */
 	rswitch_serdes_write32(etha->serdes_common_addr, VR_XS_PCS_DIG_CTRL1, BANK_380, 0x8000);
@@ -572,20 +580,35 @@ static int rswitch_serdes_init(struct rswitch_etha *etha)
 	if (ret)
 		return ret;
 
+	ret = rswitch_serdes_reg_wait(etha->serdes_common_addr, VR_XS_PCS_DIG_CTRL1, BANK_380,
+				      BIT(15), 0);
+	if (ret)
+		return ret;
+
 	/* Set channel settings*/
 	ret = rswitch_serdes_chan_setting(etha, mode);
 	if (ret)
 		return ret;
 
 	/* Set speed (bps) */
-	ret = rswitch_serdes_set_speed(etha, mode);
-	if (ret)
-		return ret;
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++) {
+		ret = rswitch_serdes_set_speed(etha, mode);
+		if (ret)
+			return ret;
+	}
 
-	ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_STS1, BANK_300, BIT(2), BIT(2));
-	if (ret) {
-		debug("\n%s: SerDes Link up failed", __func__);
-		return ret;
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++) {
+		rswitch_serdes_write32(etha->serdes_addr, 0x03c0, BANK_380, 0);
+		rswitch_serdes_write32(etha->serdes_addr, 0x03d0, BANK_380, 0);
+
+		ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_STS1, BANK_300, BIT(2), BIT(2));
+		if (ret) {
+			pr_debug("\n%s: SerDes Link up failed, restart linkup", __func__);
+			val = rswitch_serdes_read32(etha->serdes_addr, 0x0144, BANK_180);
+			rswitch_serdes_write32(etha->serdes_addr, 0x0144, BANK_180, val |= 0x10);
+			udelay(20);
+			rswitch_serdes_write32(etha->serdes_addr, 0x0144, BANK_180, val &= ~0x10);
+		}
 	}
 
 	return 0;
