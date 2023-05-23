@@ -62,33 +62,56 @@
 };
 
 &rswitch {
-	status = "okay";
-	pinctrl-0 = <&tsn0_pins>;
+	pinctrl-0 = <&tsn0_pins>, <&tsn1_pins>, <&tsn2_pins>;
 	pinctrl-names = "default";
 	phy-mode = "sgmii";
-	phy-handle = <&etha0>;
-	#address-cells = <1>;
-	#size-cells = <0>;
+	status = "okay";
 
-	etha0: ethernet-phy@1 {
-		phy-connection-type = "sgmii";
-		device_type = "ethernet-phy";
-		compatible = "marvell,88e2110";
-		reg = <1>;
+	ethernet-ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			phy-handle = <&etha0>;
+
+			mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				etha0: ethernet-phy@1 {
+					reg = <1>;
+					compatible = "ethernet-phy-ieee802.3-c45";
+				};
+			};
+		};
+		port@1 {
+			reg = <1>;
+			phy-handle = <&etha1>;
+
+			mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				etha1: ethernet-phy@2 {
+					reg = <2>;
+					compatible = "ethernet-phy-ieee802.3-c45";
+				};
+			};
+		};
+		port@2 {
+			reg = <2>;
+			phy-handle = <&etha2>;
+
+			mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				etha2: ethernet-phy@3 {
+					reg = <3>;
+					compatible = "ethernet-phy-ieee802.3-c45";
+				};
+			};
+		};
 	};
-
-	etha1: ethernet-phy@2 {
-		phy-connection-type = "sgmii";
-		device_type = "ethernet-phy";
-		compatible = "marvell,88e2110";
-		reg = <2>;
-	};
-
-	etha2: ethernet-phy@3 {
-		phy-connection-type = "sgmii";
-		device_type = "ethernet-phy";
-		compatible = "marvell,88e2110";
-		reg = <3>;
-	};
-
 };
