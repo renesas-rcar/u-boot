@@ -23,6 +23,7 @@
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
+#include <dm/ofnode.h>
 
 #define RSWITCH_NUM_HW		5
 
@@ -337,6 +338,9 @@ struct rswitch_priv {
 	struct clk		phy_clk;
 
 	bool			parallel_mode;
+
+  /* Parameter for VPF mode which can config in dts file */
+	bool   vpf_mode;
 };
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
@@ -682,6 +686,30 @@ static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
 	return ret;
 }
 
+#define MPSM_PDA_SHIFT    3
+#define MPSM_PDA(val)   ((val) << MPSM_PDA_SHIFT)
+#define MPSM_PRA_SHIFT    8
+#define MPSM_PRA(val)   ((val) << MPSM_PRA_SHIFT)
+#define MPSM_POP_SHIFT    13
+#define MPSM_POP(val)   ((val) << MPSM_POP_SHIFT)
+#define MPSM_PRD_SHIFT    16
+#define MPSM_PRD_WRITE(val)	((val) << MPSM_PRD_SHIFT)
+#define MPSM_PRD_READ(val)	((val) & MPSM_PRD_MASK >> MPSM_PRD_SHIFT)
+
+static int rswitch_mii_access_c22(struct rswitch_etha *etha, bool read,
+			int phyad, int regad, int data)
+{
+	int pop = read ? MDIO_READ_C22 : MDIO_WRITE_C22;
+
+	rswitch_modify(etha, MPSM, MPSM_POP_MASK, MPSM_POP(pop));
+	rswitch_modify(etha, MPSM, MPSM_PDA_MASK, MPSM_PDA(phyad));
+	rswitch_modify(etha, MPSM, MPSM_PRA_MASK, MPSM_PRA(regad));
+	if (!read)
+		rswitch_modify(etha, MPSM, MPSM_PRD_MASK, MPSM_PRD_WRITE(data));
+	rswitch_reg_wait(etha->addr, MPSM, MPSM_PSME, 0);
+	return read ? MPSM_PRD_READ(readl(etha->addr + MPSM)) : 0;
+}
+
 static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, int regad)
 {
 	struct rswitch_priv *priv = miidev->priv;
@@ -700,11 +728,17 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
 	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
 
-	/* Set Station Management Mode : Clause 45 */
-	rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
-
-	/* Access PHY register */
-	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	if (!priv->vpf_mode) {
+		/* Set Station Management Mode : Clause 45 */
+		rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
+		/* Access PHY register */
+		val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	} else {
+		/* Set Station Management Mode : Clause 45 */
+		rswitch_modify(etha, MPSM, MPSM_MFF_C22, MPSM_MFF_C22);
+		/* Access PHY register */
+		val = rswitch_mii_access_c22(etha, true, phyad, regad, 0);
+	}
 
 	/* Disale Station Management Clock */
 	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0);
@@ -732,11 +766,17 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
 	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
 
-	/* Set Station Management Mode : Clause 45 */
-	rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
-
-	/* Access PHY register */
-	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	if (!priv->vpf_mode) {
+		/* Set Station Management Mode : Clause 45 */
+		rswitch_modify(etha, MPSM, MPSM_MFF_C45, MPSM_MFF_C45);
+		/* Access PHY register */
+		rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	} else {
+		/* Set Station Management Mode : Clause 45 */
+		rswitch_modify(etha, MPSM, MPSM_MFF_C22, MPSM_MFF_C22);
+		/* Access PHY register */
+		rswitch_mii_access_c22(etha, false, phyad, regad, 0);
+	}
 
 	/* Disale Station Management Clock */
 	rswitch_modify(etha, MPIC, MPIC_PSMCS_MASK, 0);
@@ -1034,7 +1074,7 @@ static int rswitch_init(struct rswitch_priv *priv)
 	if (ret)
 		return ret;
 
-	if (!priv->parallel_mode) {
+	if (!priv->parallel_mode && !priv->vpf_mode) {
 		ret = rswitch_serdes_init(&priv->etha);
 		if (ret)
 			return ret;
@@ -1253,6 +1293,12 @@ static int rswitch_probe(struct udevice *dev)
 	fdt_size_t size;
 	int ret;
 	char *s;
+
+	/* Check whether if vpf_mode node exist in the dts file */
+	if (ofnode_get_property(dev_ofnode(dev), "vpf_mode", NULL))
+		priv->vpf_mode = true;
+	else
+		priv->vpf_mode = false;
 
 	s = env_get("rswitch.parallel_mode");
 	priv->parallel_mode = ((int)simple_strtol(s, NULL, 10) == 1) ? true : false;

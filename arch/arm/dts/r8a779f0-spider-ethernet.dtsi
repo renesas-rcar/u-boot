@@ -69,6 +69,7 @@
 	phy-handle = <&etha0>;
 	#address-cells = <1>;
 	#size-cells = <0>;
+	vpf_mode;
 
 	etha0: ethernet-phy@1 {
 		phy-connection-type = "sgmii";
