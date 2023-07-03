@@ -26,6 +26,7 @@
 
 #define RSWITCH_NUM_HW		5
 #define RSWITCH_SERDES_NUM	3
+#define RSWITCH_NUM_PORT	3
 
 #define ETHA_TO_GWCA(i)		((i) % 2)
 #define GWCA_TO_HW_INDEX(i)	((i) + 3)
@@ -1399,16 +1400,21 @@ static int rswitch_probe(struct udevice *dev)
 	struct mii_dev *mdiodev;
 	fdt_addr_t serdes_addr;
 	fdt_size_t size;
-	int ret;
+	int ret, port;
 	char *s;
 
 	s = env_get("rswitch.parallel_mode");
 	priv->parallel_mode = ((int)simple_strtol(s, NULL, 10) == 1) ? true : false;
 
+	s = env_get("rswitch.port");
+	port = (int)simple_strtol(s, NULL, 10);
+	if (!s || port < 0 || port > RSWITCH_NUM_PORT - 1)
+		port = CONFIG_RENESAS_ETHER_SWITCH_DEFAULT_PORT;
+
 	pdata->iobase = dev_read_addr_size_name(dev, "iobase", &size);
 	priv->addr = map_physmem(pdata->iobase, size, MAP_NOCACHE);
 
-	etha->index = CONFIG_RENESAS_ETHER_SWITCH_DEFAULT_PORT;
+	etha->index = port;
 	etha->addr = priv->addr + RSWITCH_ETHA_OFFSET + etha->index * RSWITCH_ETHA_SIZE;
 
 	serdes_addr = dev_read_addr_size_name(dev, "serdes", &size);
