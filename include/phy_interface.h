@@ -36,6 +36,7 @@ typedef enum {
 	PHY_INTERFACE_MODE_CAUI4,
 	PHY_INTERFACE_MODE_NCSI,
 	PHY_INTERFACE_MODE_XFI,
+	PHY_INTERFACE_MODE_5GBASER,
 	PHY_INTERFACE_MODE_USXGMII,
 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
 
@@ -66,6 +67,7 @@ static const char * const phy_interface_strings[] = {
 	[PHY_INTERFACE_MODE_CAUI4]		= "caui4",
 	[PHY_INTERFACE_MODE_NCSI]		= "NC-SI",
 	[PHY_INTERFACE_MODE_XFI]		= "xfi",
+	[PHY_INTERFACE_MODE_5GBASER]		= "5gbase-r",
 	[PHY_INTERFACE_MODE_USXGMII]		= "usxgmii",
 	[PHY_INTERFACE_MODE_NONE]		= "",
 };
