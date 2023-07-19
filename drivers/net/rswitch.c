@@ -529,9 +529,30 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha)
 	return 0;
 }
 
-static int rswitch_serdes_init(struct rswitch_etha *etha)
+static int rswitch_serdes_monitor_linkup(struct rswitch_etha *etha)
 {
-	int ret, i, val;
+	int ret;
+	u32 val;
+
+	ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_STS1,
+				      BANK_300, BIT(2), BIT(2));
+	if (ret) {
+		pr_debug("\n%s: SerDes Link up failed, restart linkup", __func__);
+		val = rswitch_serdes_read32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
+					    BANK_180);
+		rswitch_serdes_write32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
+				       BANK_180, val | BIT(4));
+		udelay(20);
+		rswitch_serdes_write32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
+				       BANK_180, val & (~BIT(4)));
+	}
+
+	return ret;
+}
+
+static int rswitch_serdes_common_init(struct rswitch_etha *etha)
+{
+	int ret, i;
 
 	/* Initialize SRAM */
 	ret = rswitch_serdes_common_initialize_sram(etha);
@@ -567,10 +588,13 @@ static int rswitch_serdes_init(struct rswitch_etha *etha)
 	if (ret)
 		return ret;
 
-	ret = rswitch_serdes_reg_wait(etha->serdes_common_addr, VR_XS_PCS_DIG_CTRL1, BANK_380,
-				      BIT(15), 0);
-	if (ret)
-		return ret;
+	return rswitch_serdes_reg_wait(etha->serdes_common_addr, VR_XS_PCS_DIG_CTRL1,
+				       BANK_380, BIT(15), 0);
+}
+
+static int rswitch_serdes_chan_init(struct rswitch_etha *etha)
+{
+	int ret;
 
 	/* Set channel settings*/
 	ret = rswitch_serdes_chan_setting(etha);
@@ -585,16 +609,19 @@ static int rswitch_serdes_init(struct rswitch_etha *etha)
 	rswitch_serdes_write32(etha->serdes_addr, VR_XS_PCS_SFTY_UE_INTRO, BANK_380, 0);
 	rswitch_serdes_write32(etha->serdes_addr, VR_XS_PCS_SFTY_DISABLE, BANK_380, 0);
 
-	ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_STS1, BANK_300, BIT(2), BIT(2));
-	if (ret) {
-		pr_debug("\n%s: SerDes Link up failed, restart linkup", __func__);
-		val = rswitch_serdes_read32(etha->serdes_addr, 0x0144, BANK_180);
-		rswitch_serdes_write32(etha->serdes_addr, 0x0144, BANK_180, val |= 0x10);
-		udelay(20);
-		rswitch_serdes_write32(etha->serdes_addr, 0x0144, BANK_180, val &= ~0x10);
-	}
+	/* Check Link up restart */
+	return rswitch_serdes_monitor_linkup(etha);
+}
 
-	return 0;
+static int rswitch_serdes_init(struct rswitch_etha *etha)
+{
+	int ret;
+
+	ret = rswitch_serdes_common_init(etha);
+	if (ret)
+		return ret;
+
+	return rswitch_serdes_chan_init(etha);
 }
 
 static int rswitch_etha_change_mode(struct rswitch_priv *priv,
