@@ -127,6 +127,7 @@ enum rswitch_reg {
 
 /* RMAC */
 #define MPIC_PIS_GMII		0x02
+#define MPIC_PIS_XGMII		0x04
 #define MPIC_LSC_MASK		(0x07 << 3)
 #define MPIC_LSC_100		(0x01 << 3)
 #define MPIC_LSC_1000		(0x02 << 3)
@@ -468,6 +469,13 @@ static int rswitch_serdes_common_setting(struct rswitch_etha *etha)
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_MPLLB_CTRL3, BANK_180, 0x3d);
 
 		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_REF_CLK_CTRL, BANK_180, 0x57);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_10G_MPLLA_CTRL2, BANK_180, 0xc200);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_MPLLA_CTRL0, BANK_180, 0x42);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_MPLLA_CTRL1, BANK_180, 0);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_MPLLA_CTRL3, BANK_180, 0x2f);
+		break;
 	default:
 		return -ENOTSUPP;
 	}
@@ -518,6 +526,45 @@ static int rswitch_serdes_chan_setting(struct rswitch_etha *etha)
 		if (ret)
 			return ret;
 		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+		rswitch_serdes_write32(addr, SR_XS_PCS_CTRL2, BANK_300, 0x0);
+		rswitch_serdes_write32(addr, VR_XS_PCS_DEBUG_CTRL, BANK_380, 0x50);
+		rswitch_serdes_write32(addr, VR_XS_PCS_DIG_CTRL1, BANK_380, 0x2200);
+		rswitch_serdes_write32(addr, VR_XS_PCS_KR_CTRL, BANK_380, 0x400);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_MPLL_CMN_CTRL, BANK_180, 0x1);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_VCO_CAL_LD0, BANK_180, 0x56a);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_VCO_CAL_REF0, BANK_180, 0x15);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
+						      BANK_180, 0x1100);
+		rswitch_serdes_write32(addr, VR_XS_PMA_CONSUMER_10G_RX_GENCTRL4, BANK_180, 1);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_TX_RATE_CTRL, BANK_180, 0x01);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_RX_RATE_CTRL, BANK_180, 0x01);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_TX_GENCTRL2, BANK_180, 0x300);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_RX_GENCTRL2, BANK_180, 0x300);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_AFE_DFE_EN_CTRL, BANK_180, 0);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_RX_EQ_CTRL0, BANK_180, 0x4);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_10G_RX_IQ_CTRL0, BANK_180, 0);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_TX_GENCTRL1, BANK_180, 0x310);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_TX_GENCTRL2, BANK_180, 0x0301);
+		ret = rswitch_serdes_reg_wait(addr, VR_XS_PMA_MP_12G_16G_TX_GENCTRL2,
+							      BANK_180, BIT(0), 0);
+		if (ret)
+			return ret;
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_RX_GENCTRL2, BANK_180, 0x301);
+		ret = rswitch_serdes_reg_wait(addr, VR_XS_PMA_MP_12G_16G_RX_GENCTRL2,
+							      BANK_180, BIT(0), 0);
+		if (ret)
+			return ret;
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_TX_GENCTRL1,
+						       BANK_180, 0x1310);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_TX_EQ_CTRL0,
+						       BANK_180, 0x1800);
+		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_TX_EQ_CTRL1, BANK_180, 0);
+		rswitch_serdes_write32(addr, VR_XS_PCS_DIG_CTRL1, BANK_380, 0x2300);
+		ret = rswitch_serdes_reg_wait(addr, VR_XS_PCS_DIG_CTRL1, BANK_380, BIT(8), 0);
+		if (ret)
+			return ret;
+		break;
 	default:
 		return -ENOTSUPP;
 	}
@@ -539,6 +586,13 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha)
 			rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x100);
 
 		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+		if (etha->phydev->speed == 2500) {
+			rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x120);
+			udelay(30);
+		}
+
+		break;
 	default:
 		return -ENOTSUPP;
 	}
@@ -548,20 +602,22 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha)
 
 static int rswitch_serdes_monitor_linkup(struct rswitch_etha *etha)
 {
-	int ret;
+	int ret, i;
 	u32 val;
 
-	ret = rswitch_serdes_reg_wait(etha->serdes_addr, SR_XS_PCS_STS1,
-				      BANK_300, BIT(2), BIT(2));
-	if (ret) {
-		pr_debug("\n%s: SerDes Link up failed, restart linkup", __func__);
-		val = rswitch_serdes_read32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
-					    BANK_180);
-		rswitch_serdes_write32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
-				       BANK_180, val | BIT(4));
-		udelay(20);
-		rswitch_serdes_write32(etha->serdes_addr, VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1,
-				       BANK_180, val & (~BIT(4)));
+	for (i = 0; i < RSWITCH_SERDES_NUM; i++) {
+		ret = rswitch_serdes_reg_wait(etha->serdes_common_addr + i * RSWITCH_SERDES_OFFSET,
+					      SR_XS_PCS_STS1, BANK_300, BIT(2), BIT(2));
+		if (ret) {
+			pr_debug("\n%s: SerDes Link up failed, restart linkup", __func__);
+			val = rswitch_serdes_read32(etha->serdes_common_addr + i * RSWITCH_SERDES_OFFSET,
+						    VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1, BANK_180);
+			rswitch_serdes_write32(etha->serdes_common_addr + i * RSWITCH_SERDES_OFFSET,
+					       VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1, BANK_180, val | BIT(4));
+			udelay(20);
+			rswitch_serdes_write32(etha->serdes_common_addr + i * RSWITCH_SERDES_OFFSET,
+					       VR_XS_PMA_MP_12G_16G_25G_RX_GENCTRL1, BANK_180, val & (~BIT(4)));
+		}
 	}
 
 	return ret;
@@ -624,8 +680,10 @@ static int rswitch_serdes_chan_init(struct rswitch_etha *etha)
 	if (ret)
 		return ret;
 
-	rswitch_serdes_write32(etha->serdes_addr, VR_XS_PCS_SFTY_UE_INTRO, BANK_380, 0);
-	rswitch_serdes_write32(etha->serdes_addr, VR_XS_PCS_SFTY_DISABLE, BANK_380, 0);
+	rswitch_serdes_write32(etha->serdes_addr,
+			       VR_XS_PCS_SFTY_UE_INTRO, BANK_380, 0);
+	rswitch_serdes_write32(etha->serdes_addr,
+			       VR_XS_PCS_SFTY_DISABLE, BANK_380, 0);
 
 	val = rswitch_serdes_read32(etha->serdes_addr,
 				    VR_XS_PMA_MP_12G_16G_25G_TX_GENCTRL0, BANK_180);
@@ -994,7 +1052,7 @@ static void rswitch_rmac_init(struct rswitch_etha *etha)
 	writel((mac[0] << 8) | mac[1], etha->addr + MRMAC0);
 
 	/* Set MIIx */
-	writel(MPIC_PIS_GMII | MPIC_LSC_1000, etha->addr + MPIC);
+	writel(MPIC_PIS_XGMII | MPIC_LSC_2500, etha->addr + MPIC);
 
 	writel(0x07E707E7, etha->addr + MRAFC);
 
@@ -1120,7 +1178,7 @@ static int rswitch_phy_config(struct udevice *dev)
 		return -ENODEV;
 
 	etha->phydev = phydev;
-	phydev->speed = 1000;
+	phydev->speed = 2500;
 
 	/* Add workaround to let phy_{read/write}_mmd() know
 	 * it can be accessed via PHY clause 45 directly.
@@ -1469,7 +1527,7 @@ int rswitch_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pdata->max_speed = 1000;
+	pdata->max_speed = 2500;
 	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
