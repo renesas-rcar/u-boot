@@ -263,6 +263,7 @@ struct rswitch_etha {
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
 	unsigned char		enetaddr[ARP_HLEN_ASCII + 1];
+	int			phy_interface;
 };
 
 struct rswitch_gwca {
@@ -466,7 +467,7 @@ static int rswitch_serdes_common_setting(struct rswitch_etha *etha)
 {
 	void __iomem *addr = etha->serdes_common_addr;
 
-	switch (etha->phydev->interface) {
+	switch (etha->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_REF_CLK_CTRL, BANK_180, 0x97);
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_MPLLB_CTRL0, BANK_180, 0x60);
@@ -476,6 +477,7 @@ static int rswitch_serdes_common_setting(struct rswitch_etha *etha)
 
 		break;
 	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_5GBASER:
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_25G_REF_CLK_CTRL, BANK_180, 0x57);
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_10G_MPLLA_CTRL2, BANK_180, 0xc200);
 		rswitch_serdes_write32(addr, VR_XS_PMA_MP_12G_16G_MPLLA_CTRL0, BANK_180, 0x42);
@@ -494,7 +496,7 @@ static int rswitch_serdes_chan_setting(struct rswitch_etha *etha)
 	void __iomem *addr = etha->serdes_addr;
 	int ret;
 
-	switch (etha->phydev->interface) {
+	switch (etha->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
 		rswitch_serdes_write32(addr, SR_XS_PCS_CTRL2, BANK_300, 0x01);
 		rswitch_serdes_write32(addr, VR_XS_PCS_DIG_CTRL1, BANK_380, 0x2000);
@@ -533,6 +535,7 @@ static int rswitch_serdes_chan_setting(struct rswitch_etha *etha)
 			return ret;
 		break;
 	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_5GBASER:
 		rswitch_serdes_write32(addr, SR_XS_PCS_CTRL2, BANK_300, 0x0);
 		rswitch_serdes_write32(addr, VR_XS_PCS_DEBUG_CTRL, BANK_380, 0x50);
 		rswitch_serdes_write32(addr, VR_XS_PCS_DIG_CTRL1, BANK_380, 0x2200);
@@ -582,7 +585,7 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha)
 {
 	void __iomem *addr = etha->serdes_addr;
 
-	switch (etha->phydev->interface) {
+	switch (etha->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
 		if (etha->phydev->speed == 1000)
 			rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x140);
@@ -593,10 +596,13 @@ static int rswitch_serdes_set_speed(struct rswitch_etha *etha)
 
 		break;
 	case PHY_INTERFACE_MODE_USXGMII:
-		if (etha->phydev->speed == 2500) {
-			rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x120);
-			udelay(30);
-		}
+		/* USXGMII - 2.5Gbps */
+		rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x120);
+
+		break;
+	case PHY_INTERFACE_MODE_5GBASER:
+		rswitch_serdes_write32(addr, SR_MII_CTRL, BANK_1F00, 0x2120);
+		udelay(30);
 
 		break;
 	default:
@@ -1085,7 +1091,17 @@ static void rswitch_rmac_init(struct rswitch_etha *etha)
 	writel((mac[0] << 8) | mac[1], etha->addr + MRMAC0);
 
 	/* Set MIIx */
-	writel(MPIC_PIS_XGMII | MPIC_LSC_2500, etha->addr + MPIC);
+	switch (etha->phy_interface) {
+	case PHY_INTERFACE_MODE_SGMII:
+		writel(MPIC_PIS_GMII | MPIC_LSC_1000, etha->addr + MPIC);
+		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_5GBASER:
+		writel(MPIC_PIS_XGMII | MPIC_LSC_2500, etha->addr + MPIC);
+		break;
+	default:
+		return;
+	}
 
 	writel(0x07E707E7, etha->addr + MRAFC);
 
@@ -1222,7 +1238,18 @@ static int rswitch_phy_config(struct udevice *dev)
 		return -ENODEV;
 
 	etha->phydev = phydev;
-	phydev->speed = 2500;
+
+	switch (pdata->phy_interface) {
+	case PHY_INTERFACE_MODE_SGMII:
+		phydev->speed = 1000;
+		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_5GBASER:
+		phydev->speed = 2500;
+		break;
+	default:
+		return -ENOTSUPP;
+	}
 
 	/* Add workaround to let phy_{read/write}_mmd() know
 	 * it can be accessed via PHY clause 45 directly.
@@ -1562,6 +1589,7 @@ static int rswitch_remove(struct udevice *dev)
 int rswitch_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct rswitch_priv *priv = dev_get_priv(dev);
 	const char *phy_mode;
 	const fdt32_t *cell;
 	int ret = 0;
@@ -1577,7 +1605,19 @@ int rswitch_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	pdata->max_speed = 2500;
+	priv->etha.phy_interface = pdata->phy_interface;
+
+	switch (pdata->phy_interface) {
+	case PHY_INTERFACE_MODE_SGMII:
+		pdata->max_speed = 1000;
+		break;
+	case PHY_INTERFACE_MODE_USXGMII:
+	case PHY_INTERFACE_MODE_5GBASER:
+		pdata->max_speed = 2500;
+		break;
+	default:
+		return -ENOTSUPP;
+	}
 	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
