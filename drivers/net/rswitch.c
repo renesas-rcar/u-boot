@@ -1199,12 +1199,23 @@ static int rswitch_phy_config(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct ofnode_phandle_args phandle_args;
 	struct phy_device *phydev;
-	int phy_addr;
+	ofnode ports_np, node;
+	int phy_addr, idx;
 
-	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0, &phandle_args))
-		phy_addr = -1;
-	else
-		phy_addr = ofnode_read_u32_default(phandle_args.node, "reg", 1);
+	ports_np = dev_read_subnode(dev, "ethernet-ports");
+	if (!ofnode_valid(ports_np))
+		return -ENOENT;
+
+	phy_addr = -1;
+	ofnode_for_each_subnode(node, ports_np) {
+		idx = ofnode_read_s32_default(node, "reg", RSWITCH_NUM_PORT);
+		if (idx == etha->index) {
+			if (!ofnode_parse_phandle_with_args(node, "phy-handle", NULL, 0, 0,
+							    &phandle_args))
+				phy_addr = ofnode_read_s32_default(phandle_args.node, "reg", -1);
+			break;
+		}
+	}
 
 	phydev = phy_connect(etha->bus, phy_addr, dev, pdata->phy_interface);
 	if (!phydev)
