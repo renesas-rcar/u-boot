@@ -156,6 +156,11 @@ enum rswitch_reg {
 #define MPSM_PRA_MASK		(0x1f << 8)
 #define MPSM_PDA_MASK		(0x1f << 3)
 #define MPSM_PRD_MASK		(0xffff << 16)
+#define MPSM_POP(val)           ((val) << 13)
+#define MPSM_PRA(val)		((val) << 8)
+#define MPSM_PDA(val)		((val) << 3)
+#define MPSM_PRD_WRITE(val)	((val) << 16)
+#define MPSM_PRD_READ(val)	(((val) & MPSM_PRD_MASK) >> 16)
 
 /* Completion flags */
 #define MMIS1_PAACS		BIT(2) /* Address */
@@ -832,23 +837,50 @@ static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
 	return ret;
 }
 
-static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, int regad)
+static int rswitch_mii_access_c22(struct rswitch_etha *etha, bool read,
+				       int phyad, int regad, int data)
+{
+	int pop = read ? MDIO_READ_C22 : MDIO_WRITE_C22;
+	int ret;
+	u32 val;
+
+	val = MPSM_POP(pop) | MPSM_PDA(phyad) | MPSM_PRA(regad) | MPSM_PSME;
+
+	if (!read)
+		val |= MPSM_PRD_WRITE(data);
+
+	writel(val, etha->addr + MPSM);
+
+	ret = rswitch_reg_wait(etha->addr, MPSM, MPSM_PSME, 0);
+	if (ret)
+		return ret;
+
+	return read ? MPSM_PRD_READ(readl(etha->addr + MPSM)) : 0;
+}
+
+static int rswitch_mii_read(struct mii_dev *miidev, int phyad, int devad, int regad)
 {
 	struct rswitch_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
 	int val;
 
-	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	if (devad != MDIO_DEVAD_NONE)
+		val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	else
+		val = rswitch_mii_access_c22(etha, true, phyad, regad, 0);
 
 	return val;
 }
 
-int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int regad, u16 data)
+int rswitch_mii_write(struct mii_dev *miidev, int phyad, int devad, int regad, u16 data)
 {
 	struct rswitch_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
 
-	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	if (etha->phydev->is_c45)
+		rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	else
+		rswitch_mii_access_c22(etha, false, phyad, regad, data);
 
 	return 0;
 }
@@ -1184,7 +1216,8 @@ static int rswitch_phy_config(struct udevice *dev)
 	/* Add workaround to let phy_{read/write}_mmd() know
 	 * it can be accessed via PHY clause 45 directly.
 	 */
-	phydev->drv->features = PHY_10G_FEATURES;
+	if (phydev->is_c45)
+		phydev->drv->features = PHY_10G_FEATURES;
 
 	phy_config(phydev);
 
@@ -1449,8 +1482,8 @@ static int rswitch_probe(struct udevice *dev)
 	}
 
 	mdiodev->priv = priv;
-	mdiodev->read = rswitch_mii_read_c45;
-	mdiodev->write = rswitch_mii_write_c45;
+	mdiodev->read = rswitch_mii_read;
+	mdiodev->write = rswitch_mii_write;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	ret = mdio_register(mdiodev);
