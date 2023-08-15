@@ -90,8 +90,8 @@ struct uart_port {
 # define SCSPTR7 0xe800a820 /* 16 bit SCIF */
 # define SCSCR_INIT(port)	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
 # define SCIF_ORER 0x0001  /* overrun error bit */
-#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_RCAR_GEN3) || \
-      defined(CONFIG_R7S72100) || defined(CONFIG_RCAR_GEN4)
+#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_RCAR_64) || \
+      defined(CONFIG_R7S72100)
 # if defined(CONFIG_SCIF_A)
 #  define SCIF_ORER	0x0200
 # else
@@ -504,7 +504,7 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
  #else
   #define SCBRR_VALUE(bps, clk) (clk / bps / 32 - 1) /* Internal Clock */
  #endif
-#elif defined(CONFIG_RCAR_GEN4)
+#elif defined(CONFIG_RCAR_64)
 static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 {
 	if (port->type == PORT_SCIF)
