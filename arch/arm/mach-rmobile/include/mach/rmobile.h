@@ -44,6 +44,7 @@
 #define RMOBILE_CPU_TYPE_R8A779A0	0x59
 #define RMOBILE_CPU_TYPE_R8A779F0	0x5A
 #define RMOBILE_CPU_TYPE_R8A779G0	0x5C
+#define RMOBILE_CPU_TYPE_R8A779H0	0x5D
 
 #ifndef __ASSEMBLY__
 const u8 *rzg_get_cpu_name(void);
