@@ -183,7 +183,7 @@ static const struct mssr_mod_clk r8a779g0_mod_clks[] = {
 	DEF_MOD("adg",		122,	R8A779G0_CLK_ADGH),
 	DEF_MOD("avb0",		211,	R8A779G0_CLK_S0D8_HSC),
 	DEF_MOD("avb1",		212,	R8A779G0_CLK_S0D8_HSC),
-	DEF_MOD("avb3",		213,	R8A779G0_CLK_S0D8_HSC),
+	DEF_MOD("avb2",		213,	R8A779G0_CLK_S0D8_HSC),
 	DEF_MOD("can-fd",	328,	R8A779G0_CLK_CANFD),
 	DEF_MOD("csitop0",	331,	R8A779G0_CLK_CSI),
 	DEF_MOD("csitop1",	400,	R8A779G0_CLK_CSI),
