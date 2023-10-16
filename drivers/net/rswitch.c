@@ -319,17 +319,16 @@ struct rswitch_desc {
 struct rswitch_rxdesc {
 	struct rswitch_desc	data;
 	struct rswitch_desc	link;
-	u8			__pad[48];
-	u8			packet[PKTSIZE_ALIGN];
+	u8			*packet;
 } __packed;
 
 struct rswitch_priv {
 	void __iomem		*addr;
 	struct rswitch_etha	etha;
 	struct rswitch_gwca	gwca;
-	struct rswitch_desc	bat_desc[RSWITCH_NUM_BASE_DESC];
-	struct rswitch_desc	tx_desc[RSWITCH_NUM_TX_DESC];
-	struct rswitch_rxdesc	rx_desc[RSWITCH_NUM_RX_DESC];
+	struct rswitch_desc	*bat_desc;
+	struct rswitch_desc	*tx_desc;
+	struct rswitch_rxdesc	*rx_desc;
 	u32			rx_desc_index;
 	u32			tx_desc_index;
 
@@ -338,6 +337,21 @@ struct rswitch_priv {
 
 	bool			parallel_mode;
 };
+
+
+static void* dma_alloc(int size)
+{
+	void *priv;
+	size = ROUND(size, ARCH_DMA_MINALIGN);
+	priv = memalign(ARCH_DMA_MINALIGN, size);
+	if (priv) {
+		memset(priv, '\0', size);
+#ifndef CONFIG_MICROBLAZE
+		flush_dcache_range((ulong)priv, (ulong)priv + size);
+#endif
+	}
+	return priv;
+}
 
 static inline void rswitch_flush_dcache(u32 addr, u32 len)
 {
@@ -832,6 +846,12 @@ static void rswitch_bat_desc_init(struct rswitch_priv *priv)
 	const u32 desc_size = RSWITCH_NUM_BASE_DESC * sizeof(struct rswitch_desc);
 	int i;
 
+	priv->bat_desc = dma_alloc(sizeof(struct rswitch_desc) * RSWITCH_NUM_BASE_DESC);
+	if(!priv->bat_desc) {
+		pr_debug("\n%s: Failed to buffer alloc\n", __func__);
+		return;
+	}
+
 	/* Initialize all descriptors */
 	memset(priv->bat_desc, 0x0, desc_size);
 
@@ -846,6 +866,12 @@ static void rswitch_tx_desc_init(struct rswitch_priv *priv)
 	const u32 desc_size = RSWITCH_NUM_TX_DESC * sizeof(struct rswitch_desc);
 	int i;
 	u64 tx_desc_addr;
+
+	priv->tx_desc = dma_alloc(sizeof(struct rswitch_desc) * RSWITCH_NUM_TX_DESC);
+	if(!priv->tx_desc) {
+		pr_debug("\n%s: Failed to buffer alloc\n", __func__);
+		return;
+	}
 
 	/* Initialize all descriptor */
 	memset(priv->tx_desc, 0x0, desc_size);
@@ -877,11 +903,24 @@ static void rswitch_rx_desc_init(struct rswitch_priv *priv)
 	u64 next_rx_desc_addr;
 	u64 rx_desc_addr;
 
+	priv->rx_desc = dma_alloc(sizeof(struct rswitch_rxdesc) * RSWITCH_NUM_RX_DESC);
+	if(!priv->rx_desc) {
+		pr_debug("\n%s: Failed to buffer alloc\n", __func__);
+		return;
+	}
 	/* Initialize all descriptor */
 	memset(priv->rx_desc, 0x0, desc_size);
 	priv->rx_desc_index = 0;
 
 	for (i = 0; i < RSWITCH_NUM_RX_DESC; i++) {
+		priv->rx_desc[i].packet = dma_alloc(PKTSIZE_ALIGN);
+		if(!priv->rx_desc[i].packet) {
+			pr_debug("\n%s: Failed to buffer alloc\n", __func__);
+			return;
+		}
+		memset(priv->rx_desc[i].packet, 0x0, PKTSIZE_ALIGN);
+		rswitch_flush_dcache((uintptr_t)priv->rx_desc[i].packet, PKTSIZE_ALIGN);
+
 		priv->rx_desc[i].data.die_dt = DT_EEMPTY;
 		priv->rx_desc[i].data.info_ds = PKTSIZE_ALIGN;
 		packet_addr = (uintptr_t)priv->rx_desc[i].packet;
@@ -1227,6 +1266,7 @@ static int rswitch_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct rswitch_rxdesc *desc = &priv->rx_desc[priv->rx_desc_index];
 
 	/* Make current descritor available again */
+	rswitch_invalidate_dcache((uintptr_t)desc, sizeof(*desc));
 	desc->data.die_dt = DT_FEMPTY;
 	desc->data.info_ds = PKTSIZE_ALIGN;
 	rswitch_flush_dcache((uintptr_t)desc, sizeof(*desc));
@@ -1391,6 +1431,18 @@ static int rswitch_remove(struct udevice *dev)
 
 		free(priv->etha.phydev);
 		mdio_unregister(priv->etha.bus);
+	}
+
+	if (priv->bat_desc)
+		free(priv->bat_desc);
+	if (priv->tx_desc)
+		free(priv->tx_desc);
+	if (priv->rx_desc) {
+		int i;
+		for (i = 0; i < RSWITCH_NUM_RX_DESC; i++)
+			if(priv->rx_desc[i].packet)
+				free(priv->rx_desc[i].packet);
+		free(priv->rx_desc);
 	}
 
 	unmap_physmem(priv->addr, MAP_NOCACHE);
