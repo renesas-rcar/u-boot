@@ -1,0 +1,15 @@
+if TARGET_RCAR_X5H_BOARD
+
+config SYS_SOC
+	default "rmobile"
+
+config SYS_BOARD
+	default "rcar-x5h-board"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "rcar-x5h-board"
+
+endif

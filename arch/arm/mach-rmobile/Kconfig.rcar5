@@ -10,4 +10,18 @@ config R8A78000
 
 endmenu
 
+choice
+	prompt "Renesas ARM64 SoCs board select"
+	optional
+
+config TARGET_RCAR_X5H_BOARD
+	bool "R-Car X5H board"
+	imply R8A78000
+	help
+	  Support for Renesas R-Car Gen5 X5H platform
+
+endchoice
+
+source "board/renesas/rcar-x5h-board/Kconfig"
+
 endif

@@ -9,7 +9,6 @@
 #define __ASM_ARCH_RCAR_GEN5_BASE_H
 
 /* GICv3 */
-/* Distributor Registers */
 #define GICD_BASE	0xF1000000
 
 /* ReDistributor Registers for Control and Physical LPIs */

@@ -952,6 +952,9 @@ dtb-$(CONFIG_RCAR_GEN4) += \
 	r8a779g0-whitehawk-u-boot.dtb \
 	r8a779h0-gray-hawk-u-boot.dtb
 
+dtb-$(CONFIG_RCAR_GEN5) += \
+	rcar-x5h-board-u-boot.dtb
+
 ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000
 endif

@@ -87,8 +87,13 @@ void __weak reset_cpu(void)
 {
 	writel(RST_SPRES, RST_SRESCR0);
 }
+#elif defined(CONFIG_RCAR_GEN5)
+void __weak reset_cpu(void)
+{
+	return ;
+}
 #else
-#error Neither CONFIG_RCAR_GEN3 nor CONFIG_RCAR_GEN4 are set
+#error Neither CONFIG_RCAR_GEN3 nor CONFIG_RCAR_GEN4, CONFIG_RCAR_GEN5 are set
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
