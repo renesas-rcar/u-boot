@@ -1,0 +1,176 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the R-Car X5H (R8A78000) SoC
+ *
+ * Copyright (C) 2025 Renesas Electronics Corp.
+ */
+
+#include <dt-bindings/clock/r8a78000-scmi-clock.h>
+#include <dt-bindings/clock/r8a78000-scmi-reset.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/power/r8a78000-scmi-power.h>
+
+/ {
+	compatible = "renesas,r8a78000";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		a720_0: cpu@0 {
+			compatible = "arm,cortex-a720";
+			reg = <0>;
+			device_type = "cpu";
+			power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_AC00>;
+			next-level-cache = <&L3_CA720_0>;
+			enable-method = "psci";
+		};
+
+		L3_CA720_0: cache-controller-0 {
+			compatible = "cache";
+			power-domains = <&scmi_devpd X5H_POWER_DOMAIN_ID_ACL0>;
+			cache-unified;
+			cache-level = <3>;
+		};
+	};
+
+	extal_clk: extal {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		/* This value must be overridden by the board */
+		clock-frequency = <0>;
+	};
+
+	extalr_clk: extalr {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		/* This value must be overridden by the board */
+		clock-frequency = <0>;
+	};
+
+	firmware {
+		scmi {
+			compatible = "arm,scmi";
+			mbox-names = "tx","rx";
+			mboxes = <&mailbox 0 &mailbox 1>;
+			shmem = <&cpu_scp_lpri0 &cpu_scp_hpri0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			scmi_devpd: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
+			/* TODO: scmi_clk, scmi_reset */
+		};
+	};
+
+	pmu_a720 {
+		compatible = "arm,cortex-a720-pmu";
+		interrupts-extended = <&gic GIC_PPI 7 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2";
+		method = "smc";
+	};
+
+	/* External SCIF clock - to be overridden by boards that provide it */
+	scif_clk: scif {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <0>;
+	};
+
+	soc: soc {
+		compatible = "simple-bus";
+		interrupt-parent = <&gic>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		mailbox: mfis_mbox@18842000 {
+			compatible = "renesas,mfis-mbox";
+			#mbox-cells = <1>;
+			reg = <0x0 0x18842004 0x0 0x4>,
+			      <0x0 0x18842000 0x0 0x4>;
+			interrupts = <GIC_SPI 4362 IRQ_TYPE_LEVEL_HIGH>;
+			status = "disabled";
+		};
+
+		prr: chipid@189e0044 {
+			compatible = "renesas,prr";
+			reg = <0 0x189e0044 0 4>;
+		};
+
+		gic: interrupt-controller@38000000 {
+			compatible = "arm,gic-v3";
+			#interrupt-cells = <3>;
+			#address-cells = <0>;
+			interrupt-controller;
+			reg = <0x0 0x38000000 0 0x20000>,
+			      <0x0 0x38080000 0 0xC80000>;
+			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		pfc: pinctrl@c0400000 {
+			compatible = "renesas,pfc-r8a78000";
+			reg = <0 0xc1080000 0 0x104>, <0 0xc1080800 0 0x104>,
+			<0 0xc1081000 0 0x104>, <0 0xc0800000 0 0x104>,
+			<0 0xc0800800 0 0x104>, <0 0xc0400000 0 0x104>,
+			<0 0xc0400800 0 0x104>, <0 0xc0401000 0 0x104>,
+			<0 0xc0401800 0 0x104>, <0 0xc9b00000 0 0x104>,
+			<0 0xc9b00800 0 0x104>;
+		};
+
+		hscif0: serial@c0710000 {
+			compatible = "renesas,rcar-gen5-hscif", "renesas,hscif";
+			reg = <0 0xc0710000 0 0x60>;
+			interrupts = <GIC_SPI 4078 IRQ_TYPE_LEVEL_HIGH>;
+			status = "disabled";
+		};
+
+		sram: sram@c1000000 {
+			compatible = "arm,rcar-sram-ns", "mmio-sram";
+			reg = <0x0 0xc1000000 0x0 0x80000>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0x0 0xc1000000 0x80000>;
+
+			cpu_scp_lpri0: scp-shmem@60000 {
+				compatible = "arm,rcar-scp-shmem", "arm,scmi-shmem";
+				reg = <0x61200 0x0100>;
+			};
+
+			cpu_scp_hpri0: scp-shmem@60300 {
+				compatible = "arm,rcar-scp-shmem", "arm,scmi-shmem";
+				reg = <0x61300 0x100>;
+			};
+		};
+
+		cpg: clock-controller@c64f0000 {
+			compatible = "renesas,r8a78000-cpg-mssr";
+			reg = <0 0xc64f0000 0 0x4000>;
+			clocks = <&extal_clk>, <&extalr_clk>;
+			clock-names = "extal", "extalr";
+			#clock-cells = <2>;
+			#power-domain-cells = <0>;
+			#reset-cells = <1>;
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts-extended = <&gic GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+				      <&gic GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+				      <&gic GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+				      <&gic GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>,
+				      <&gic GIC_PPI 12 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "sec-phys", "phys", "virt", "hyp-phys",
+				  "hyp-virt";
+	};
+};
