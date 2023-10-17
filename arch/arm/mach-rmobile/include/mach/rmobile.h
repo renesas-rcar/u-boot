@@ -20,6 +20,8 @@
 #include <asm/arch/rcar-gen3-base.h>
 #elif defined(CONFIG_RCAR_GEN4)
 #include <asm/arch/rcar-gen4-base.h>
+#elif defined(CONFIG_RCAR_GEN5)
+#include <asm/arch/rcar-gen5-base.h>
 #elif defined(CONFIG_R7S72100)
 #else
 #error "SOC Name not defined"
@@ -45,6 +47,7 @@
 #define RMOBILE_CPU_TYPE_R8A779F0	0x5A
 #define RMOBILE_CPU_TYPE_R8A779G0	0x5C
 #define RMOBILE_CPU_TYPE_R8A779H0	0x5D
+#define RMOBILE_CPU_TYPE_R8A78000	0x60
 
 #ifndef __ASSEMBLY__
 const u8 *rzg_get_cpu_name(void);

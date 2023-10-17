@@ -8,5 +8,6 @@ config OF_LIBFDT_OVERLAY
 
 source "arch/arm/mach-rmobile/Kconfig.rcar3"
 source "arch/arm/mach-rmobile/Kconfig.rcar4"
+source "arch/arm/mach-rmobile/Kconfig.rcar5"
 
 endif
