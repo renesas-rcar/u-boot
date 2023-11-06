@@ -19,8 +19,27 @@ static u32 rmobile_get_prr(void)
 		return readl(0xFFF00044);
 }
 
+#define MIDR_PARTNUM_CORTEX_A720	0xD81
+#define MIDR_PARTNUM_SHIFT		0x4
+#define MIDR_PARTNUM_MASK		(0xFFF << 0x4)
+
+static u32 read_midr(void)
+{
+	u32 val;
+
+	asm volatile("mrs %0, midr_el1" : "=r" (val));
+
+	return val;
+}
+
+#define is_cortex_a720() (((read_midr() & MIDR_PARTNUM_MASK) >>\
+			 MIDR_PARTNUM_SHIFT) == MIDR_PARTNUM_CORTEX_A720)
+
 u32 rmobile_get_cpu_type(void)
 {
+	if (IS_ENABLED(CONFIG_RCAR_GEN5) && is_cortex_a720())
+		return RMOBILE_CPU_TYPE_R8A78000;
+
 	return (rmobile_get_prr() & 0x00007F00) >> 8;
 }
 
