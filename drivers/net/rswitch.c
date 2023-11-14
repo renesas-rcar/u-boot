@@ -50,7 +50,7 @@ enum rswitch_reg {
 	EAMC		= TARO + 0x0000,
 	EAMS		= TARO + 0x0004,
 	EATDQDC		= TARO + 0x0060,
-	EATTFC          = TARO + 0x0138,
+	EARTFC          = TARO + 0x0138,
 	EATASRIRM	= TARO + 0x03E4,
 
 	GWMC		= GWRO + 0x0000,
@@ -1087,7 +1087,7 @@ static int rswitch_etha_init(struct rswitch_priv *priv)
 		return ret;
 
 	/* Setting flow */
-	writel(0, etha->addr + EATTFC);
+	writel(0, etha->addr + EARTFC);
 
 	for (prio = 0; prio < RSWITCH_MAX_CTAG_PCP; prio++)
 		writel(EATDQDC_DQD, etha->addr + EATDQDC(prio));
