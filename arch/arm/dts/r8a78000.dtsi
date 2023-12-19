@@ -70,6 +70,7 @@
 			#clock-cells = <2>;
 			#power-domain-cells = <0>;
 			#reset-cells = <1>;
+			status = "disabled";
 		};
 
 		gic: interrupt-controller@38000000 {
