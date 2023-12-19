@@ -72,13 +72,13 @@
 			#reset-cells = <1>;
 		};
 
-		gic: interrupt-controller@f1000000 {
+		gic: interrupt-controller@38000000 {
 			compatible = "arm,gic-v3";
 			#interrupt-cells = <3>;
 			#address-cells = <0>;
 			interrupt-controller;
-			reg = <0x0 0xf1000000 0 0x20000>,
-			      <0x0 0xf1060000 0 0x110000>;
+			reg = <0x0 0x38000000 0 0x20000>,
+			      <0x0 0x38060000 0 0x110000>;
 			interrupts = <GIC_PPI 9
 				      (GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_HIGH)>;
 		};
