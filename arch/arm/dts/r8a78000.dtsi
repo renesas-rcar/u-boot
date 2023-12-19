@@ -56,9 +56,9 @@
 		#size-cells = <2>;
 		ranges;
 
-		hscif0: serial@e6540000 {
+		hscif0: serial@c0710000 {
 			compatible = "renesas,rcar-gen4-hscif", "renesas,hscif";
-			reg = <0 0xe6540000 0 0x60>;
+			reg = <0 0xc0710000 0 0x60>;
 			status = "disabled";
 		};
 
