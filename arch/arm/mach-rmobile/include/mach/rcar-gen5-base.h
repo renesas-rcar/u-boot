@@ -8,6 +8,11 @@
 #ifndef __ASM_ARCH_RCAR_GEN5_BASE_H
 #define __ASM_ARCH_RCAR_GEN5_BASE_H
 
+/* Arm Generic Timer */
+#define CNTCR_BASE		0xE6080000
+#define CNTFID0		(CNTCR_BASE + 0x020)
+#define CNTCR_EN		BIT(0)
+
 /* GICv3 */
 #define GICD_BASE	0x38000000
 
