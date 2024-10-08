@@ -21,6 +21,16 @@
 			no-map;
 			reg = <0x00000000 0x60000000 0x0 0x20000000>;
 		};
+
+		ecc_data_region@4cccc0000 {
+			no-map;
+			reg = <0x4 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@6cccc0000 {
+			no-map;
+			reg = <0x6 0xcccc0000 0x0 0x33340000>;
+		};
 	};
 };
 
