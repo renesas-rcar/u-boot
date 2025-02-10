@@ -11,6 +11,22 @@
 	aliases {
 		spi0 = &rpc;
 	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ecc_data_region@4cccc0000 {
+			no-map;
+			reg = <0x4 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@5cccc0000 {
+			no-map;
+			reg = <0x5 0xcccc0000 0x0 0x33340000>;
+		};
+	};
 };
 
 &rpc {
