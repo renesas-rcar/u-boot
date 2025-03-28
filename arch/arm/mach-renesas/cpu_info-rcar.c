@@ -15,6 +15,9 @@
 
 static u32 renesas_get_prr(void)
 {
+	if (IS_ENABLED(CONFIG_RCAR_GEN5))
+		return readl(0x189E0044);
+
 	if (IS_ENABLED(CONFIG_RCAR_64))
 		return readl(0xFFF00044);
 

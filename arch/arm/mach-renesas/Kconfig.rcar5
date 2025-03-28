@@ -1,0 +1,11 @@
+if RCAR_GEN5
+
+menu "Select Target SoC"
+
+config R8A78000
+	bool "Renesas SoC R8A78000"
+	select GICV3
+
+endmenu
+
+endif
