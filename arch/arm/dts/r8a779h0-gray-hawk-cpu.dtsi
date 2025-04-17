@@ -27,7 +27,7 @@
 	memory@2048000000 {
 		device_type = "memory";
 		/* first 128MB is reserved for secure area. */
-		reg = <0x20 0x48000000 0x0 0x15c00000>;
+		reg = <0x20 0x48000000 0x0 0x78000000>;
 	};
 
 	memory@480000000 {
