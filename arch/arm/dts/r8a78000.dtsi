@@ -64,7 +64,12 @@
 				#power-domain-cells = <1>;
 			};
 
-			/* TODO: scmi_clk, scmi_reset */
+			scmi_clk: protocol@14 {
+				reg = <0x14>;
+				#clock-cells = <1>;
+			};
+
+			/* TODO: scmi_reset */
 		};
 	};
 
