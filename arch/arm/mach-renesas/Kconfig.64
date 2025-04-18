@@ -6,6 +6,9 @@ config SYS_MALLOC_F_LEN
 config OF_LIBFDT_OVERLAY
 	default y if RCAR_64
 
+config TEXT_BASE
+	default 0x50000000 if RCAR_64
+
 source "arch/arm/mach-renesas/Kconfig.rcar3"
 source "arch/arm/mach-renesas/Kconfig.rcar4"
 
