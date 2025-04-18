@@ -116,7 +116,7 @@
 			reg = <0x0 0x18842004 0x0 0x4>,
 			      <0x0 0x18842000 0x0 0x4>;
 			interrupts = <GIC_SPI 4362 IRQ_TYPE_LEVEL_HIGH>;
-			status = "disabled";
+			status = "okay";
 		};
 
 		prr: chipid@189e0044 {
