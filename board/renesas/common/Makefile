@@ -45,6 +45,11 @@ endif
 
 ifdef CONFIG_RCAR_GEN5
 obj-y	+= gen5-common.o
+
+ifdef CONFIG_BAREMETAL_CLK_MDL_CTRL
+obj-y	+= gen5-clk-ctrl.o gen5-module-ctrl.o
+endif
+
 endif
 endif
 

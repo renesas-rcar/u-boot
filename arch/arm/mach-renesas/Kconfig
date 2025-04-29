@@ -40,6 +40,11 @@ config RCAR_GEN5
 	select RCAR_64
 	select PINCTRL_PFC
 
+config BAREMETAL_CLK_MDL_CTRL
+	depends on RCAR_GEN5
+	default n
+	bool "Renesas CLK BAREMETAL Gen5"
+
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
 	select CPU_V7A

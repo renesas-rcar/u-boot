@@ -13,6 +13,7 @@
 #include <asm/processor.h>
 #include <asm/system.h>
 #include <linux/errno.h>
+#include <renesas/gen5-clk-ctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -49,6 +50,17 @@ void s_init(void)
 
 int board_early_init_f(void)
 {
+
+#if defined(CONFIG_BAREMETAL_CLK_MDL_CTRL)
+	switch_clock_source_pll(PLL1_0);	/* HSCIF/SCIF */
+	switch_clock_source_pll(PLL1_1);	/* RSW3 */
+	switch_clock_source_pll(PLL5);		/* I2C, HSCIF/SCIF, RSW3 */
+	switch_clock_source_pll(PLL7);		/* RSW3 */
+	switch_clock_source_pll(PLL12);		/* RSW3 */
+
+	module_standby_early_init();
+#endif
+
 	return 0;
 }
 
@@ -57,6 +69,10 @@ int board_init(void)
 	/* Allow WDT reset */
 	writel(RST_KCPROT_DIS, RST_RESKCPROT0);
 	clrbits_le32(RST_WDTRSTCR, RST_WWDT_RSTMSK | RST_RWDT_RSTMSK);
+
+#if defined(CONFIG_BAREMETAL_CLK_MDL_CTRL)
+	module_standby_init();
+#endif
 
 	if (current_el() != 3)
 		return 0;
