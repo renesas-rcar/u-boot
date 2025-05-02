@@ -776,10 +776,12 @@ struct scmi_clk_attribute_out {
  * struct scmi_clk_state_in - Message payload for CLOCK_CONFIG_SET command
  * @clock_id:	SCMI clock ID
  * @attributes:	Attributes of the targets clock state
+ * @extended_config_val: OEM specific configuration
  */
 struct scmi_clk_state_in {
 	u32 clock_id;
 	u32 attributes;
+	u32 extended_config_val;
 };
 
 /**
