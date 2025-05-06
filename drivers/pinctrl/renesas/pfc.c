@@ -831,7 +831,11 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 		break;
 
 	case PIN_CONFIG_DRIVE_STRENGTH:
-		ret = sh_pfc_pinconf_set_drive_strength(pfc, _pin, arg);
+		if (!pfc->info->ops || !pfc->info->ops->set_drive_strength)
+			ret = sh_pfc_pinconf_set_drive_strength(pfc, _pin, arg);
+		else
+			ret = pfc->info->ops->set_drive_strength(pfc, _pin, arg);
+
 		if (ret < 0)
 			return ret;
 
