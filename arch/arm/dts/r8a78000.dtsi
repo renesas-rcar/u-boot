@@ -244,6 +244,139 @@
 			status = "disabled";
 		};
 
+		gpio0: gpio@c1080110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc1080110 0 0xc0>;
+			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 0 28>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio1: gpio@c1080910 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc1080910 0 0xc0>;
+			interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 32 22>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio2: gpio@c1081110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc1081110 0 0xc0>;
+			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 64 29>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio3: gpio@c0800110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0800110 0 0xc0>;
+			interrupts = <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 96 17>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio4: gpio@c0800910 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0800910 0 0xc0>;
+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 128 16>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio5: gpio@c0400110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0400110 0 0xc0>;
+			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 160 23>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio6: gpio@c0400910 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0400910 0 0xc0>;
+			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 192 31>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio7: gpio@c0401110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0401110 0 0xc0>;
+			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 224 31>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio8: gpio@c0401910 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc0401910 0 0xc0>;
+			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 256 32>;
+			gpio-reserved-ranges = <16 10>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio9: gpio@c9b00110 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc9b00110 0 0xc0>;
+			interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 288 17>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio10: gpio@c9b00910 {
+			compatible = "renesas,gpio-r8a78000",
+				     "renesas,rcar-gen5-gpio";
+			reg = <0 0xc9b00910 0 0xc0>;
+			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pfc 0 320 14>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
 		sram: sram@c1000000 {
 			compatible = "arm,rcar-sram-ns", "mmio-sram";
 			reg = <0x0 0xc1000000 0x0 0x80000>;
