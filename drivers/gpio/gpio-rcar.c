@@ -50,6 +50,8 @@
 
 #define RCAR_GPIO_HAS_INEN		BIT(0)
 
+#define CFG_CLK_IGNORE
+
 DECLARE_GLOBAL_DATA_PTR;
 
 struct rcar_gpio_priv {
@@ -161,7 +163,9 @@ static int rcar_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct rcar_gpio_priv *priv = dev_get_priv(dev);
 	struct fdtdec_phandle_args args;
+#if !defined(CFG_CLK_IGNORE)
 	struct clk clk;
+#endif
 	int node = dev_of_offset(dev);
 	int ret;
 
@@ -174,6 +178,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 	priv->pfc_offset = ret == 0 ? args.args[1] : -1;
 	uc_priv->gpio_count = ret == 0 ? args.args[2] : RCAR_MAX_GPIO_PER_BANK;
 
+#if !defined(CFG_CLK_IGNORE)
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0) {
 		dev_err(dev, "Failed to get GPIO bank clock\n");
@@ -185,6 +190,7 @@ static int rcar_gpio_probe(struct udevice *dev)
 		dev_err(dev, "Failed to enable GPIO bank clock\n");
 		return ret;
 	}
+#endif
 
 	return 0;
 }
