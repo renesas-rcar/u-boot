@@ -15,6 +15,22 @@
 #include <linux/bitops.h>
 #include "../pinctrl/renesas/sh_pfc.h"
 
+#if defined(CONFIG_RCAR_GEN5)
+#define GPIO_IOINTSEL	0x00	/* General IO/Interrupt Switching Register */
+#define GPIO_INOUTSEL	0x04	/* General Input/Output Switching Register */
+#define GPIO_OUTDT	0x08	/* General Output Register */
+#define GPIO_INDT	0x1c	/* General Input Register */
+#define GPIO_INTDT	0x80	/* Interrupt Display Register */
+#define GPIO_INTCLR	0x84	/* Interrupt Clear Register */
+#define GPIO_INTMSK	0x88	/* Interrupt Mask Register */
+#define GPIO_MSKCLR	0x8c	/* Interrupt Mask Clear Register */
+#define GPIO_POSNEG	0x90	/* Positive/Negative Logic Select Register */
+#define GPIO_EDGLEVEL	0x94	/* Edge/level Select Register */
+#define GPIO_FILONOFF	0x98	/* Chattering Prevention On/Off Register */
+#define GPIO_OUTDTSEL	0x0C	/* Output Data Select Register */
+#define GPIO_BOTHEDGE	0xbc	/* One Edge/Both Edge Select Register */
+#define GPIO_INEN	0x18	/* General Input Enable Register */
+#else
 #define GPIO_IOINTSEL	0x00	/* General IO/Interrupt Switching Register */
 #define GPIO_INOUTSEL	0x04	/* General Input/Output Switching Register */
 #define GPIO_OUTDT	0x08	/* General Output Register */
@@ -28,6 +44,7 @@
 #define GPIO_FILONOFF	0x28	/* Chattering Prevention On/Off Register */
 #define GPIO_BOTHEDGE	0x4c	/* One Edge/Both Edge Select Register */
 #define GPIO_INEN	0x50	/* General Input Enable Register */
+#endif
 
 #define RCAR_MAX_GPIO_PER_BANK		32
 
@@ -183,6 +200,7 @@ static const struct udevice_id rcar_gpio_ids[] = {
 	{ .compatible = "renesas,rcar-gen2-gpio" },
 	{ .compatible = "renesas,rcar-gen3-gpio" },
 	{ .compatible = "renesas,rcar-gen4-gpio", .data = RCAR_GPIO_HAS_INEN },
+	{ .compatible = "renesas,rcar-gen5-gpio", .data = RCAR_GPIO_HAS_INEN },
 	{ /* sentinel */ }
 };
 
