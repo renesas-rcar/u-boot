@@ -54,6 +54,10 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	/* Allow WDT reset */
+	writel(RST_KCPROT_DIS, RST_RESKCPROT0);
+	clrbits_le32(RST_WDTRSTCR, RST_WWDT_RSTMSK | RST_RWDT_RSTMSK);
+
 	if (current_el() != 3)
 		return 0;
 	init_gic_v3();
