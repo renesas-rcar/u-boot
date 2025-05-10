@@ -2982,6 +2982,44 @@ static const unsigned int intc_ex_irq3_mux[] = {
 	IRQ3_A_MARK, IRQ3_B_MARK,
 };
 
+/* - PCIE4 ------------------------------------------------------------------- */
+static const unsigned int pcie40_clkreq_n_pins[] = {
+	/* PCIE40_CLKREQ_N */
+	RCAR_GP_PIN(10, 12),
+};
+
+static const unsigned int pcie40_clkreq_n_mux[] = {
+	PCIE40_CLKREQ_N_MARK,
+};
+
+static const unsigned int pcie41_clkreq_n_pins[] = {
+	/* PCIE41_CLKREQ_N */
+	RCAR_GP_PIN(10, 13),
+};
+
+static const unsigned int pcie41_clkreq_n_mux[] = {
+	PCIE41_CLKREQ_N_MARK,
+};
+
+/* - PCIE6 ------------------------------------------------------------------- */
+static const unsigned int pcie60_clkreq_n_pins[] = {
+	/* PCIE60_CLKREQ_N */
+	RCAR_GP_PIN(4, 14),
+};
+
+static const unsigned int pcie60_clkreq_n_mux[] = {
+	PCIE60_CLKREQ_N_MARK,
+};
+
+static const unsigned int pcie61_clkreq_n_pins[] = {
+	/* PCIE61_CLKREQ_N */
+	RCAR_GP_PIN(4, 15),
+};
+
+static const unsigned int pcie61_clkreq_n_mux[] = {
+	PCIE61_CLKREQ_N_MARK,
+};
+
 static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(hscif0_data),
 	SH_PFC_PIN_GROUP(hscif0_clk),
@@ -3030,6 +3068,11 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(intc_ex_irq1),
 	SH_PFC_PIN_GROUP(intc_ex_irq2),
 	SH_PFC_PIN_GROUP(intc_ex_irq3),
+
+	SH_PFC_PIN_GROUP(pcie40_clkreq_n),
+	SH_PFC_PIN_GROUP(pcie41_clkreq_n),
+	SH_PFC_PIN_GROUP(pcie60_clkreq_n),
+	SH_PFC_PIN_GROUP(pcie61_clkreq_n),
 };
 
 static const char * const hscif0_groups[] = {
@@ -3133,6 +3176,16 @@ static const char * const intc_ex_groups[] = {
 	"intc_ex_irq3",
 };
 
+static const char * const pcie4_groups[] = {
+	"pcie40_clkreq_n",
+	"pcie41_clkreq_n",
+};
+
+static const char * const pcie6_groups[] = {
+	"pcie60_clkreq_n",
+	"pcie61_clkreq_n",
+};
+
 static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(hscif0),
 	SH_PFC_FUNCTION(hscif1),
@@ -3156,6 +3209,9 @@ static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(i2c8),
 
 	SH_PFC_FUNCTION(intc_ex),
+
+	SH_PFC_FUNCTION(pcie4),
+	SH_PFC_FUNCTION(pcie6),
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {
