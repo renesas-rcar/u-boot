@@ -3056,6 +3056,49 @@ static const unsigned int qspi1_data_mux[] = {
 	QSPI1_IO2_MARK, QSPI1_IO3_MARK,
 };
 
+/* - SDHI/MMC0 --------------------------------------------------------------- */
+static const unsigned int mmc0_data_pins[] = {
+	/* MMC0_SD_D[0:3], MMC0_D[4:7] */
+	RCAR_GP_PIN(4, 2), RCAR_GP_PIN(4, 3),
+	RCAR_GP_PIN(4, 4), RCAR_GP_PIN(4, 5),
+	RCAR_GP_PIN(4, 6), RCAR_GP_PIN(4, 7),
+	RCAR_GP_PIN(4, 8), RCAR_GP_PIN(4, 9),
+};
+static const unsigned int mmc0_data_mux[] = {
+	MMC0_SD_D0_MARK, MMC0_SD_D1_MARK,
+	MMC0_SD_D2_MARK, MMC0_SD_D3_MARK,
+	MMC0_D4_MARK, MMC0_D5_MARK,
+	MMC0_D6_MARK, MMC0_D7_MARK,
+};
+static const unsigned int mmc0_ctrl_pins[] = {
+	/* MMC0_SD_CLK, MMC0_SD_CMD */
+	RCAR_GP_PIN(4, 0), RCAR_GP_PIN(4, 1),
+};
+static const unsigned int mmc0_ctrl_mux[] = {
+	MMC0_SD_CLK_MARK, MMC0_SD_CMD_MARK,
+};
+static const unsigned int mmc0_cd_pins[] = {
+	/* SD0_CD */
+	RCAR_GP_PIN(4, 12),
+};
+static const unsigned int mmc0_cd_mux[] = {
+	SD0_CD_MARK,
+};
+static const unsigned int mmc0_wp_pins[] = {
+	/* SD0_WP */
+	RCAR_GP_PIN(4, 11),
+};
+static const unsigned int mmc0_wp_mux[] = {
+	SD0_WP_MARK,
+};
+static const unsigned int mmc0_ds_pins[] = {
+	/* MMC0_DS */
+	RCAR_GP_PIN(4, 10),
+};
+static const unsigned int mmc0_ds_mux[] = {
+	MMC0_DS_MARK,
+};
+
 static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(hscif0_data),
 	SH_PFC_PIN_GROUP(hscif0_clk),
@@ -3116,6 +3159,14 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(qspi1_ctrl),
 	BUS_DATA_PIN_GROUP(qspi1_data, 2),
 	BUS_DATA_PIN_GROUP(qspi1_data, 4),
+
+	BUS_DATA_PIN_GROUP(mmc0_data, 1),
+	BUS_DATA_PIN_GROUP(mmc0_data, 4),
+	BUS_DATA_PIN_GROUP(mmc0_data, 8),
+	SH_PFC_PIN_GROUP(mmc0_ctrl),
+	SH_PFC_PIN_GROUP(mmc0_cd),
+	SH_PFC_PIN_GROUP(mmc0_wp),
+	SH_PFC_PIN_GROUP(mmc0_ds),
 };
 
 static const char * const hscif0_groups[] = {
@@ -3241,6 +3292,16 @@ static const char * const qspi1_groups[] = {
 	"qspi1_data4",
 };
 
+static const char * const mmc0_groups[] = {
+	"mmc0_data1",
+	"mmc0_data4",
+	"mmc0_data8",
+	"mmc0_ctrl",
+	"mmc0_cd",
+	"mmc0_wp",
+	"mmc0_ds",
+};
+
 static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(hscif0),
 	SH_PFC_FUNCTION(hscif1),
@@ -3270,6 +3331,8 @@ static const struct sh_pfc_function pinmux_functions[] = {
 
 	SH_PFC_FUNCTION(qspi0),
 	SH_PFC_FUNCTION(qspi1),
+
+	SH_PFC_FUNCTION(mmc0),
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {
