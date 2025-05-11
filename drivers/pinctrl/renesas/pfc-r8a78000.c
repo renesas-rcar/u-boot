@@ -3099,6 +3099,320 @@ static const unsigned int mmc0_ds_mux[] = {
 	MMC0_DS_MARK,
 };
 
+/* - RSW3 ------------------------------------------------------------------ */
+static const unsigned int rsw3_match_pins[] = {
+	/* RSW3_MATCH */
+	RCAR_GP_PIN(9, 16),
+};
+static const unsigned int rsw3_match_mux[] = {
+	RSW3_MATCH_MARK,
+};
+static const unsigned int rsw3_capture_pins[] = {
+	/* RSW3_CAPTURE */
+	RCAR_GP_PIN(9, 15),
+};
+static const unsigned int rsw3_capture_mux[] = {
+	RSW3_CAPTURE_MARK,
+};
+static const unsigned int rsw3_pps_pins[] = {
+	/* RSW3_PPS */
+	RCAR_GP_PIN(9, 14),
+};
+static const unsigned int rsw3_pps_mux[] = {
+	RSW3_PPS_MARK,
+};
+
+/* - TSN0 ------------------------------------------------ */
+static const unsigned int eth10g0_link_pins[] = {
+	/* ETH10G0_LINK */
+	RCAR_GP_PIN(9, 12),
+};
+static const unsigned int eth10g0_link_mux[] = {
+	ETH10G0_LINK_MARK,
+};
+static const unsigned int eth10g0_phyint_pins[] = {
+	/* ETH10G0_PHYINT */
+	RCAR_GP_PIN(9, 13),
+};
+static const unsigned int eth10g0_phyint_mux[] = {
+	ETH10G0_PHYINT_MARK,
+};
+static const unsigned int eth10g0_mdio_pins[] = {
+	/* ETH10G0_MDC, ETH10G0_MDIO */
+	RCAR_GP_PIN(9, 11), RCAR_GP_PIN(9, 10),
+};
+static const unsigned int eth10g0_mdio_mux[] = {
+	ETH10G0_MDC_MARK, ETH10G0_MDIO_MARK,
+};
+
+static const unsigned int eth25g0_link_pins[] = {
+	/* ETH25G0_LINK */
+	RCAR_GP_PIN(9, 8),
+};
+static const unsigned int eth25g0_link_mux[] = {
+	ETH25G0_LINK_MARK,
+};
+static const unsigned int eth25g0_phyint_pins[] = {
+	/* ETH25G0_PHYINT */
+	RCAR_GP_PIN(9, 9),
+};
+static const unsigned int eth25g0_phyint_mux[] = {
+	ETH25G0_PHYINT_MARK,
+};
+static const unsigned int eth25g0_mdio_pins[] = {
+	/* ETH25G0_MDC, ETH25G0_MDIO */
+	RCAR_GP_PIN(9, 7), RCAR_GP_PIN(9, 6),
+};
+static const unsigned int eth25g0_mdio_mux[] = {
+	ETH25G0_MDC_MARK, ETH25G0_MDIO_MARK,
+};
+
+/* - TSN1 ------------------------------------------------ */
+static const unsigned int eth10g1_link_pins[] = {
+	/* ETH10G1_LINK */
+	RCAR_GP_PIN(9, 12),
+};
+static const unsigned int eth10g1_link_mux[] = {
+	ETH10G1_LINK_MARK,
+};
+static const unsigned int eth10g1_phyint_pins[] = {
+	/* ETH10G1_PHYINT */
+	RCAR_GP_PIN(9, 13),
+};
+static const unsigned int eth10g1_phyint_mux[] = {
+	ETH10G1_PHYINT_MARK,
+};
+static const unsigned int eth10g1_mdio_pins[] = {
+	/* ETH10G1_MDC, ETH10G1_MDIO */
+	RCAR_GP_PIN(9, 11), RCAR_GP_PIN(9, 10),
+};
+static const unsigned int eth10g1_mdio_mux[] = {
+	ETH10G1_MDC_MARK, ETH10G1_MDIO_MARK,
+};
+
+static const unsigned int eth25g1_link_pins[] = {
+	/* ETH25G1_LINK */
+	RCAR_GP_PIN(9, 8),
+};
+static const unsigned int eth25g1_link_mux[] = {
+	ETH25G1_LINK_MARK,
+};
+static const unsigned int eth25g1_phyint_pins[] = {
+	/* ETH25G1_PHYINT */
+	RCAR_GP_PIN(9, 9),
+};
+static const unsigned int eth25g1_phyint_mux[] = {
+	ETH25G1_PHYINT_MARK,
+};
+static const unsigned int eth25g1_mdio_pins[] = {
+	/* ETH25G1_MDC, ETH25G1_MDIO */
+	RCAR_GP_PIN(9, 7), RCAR_GP_PIN(9, 6),
+};
+static const unsigned int eth25g1_mdio_mux[] = {
+	ETH25G1_MDC_MARK, ETH25G1_MDIO_MARK,
+};
+
+/* - TSN2 ------------------------------------------------ */
+static const unsigned int eth25g2_link_pins[] = {
+	/* ETH25G2_LINK */
+	RCAR_GP_PIN(9, 8),
+};
+static const unsigned int eth25g2_link_mux[] = {
+	ETH25G2_LINK_MARK,
+};
+static const unsigned int eth25g2_phyint_pins[] = {
+	/* ETH25G2_PHYINT */
+	RCAR_GP_PIN(9, 9),
+};
+static const unsigned int eth25g2_phyint_mux[] = {
+	ETH25G2_PHYINT_MARK,
+};
+static const unsigned int eth25g2_mdio_pins[] = {
+	/* ETH25G2_MDC, ETH25G2_MDIO */
+	RCAR_GP_PIN(9, 7), RCAR_GP_PIN(9, 6),
+};
+static const unsigned int eth25g2_mdio_mux[] = {
+	ETH25G2_MDC_MARK, ETH25G2_MDIO_MARK,
+};
+
+/* - gPTPa (TSN0) ---------------------------------------- */
+static const unsigned int ethes0_pps_pins[] = {
+	/* ETHES0_PPS */
+	RCAR_GP_PIN(9, 0),
+};
+static const unsigned int ethes0_pps_mux[] = {
+	ETHES0_PPS_MARK,
+};
+static const unsigned int ethes0_capture_pins[] = {
+	/* ETHES0_CAPTURE */
+	RCAR_GP_PIN(9, 1),
+};
+static const unsigned int ethes0_capture_mux[] = {
+	ETHES0_CAPTURE_MARK,
+};
+static const unsigned int ethes0_match_pins[] = {
+	/* ETHES0_MATCH */
+	RCAR_GP_PIN(9, 2),
+};
+static const unsigned int ethes0_match_mux[] = {
+	ETHES0_MATCH_MARK,
+};
+
+/* - gPTPb (TSN1-7) -------------------------------------- */
+static const unsigned int ethes1_pps_pins[] = {
+	/* ETHES1_PPS */
+	RCAR_GP_PIN(9, 0),
+};
+static const unsigned int ethes1_pps_mux[] = {
+	ETHES1_PPS_MARK,
+};
+static const unsigned int ethes1_capture_pins[] = {
+	/* ETHES1_CAPTURE */
+	RCAR_GP_PIN(9, 1),
+};
+static const unsigned int ethes1_capture_mux[] = {
+	ETHES1_CAPTURE_MARK,
+};
+static const unsigned int ethes1_match_pins[] = {
+	/* ETHES1_MATCH */
+	RCAR_GP_PIN(9, 2),
+};
+static const unsigned int ethes1_match_mux[] = {
+	ETHES1_MATCH_MARK,
+};
+
+static const unsigned int ethes2_pps_pins[] = {
+	/* ETHES2_PPS */
+	RCAR_GP_PIN(9, 0),
+};
+static const unsigned int ethes2_pps_mux[] = {
+	ETHES2_PPS_MARK,
+};
+static const unsigned int ethes2_capture_pins[] = {
+	/* ETHES2_CAPTURE */
+	RCAR_GP_PIN(9, 1),
+};
+static const unsigned int ethes2_capture_mux[] = {
+	ETHES2_CAPTURE_MARK,
+};
+static const unsigned int ethes2_match_pins[] = {
+	/* ETHES1_MATCH */
+	RCAR_GP_PIN(9, 2),
+};
+static const unsigned int ethes2_match_mux[] = {
+	ETHES2_MATCH_MARK,
+};
+
+static const unsigned int ethes3_pps_pins[] = {
+	/* ETHES3_PPS */
+	RCAR_GP_PIN(9, 0),
+};
+static const unsigned int ethes3_pps_mux[] = {
+	ETHES3_PPS_MARK,
+};
+static const unsigned int ethes3_capture_pins[] = {
+	/* ETHES3_CAPTURE */
+	RCAR_GP_PIN(9, 1),
+};
+static const unsigned int ethes3_capture_mux[] = {
+	ETHES3_CAPTURE_MARK,
+};
+static const unsigned int ethes3_match_pins[] = {
+	/* ETHES3_MATCH */
+	RCAR_GP_PIN(9, 2),
+};
+static const unsigned int ethes3_match_mux[] = {
+	ETHES3_MATCH_MARK,
+};
+
+static const unsigned int ethes4_pps_pins[] = {
+	/* ETHES4_PPS */
+	RCAR_GP_PIN(9, 3),
+};
+static const unsigned int ethes4_pps_mux[] = {
+	ETHES4_PPS_MARK,
+};
+static const unsigned int ethes4_capture_pins[] = {
+	/* ETHES4_CAPTURE */
+	RCAR_GP_PIN(9, 4),
+};
+static const unsigned int ethes4_capture_mux[] = {
+	ETHES4_CAPTURE_MARK,
+};
+static const unsigned int ethes4_match_pins[] = {
+	/* ETHES4_MATCH */
+	RCAR_GP_PIN(9, 5),
+};
+static const unsigned int ethes4_match_mux[] = {
+	ETHES4_MATCH_MARK,
+};
+
+static const unsigned int ethes5_pps_pins[] = {
+	/* ETHES5_PPS */
+	RCAR_GP_PIN(9, 3),
+};
+static const unsigned int ethes5_pps_mux[] = {
+	ETHES5_PPS_MARK,
+};
+static const unsigned int ethes5_capture_pins[] = {
+	/* ETHES5_CAPTURE */
+	RCAR_GP_PIN(9, 4),
+};
+static const unsigned int ethes5_capture_mux[] = {
+	ETHES5_CAPTURE_MARK,
+};
+static const unsigned int ethes5_match_pins[] = {
+	/* ETHES5_MATCH */
+	RCAR_GP_PIN(9, 5),
+};
+static const unsigned int ethes5_match_mux[] = {
+	ETHES5_MATCH_MARK,
+};
+
+static const unsigned int ethes6_pps_pins[] = {
+	/* ETHES6_PPS */
+	RCAR_GP_PIN(9, 3),
+};
+static const unsigned int ethes6_pps_mux[] = {
+	ETHES6_PPS_MARK,
+};
+static const unsigned int ethes6_capture_pins[] = {
+	/* ETHES6_CAPTURE */
+	RCAR_GP_PIN(9, 4),
+};
+static const unsigned int ethes6_capture_mux[] = {
+	ETHES6_CAPTURE_MARK,
+};
+static const unsigned int ethes6_match_pins[] = {
+	/* ETHES6_MATCH */
+	RCAR_GP_PIN(9, 5),
+};
+static const unsigned int ethes6_match_mux[] = {
+	ETHES6_MATCH_MARK,
+};
+
+static const unsigned int ethes7_pps_pins[] = {
+	/* ETHES7_PPS */
+	RCAR_GP_PIN(9, 3),
+};
+static const unsigned int ethes7_pps_mux[] = {
+	ETHES7_PPS_MARK,
+};
+static const unsigned int ethes7_capture_pins[] = {
+	/* ETHES7_CAPTURE */
+	RCAR_GP_PIN(9, 4),
+};
+static const unsigned int ethes7_capture_mux[] = {
+	ETHES7_CAPTURE_MARK,
+};
+static const unsigned int ethes7_match_pins[] = {
+	/* ETHES7_MATCH */
+	RCAR_GP_PIN(9, 5),
+};
+static const unsigned int ethes7_match_mux[] = {
+	ETHES7_MATCH_MARK,
+};
+
 static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(hscif0_data),
 	SH_PFC_PIN_GROUP(hscif0_clk),
@@ -3167,6 +3481,53 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(mmc0_cd),
 	SH_PFC_PIN_GROUP(mmc0_wp),
 	SH_PFC_PIN_GROUP(mmc0_ds),
+
+	SH_PFC_PIN_GROUP(rsw3_match),
+	SH_PFC_PIN_GROUP(rsw3_capture),
+	SH_PFC_PIN_GROUP(rsw3_pps),
+
+	SH_PFC_PIN_GROUP(eth10g0_link),
+	SH_PFC_PIN_GROUP(eth10g0_phyint),
+	SH_PFC_PIN_GROUP(eth10g0_mdio),
+	SH_PFC_PIN_GROUP(eth25g0_link),
+	SH_PFC_PIN_GROUP(eth25g0_phyint),
+	SH_PFC_PIN_GROUP(eth25g0_mdio),
+
+	SH_PFC_PIN_GROUP(eth10g1_link),
+	SH_PFC_PIN_GROUP(eth10g1_phyint),
+	SH_PFC_PIN_GROUP(eth10g1_mdio),
+	SH_PFC_PIN_GROUP(eth25g1_link),
+	SH_PFC_PIN_GROUP(eth25g1_phyint),
+	SH_PFC_PIN_GROUP(eth25g1_mdio),
+
+	SH_PFC_PIN_GROUP(eth25g2_link),
+	SH_PFC_PIN_GROUP(eth25g2_phyint),
+	SH_PFC_PIN_GROUP(eth25g2_mdio),
+
+	SH_PFC_PIN_GROUP(ethes0_pps),
+	SH_PFC_PIN_GROUP(ethes0_capture),
+	SH_PFC_PIN_GROUP(ethes0_match),
+	SH_PFC_PIN_GROUP(ethes1_pps),
+	SH_PFC_PIN_GROUP(ethes1_capture),
+	SH_PFC_PIN_GROUP(ethes1_match),
+	SH_PFC_PIN_GROUP(ethes2_pps),
+	SH_PFC_PIN_GROUP(ethes2_capture),
+	SH_PFC_PIN_GROUP(ethes2_match),
+	SH_PFC_PIN_GROUP(ethes3_pps),
+	SH_PFC_PIN_GROUP(ethes3_capture),
+	SH_PFC_PIN_GROUP(ethes3_match),
+	SH_PFC_PIN_GROUP(ethes4_pps),
+	SH_PFC_PIN_GROUP(ethes4_capture),
+	SH_PFC_PIN_GROUP(ethes4_match),
+	SH_PFC_PIN_GROUP(ethes5_pps),
+	SH_PFC_PIN_GROUP(ethes5_capture),
+	SH_PFC_PIN_GROUP(ethes5_match),
+	SH_PFC_PIN_GROUP(ethes6_pps),
+	SH_PFC_PIN_GROUP(ethes6_capture),
+	SH_PFC_PIN_GROUP(ethes6_match),
+	SH_PFC_PIN_GROUP(ethes7_pps),
+	SH_PFC_PIN_GROUP(ethes7_capture),
+	SH_PFC_PIN_GROUP(ethes7_match),
 };
 
 static const char * const hscif0_groups[] = {
@@ -3302,6 +3663,90 @@ static const char * const mmc0_groups[] = {
 	"mmc0_ds",
 };
 
+static const char * const rsw3_groups[] = {
+	"rsw3_match",
+	"rsw3_capture",
+	"rsw3_pps",
+};
+
+static const char * const eth10g0_groups[] = {
+	"eth10g0_link",
+	"eth10g0_phyint",
+	"eth10g0_mdio",
+};
+
+static const char * const eth25g0_groups[] = {
+	"eth25g0_link",
+	"eth25g0_phyint",
+	"eth25g0_mdio",
+};
+
+static const char * const eth10g1_groups[] = {
+	"eth10g1_link",
+	"eth10g1_phyint",
+	"eth10g1_mdio",
+};
+
+static const char * const eth25g1_groups[] = {
+	"eth25g1_link",
+	"eth25g1_phyint",
+	"eth25g1_mdio",
+};
+
+static const char * const eth25g2_groups[] = {
+	"eth25g2_link",
+	"eth25g2_phyint",
+	"eth25g2_mdio",
+};
+
+static const char * const ethes0_groups[] = {
+	"ethes0_pps",
+	"ethes0_capture",
+	"ethes0_match",
+};
+
+static const char * const ethes1_groups[] = {
+	"ethes1_pps",
+	"ethes1_capture",
+	"ethes1_match",
+};
+
+static const char * const ethes2_groups[] = {
+	"ethes2_pps",
+	"ethes2_capture",
+	"ethes2_match",
+};
+
+static const char * const ethes3_groups[] = {
+	"ethes3_pps",
+	"ethes3_capture",
+	"ethes3_match",
+};
+
+static const char * const ethes4_groups[] = {
+	"ethes4_pps",
+	"ethes4_capture",
+	"ethes4_match",
+};
+
+static const char * const ethes5_groups[] = {
+	"ethes5_pps",
+	"ethes5_capture",
+	"ethes5_match",
+};
+
+static const char * const ethes6_groups[] = {
+	"ethes6_pps",
+	"ethes6_capture",
+	"ethes6_match",
+};
+
+static const char * const ethes7_groups[] = {
+	"ethes7_pps",
+	"ethes7_capture",
+	"ethes7_match",
+};
+
 static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(hscif0),
 	SH_PFC_FUNCTION(hscif1),
@@ -3333,6 +3778,23 @@ static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(qspi1),
 
 	SH_PFC_FUNCTION(mmc0),
+
+	SH_PFC_FUNCTION(rsw3),
+
+	SH_PFC_FUNCTION(eth10g0),
+	SH_PFC_FUNCTION(eth25g0),
+	SH_PFC_FUNCTION(eth10g1),
+	SH_PFC_FUNCTION(eth25g1),
+	SH_PFC_FUNCTION(eth25g2),
+
+	SH_PFC_FUNCTION(ethes0),
+	SH_PFC_FUNCTION(ethes1),
+	SH_PFC_FUNCTION(ethes2),
+	SH_PFC_FUNCTION(ethes3),
+	SH_PFC_FUNCTION(ethes4),
+	SH_PFC_FUNCTION(ethes5),
+	SH_PFC_FUNCTION(ethes6),
+	SH_PFC_FUNCTION(ethes7),
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {
