@@ -247,7 +247,7 @@
 
 		sysc: system-controller@e6180000 {
 			compatible = "renesas,r8a779g0-sysc";
-			reg = <0x20 0xe6180000 0 0x4000>;
+			reg = <0x20 0xe6188000 0 0x4000>;
 			#power-domain-cells = <1>;
 		};
 
