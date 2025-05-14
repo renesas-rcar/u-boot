@@ -230,9 +230,9 @@
 			resets = <&cpg 918>;
 		};
 
-		cpg: clock-controller@20e6150000 {
+		cpg: clock-controller@20e6158000 {
 			compatible = "renesas,r8a779g0-cpg-mssr";
-			reg = <0x20 0xe6150000 0 0x4000>;
+			reg = <0x20 0xe6158000 0 0x4000>;
 			clocks = <&extal_clk>, <&extalr_clk>;
 			clock-names = "extal", "extalr";
 			#clock-cells = <2>;
