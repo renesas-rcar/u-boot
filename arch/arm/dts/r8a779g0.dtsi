@@ -240,9 +240,9 @@
 			#reset-cells = <1>;
 		};
 
-		rst: reset-controller@20e6160000 {
+		rst: reset-controller@20e6168000 {
 			compatible = "renesas,r8a779g0-rst";
-			reg = <0x20 0xe6160000 0 0x4000>;
+			reg = <0x20 0xe6168000 0 0x4000>;
 		};
 
 		sysc: system-controller@e6180000 {

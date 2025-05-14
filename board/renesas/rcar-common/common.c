@@ -82,7 +82,7 @@ void __weak reset_cpu(void)
 		hang();
 }
 #elif defined(CONFIG_RCAR_GEN4)
-#define RST_BASE	ADDR_ASSIGN_RGID(0xE6160000, CONFIG_RCAR_RGID) /* Domain0 */
+#define RST_BASE	ADDR_ASSIGN_RGID(0xE6168000, CONFIG_RCAR_RGID) /* Domain2 */
 #define RST_SRESCR0	(RST_BASE + 0x18)
 #define RST_SPRES	0x5AA58000
 
