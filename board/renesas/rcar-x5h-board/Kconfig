@@ -1,15 +1,15 @@
-if TARGET_IRONHIDE
+if TARGET_RCAR_X5H_BOARD
 
 config SYS_SOC
 	default "renesas"
 
 config SYS_BOARD
-	default "ironhide"
+	default "rcar-x5h-board"
 
 config SYS_VENDOR
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	default "ironhide"
+	default "rcar-x5h-board"
 
 endif

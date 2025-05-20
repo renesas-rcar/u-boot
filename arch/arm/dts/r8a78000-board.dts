@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source for the Ironhide board
+ * Device Tree Source for the R-Car X5H board
  *
  * Copyright (C) 2023 Renesas Electronics Corp.
  */
@@ -9,8 +9,8 @@
 #include "r8a78000.dtsi"
 
 / {
-	model = "Renesas Ironhide board based on r8a78000";
-	compatible = "renesas,ironhide", "renesas,r8a78000";
+	model = "Renesas evaluation board for R-Car X5H";
+	compatible = "renesas,r8a78000";
 
 	aliases {
 		serial0 = &hscif0;

@@ -980,7 +980,7 @@ dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach.dtb
 
 dtb-$(CONFIG_RCAR_GEN5) += \
-	r8a78000-ironhide.dtb
+	r8a78000-board.dtb
 
 ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000
