@@ -88,6 +88,7 @@ obj-$(CONFIG_PCH_GBE) += pch_gbe.o
 obj-$(CONFIG_PCNET) += pcnet.o
 obj-$(CONFIG_PIC32_ETH) += pic32_mdio.o pic32_eth.o
 obj-$(CONFIG_RENESAS_ETHER_SWITCH) += rswitch.o
+obj-$(CONFIG_RENESAS_ETHER_SWITCH3) += rswitch3.o
 obj-$(CONFIG_RENESAS_RAVB) += ravb.o
 obj-$(CONFIG_RTL8139) += rtl8139.o
 obj-$(CONFIG_RTL8169) += rtl8169.o

@@ -849,6 +849,18 @@ config RENESAS_ETHER_SWITCH
 	  This driver implements support for the Renesas Ethernet Switch
 	  which is available on R-Car S4 SoC (r8a779f0).
 
+config RENESAS_ETHER_SWITCH3
+	bool "Renesas RSwitch3 Ethernet Switch support"
+	depends on DM_ETH && R8A78000
+	select PHYLIB
+	help
+	  This driver adds support for the Renesas RSwitch3 Ethernet switch
+	  controller, available on R-Car Gen5 SoCs (e.g., R8A7800).
+
+	  The switch supports multiple Ethernet ports (TSN0/1/2) and uses
+	  external PCS (SERDES) and Multi-Protocol PHY (MP-PHY) for SGMII
+	  or USXGMII link to IEEE PHYs such as DP83869.
+
 config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
 	depends on RCAR_64
