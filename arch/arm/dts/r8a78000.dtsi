@@ -384,6 +384,13 @@
 			status = "disabled";
 		};
 
+		eth_pcs: phy@c9c50000 {
+			compatible = "renesas,r8a78000-ether-pcs";
+			reg = <0 0xc9c50000 0 0x4000>;
+			#phy-cells = <1>;
+			status = "disabled";
+		};
+
 		sram: sram@c1000000 {
 			compatible = "arm,rcar-sram-ns", "mmio-sram";
 			reg = <0x0 0xc1000000 0x0 0x80000>;
