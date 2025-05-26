@@ -114,6 +114,11 @@
 	clock-frequency = <400000>;
 };
 
+&eth_pcs {
+	phys = <&mp_phy 2 1>;
+	status = "okay";
+};
+
 &mp_phy {
 	status = "okay";
 };
