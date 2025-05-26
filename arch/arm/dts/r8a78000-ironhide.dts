@@ -114,6 +114,10 @@
 	clock-frequency = <400000>;
 };
 
+&mp_phy {
+	status = "okay";
+};
+
 &pfc {
 	pinctrl-0 = <&scif_clk_pins>;
 	pinctrl-names = "default";
