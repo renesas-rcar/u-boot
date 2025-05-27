@@ -23,6 +23,8 @@
 #include <asm/unaligned.h>
 #include "tmio-common.h"
 
+#define CFG_CLK_IGNORE
+
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
@@ -369,6 +371,7 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	unsigned long new_tap;
 	u32 reg;
 
+#if !defined(CFG_CLK_IGNORE)
 	if (clk_valid(&priv->clkh) && !priv->needs_clkh_fallback) {
 		/* HS400 on 4tap SoC => SDnH=400 MHz, SDn=200 MHz */
 		if (taps == 4)
@@ -381,6 +384,7 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	ret = clk_set_rate(&priv->clk, sdn_rate);
 	if (ret < 0)
 		return ret;
+#endif
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
 	reg &= ~RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
@@ -1075,12 +1079,14 @@ static int renesas_sdhi_probe(struct udevice *dev)
 		}
 	}
 
+#if !defined(CFG_CLK_IGNORE)
 	/* set to max rate */
 	ret = clk_set_rate(&priv->clk, 200000000);
 	if (ret < 0) {
 		dev_err(dev, "failed to set rate for SDn clock (%d)\n", ret);
 		return ret;
 	}
+#endif
 
 	ret = clk_enable(&priv->clk);
 	if (ret) {
