@@ -516,6 +516,21 @@ static void module_standby_mmc(void)
 	module_standby_set(mod_hier, ms1);
 }
 
+static void module_standby_pcie4(void)
+{
+	uint32_t mod_hier;
+	mod_hier = MOD_HIER_HSCN;
+	struct ms_info ms1[] = {
+		{ 6,  18 },
+		{ 6,  20 },
+		{ 6,  22 },
+		{ 6,  24 },
+		{ MDLC_TBL_END, 0 },
+	};      /* Target Registers on the hierarchy */
+
+	module_standby_set(mod_hier, ms1);
+}
+
 void module_standby_early_init(void)
 {
 	module_standby_pfc();
@@ -526,4 +541,5 @@ void module_standby_init(void)
 {
 	module_standby_pcs_rsw3_mpphy();
 	module_standby_mmc();
+	module_standby_pcie4();
 }
