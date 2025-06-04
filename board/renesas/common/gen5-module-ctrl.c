@@ -547,6 +547,54 @@ static void module_standby_ufs(void)
 	module_standby_set(mod_hier, ms1);
 }
 
+void module_standby_wcrc(void)
+{
+	uint32_t mod_hier;
+	mod_hier = MOD_HIER_RT;
+	struct ms_info ms_wcrc[] = {
+		/* wcrc0 to wcrc10 */
+		{ 12, 26 },
+		{ 12, 28 },
+		{ 12, 30 },
+		{ 13,  0 },
+		{ 13,  2 },
+		{ 13,  4 },
+		{ 13,  6 },
+		{ 13,  8 },
+		{ 13, 10 },
+		{ 13, 12 },
+		{ 13, 14 },
+		/* crc0 to crc10 */
+		{ 13, 16 },
+		{ 13, 18 },
+		{ 13, 20 },
+		{ 13, 22 },
+		{ 13, 24 },
+		{ 13, 26 },
+		{ 13, 28 },
+		{ 13, 30 },
+		{ 14,  0 },
+		{ 14,  2 },
+		{ 14,  4 },
+		/* kcrc0 to kcrc10 */
+		{ 14,  6 },
+		{ 14,  8 },
+		{ 14, 10 },
+		{ 14, 12 },
+		{ 14, 14 },
+		{ 14, 16 },
+		{ 14, 18 },
+		{ 14, 20 },
+		{ 14, 22 },
+		{ 14, 24 },
+		{ 14, 26 },
+		{ MDLC_TBL_END, 0 },
+	};              /* Target Registers on the hierarchy */
+
+	module_standby_set(mod_hier, ms_wcrc);
+}
+
+
 void module_standby_early_init(void)
 {
 	module_standby_pfc();
@@ -559,4 +607,5 @@ void module_standby_init(void)
 	module_standby_mmc();
 	module_standby_pcie4();
 	module_standby_ufs();
+	module_standby_wcrc();
 }
