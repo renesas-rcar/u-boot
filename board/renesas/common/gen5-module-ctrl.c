@@ -535,6 +535,18 @@ static void module_standby_pcie4(void)
 	module_standby_set(mod_hier, ms1);
 }
 
+static void module_standby_ufs(void)
+{
+	uint32_t mod_hier;
+	mod_hier = MOD_HIER_PERE;
+	struct ms_info ms1[] = {
+		{ 6,  0 },	/* UFS0 */
+		{ 6,  2 },	/* UFS1 */
+		{ MDLC_TBL_END, 0 },
+	};      /* Target Registers on the hierarchy */
+	module_standby_set(mod_hier, ms1);
+}
+
 void module_standby_early_init(void)
 {
 	module_standby_pfc();
@@ -546,4 +558,5 @@ void module_standby_init(void)
 	module_standby_pcs_rsw3_usb_mpphy();
 	module_standby_mmc();
 	module_standby_pcie4();
+	module_standby_ufs();
 }
