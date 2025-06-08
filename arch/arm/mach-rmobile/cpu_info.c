@@ -114,6 +114,12 @@ int print_cpuinfo(void)
 		}
 	}
 
+	if (rmobile_cpuinfo[i].cpu_type == RMOBILE_CPU_TYPE_R8A77965 && IS_M3LE()) {
+		printf("CPU: Renesas Electronics R8A779MD rev %d.%d\n",
+			rmobile_get_cpu_rev_integer(), rmobile_get_cpu_rev_fraction());
+		return 0;
+	}
+
 	printf("CPU: Renesas Electronics %s rev %d.%d\n",
 		rmobile_cpuinfo[i].cpu_name, rmobile_get_cpu_rev_integer(),
 		rmobile_get_cpu_rev_fraction());

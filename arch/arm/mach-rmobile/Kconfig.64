@@ -110,6 +110,13 @@ config TARGET_ULCB
 	help
           Support for Renesas R-Car Gen3 ULCB platform
 
+config TARGET_GEIST
+	bool "Geist board"
+	imply R8A77965
+	imply SYS_MALLOC_F
+	help
+          Support for Renesas R-Car Gen3 Geist platform
+
 endchoice
 
 config SYS_SOC
@@ -123,6 +130,7 @@ source "board/renesas/falcon/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
+source "board/renesas/geist/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_SALVATOR_X

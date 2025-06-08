@@ -54,6 +54,10 @@
 #define BOARD_TYPE_CONDOR_I		0x10
 #define BOARD_TYPE_UNKNOWN		0x1F
 
+/* Address for Detect M3Le */
+#define M3LE_IDENTIFIER_ADDR 0xE6060800
+#define IS_M3LE() (readl(M3LE_IDENTIFIER_ADDR) == 0x1)
+
 #ifndef __ASSEMBLY__
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
