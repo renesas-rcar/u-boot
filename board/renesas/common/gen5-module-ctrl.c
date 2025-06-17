@@ -470,7 +470,7 @@ static void module_standby_i2c(void)
 	module_standby_set(mod_hier, ms2);
 }
 
-void module_standby_pcs_rsw3_mpphy(void)
+void module_standby_pcs_rsw3_usb_mpphy(void)
 {
 	uint32_t mod_hier;
 	mod_hier = MOD_HIER_HSCN;
@@ -495,6 +495,10 @@ void module_standby_pcs_rsw3_mpphy(void)
 		{ 4,  2 },
 		{ 4,  4 },
 		{ 4,  6 },
+		{ 6,  0 },
+		{ 6,  2 },
+		{ 6,  4 },
+		{ 6,  6 },
 		{ 6,  8 },
 		{ 6,  10 },
 		{ 6,  12 },
@@ -539,7 +543,7 @@ void module_standby_early_init(void)
 
 void module_standby_init(void)
 {
-	module_standby_pcs_rsw3_mpphy();
+	module_standby_pcs_rsw3_usb_mpphy();
 	module_standby_mmc();
 	module_standby_pcie4();
 }
