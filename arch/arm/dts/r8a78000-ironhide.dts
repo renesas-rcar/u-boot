@@ -23,7 +23,6 @@
 		i2c6 = &i2c6;
 		i2c7 = &i2c7;
 		i2c8 = &i2c8;
-		ethernet0 = &rswitch3;
 		serial0 = &hscif0;
 	};
 
