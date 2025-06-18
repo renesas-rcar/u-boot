@@ -45,6 +45,11 @@ config BAREMETAL_CLK_MDL_CTRL
 	default n
 	bool "Renesas CLK BAREMETAL Gen5"
 
+config RCAR_SCP_FIXUP
+	depends on RCAR_GEN5
+	default n
+	bool "Renesas R-Car SCP fixup on R-Car Gen5"
+
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
 	select CPU_V7A
