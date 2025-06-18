@@ -52,11 +52,11 @@ static int ufs_link_startup_notify(struct ufs_hba *hba,
 static int ufs_get_max_pwr_mode(struct ufs_hba *hba,
 				struct ufs_pwr_mode_info *max_pwr_info)
 {
-	max_pwr_info->info.gear_rx = UFS_PWM_G1;
-	max_pwr_info->info.gear_tx = UFS_PWM_G1;
-	max_pwr_info->info.pwr_tx = SLOWAUTO_MODE;
-	max_pwr_info->info.pwr_rx = SLOWAUTO_MODE;
-	max_pwr_info->info.hs_rate = 0;
+	max_pwr_info->info.gear_rx = UFS_HS_G5;
+	max_pwr_info->info.gear_tx = UFS_HS_G5;
+	max_pwr_info->info.pwr_tx = FASTAUTO_MODE;
+	max_pwr_info->info.pwr_rx = FASTAUTO_MODE;
+	max_pwr_info->info.hs_rate = PA_HS_MODE_A;
 
 	max_pwr_info->info.lane_rx = 1;
 	max_pwr_info->info.lane_tx = 1;
