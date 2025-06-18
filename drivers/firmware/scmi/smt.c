@@ -48,6 +48,7 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 	if (!smt->buf)
 		return -ENOMEM;
 
+#if !defined(CONFIG_RCAR_GEN5)
 #ifdef CONFIG_ARM
 	if (dcache_status())
 		mmu_set_region_dcache_behaviour(ALIGN_DOWN((uintptr_t)smt->buf, MMU_SECTION_SIZE),
@@ -55,6 +56,7 @@ int scmi_dt_get_smt_buffer(struct udevice *dev, struct scmi_smt *smt)
 						DCACHE_OFF);
 
 #endif
+#endif /* !defined(CONFIG_RCAR_GEN5) */
 
 	return 0;
 }
