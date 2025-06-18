@@ -871,7 +871,11 @@ static const struct udevice_id renesas_sdhi_match[] = {
 
 static ulong renesas_sdhi_clk_get_rate(struct tmio_sd_priv *priv)
 {
+#if defined(CONFIG_RCAR_GEN5) && defined(CONFIG_RCAR_SCP_FIXUP)
+	return (52000000UL); /* 52MHz */
+#else
 	return clk_get_rate(&priv->clk);
+#endif /* CONFIG_RCAR_GEN5 && CONFIG_SCP_RESTRICTION */
 }
 
 static void renesas_sdhi_filter_caps(struct udevice *dev)
