@@ -17,8 +17,6 @@
 #include <linux/iopoll.h>
 #include "ufs.h"
 
-#define CFG_CLK_IGNORE
-
 struct ufs_renesas_priv {
 	struct clk_bulk clks;
 	bool initialized;	/* The hardware needs initialization once */
@@ -233,12 +231,9 @@ static int ufs_renesas_pltfm_bind(struct udevice *dev)
 
 static int ufs_renesas_pltfm_probe(struct udevice *dev)
 {
-#if !defined(CFG_CLK_IGNORE)
 	struct ufs_renesas_priv *priv = dev_get_priv(dev);
-#endif
 	int err;
 
-#if !defined(CFG_CLK_IGNORE)
 	err = clk_get_bulk(dev, &priv->clks);
 	if (err < 0)
 		return err;
@@ -246,7 +241,6 @@ static int ufs_renesas_pltfm_probe(struct udevice *dev)
 	err = clk_enable_bulk(&priv->clks);
 	if (err)
 		goto err_clk_enable;
-#endif
 
 	err = ufshcd_probe(dev, &ufs_renesas_vops);
 	if (err) {
@@ -257,11 +251,9 @@ static int ufs_renesas_pltfm_probe(struct udevice *dev)
 	return 0;
 
 err_ufshcd_probe:
-#if !defined(CFG_CLK_IGNORE)
 	clk_disable_bulk(&priv->clks);
 err_clk_enable:
 	clk_release_bulk(&priv->clks);
-#endif
 	return err;
 }
 

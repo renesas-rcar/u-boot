@@ -54,8 +54,6 @@
 #define RCAR_I2C_ICFBSCR		0x38
 #define RCAR_I2C_ICFBSCR_TCYC17		0x0f /* 17*Tcyc */
 
-#define CFG_CLK_IGNORE
-
 enum rcar_i2c_type {
 	RCAR_I2C_TYPE_GEN2,
 	RCAR_I2C_TYPE_GEN3,
@@ -264,11 +262,7 @@ static int rcar_i2c_set_speed(struct udevice *dev, uint bus_freq_hz)
 	 * clkp : peripheral_clk
 	 * F[]  : integer up-valuation
 	 */
-#if !defined(CFG_CLK_IGNORE)
 	rate = clk_get_rate(&priv->clk);
-#else
-	rate = (uintptr_t)priv->base == 0xc11d0000 ? 150000000 : 133333333;
-#endif
 	cdf = rate / 20000000;
 	if (cdf >= 8) {
 		dev_err(dev, "Input clock %lu too high\n", rate);
@@ -310,7 +304,7 @@ static int rcar_i2c_set_speed(struct udevice *dev, uint bus_freq_hz)
 
 scgd_find:
 	dev_dbg(dev, "clk %d/%d(%lu), round %u, CDF:0x%x, SCGD: 0x%x\n",
-		scl, bus_freq_hz, rate, round, cdf, scgd);
+		scl, bus_freq_hz, clk_get_rate(&priv->clk), round, cdf, scgd);
 
 	priv->icccr = (scgd << RCAR_I2C_ICCCR_SCGD_OFF) | cdf;
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
@@ -337,7 +331,6 @@ static int rcar_i2c_probe(struct udevice *dev)
 					      "i2c-scl-internal-delay-ns", 5);
 	priv->type = dev_get_driver_data(dev);
 
-#if !defined(CFG_CLK_IGNORE)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
 		return ret;
@@ -345,7 +338,6 @@ static int rcar_i2c_probe(struct udevice *dev)
 	ret = clk_enable(&priv->clk);
 	if (ret)
 		return ret;
-#endif
 
 	/* reset slave mode */
 	writel(0, priv->base + RCAR_I2C_ICSIER);
@@ -360,10 +352,8 @@ static int rcar_i2c_probe(struct udevice *dev)
 	writel(0, priv->base + RCAR_I2C_ICMAR);
 
 	ret = rcar_i2c_set_speed(dev, I2C_SPEED_STANDARD_RATE);
-#if !defined(CFG_CLK_IGNORE)
 	if (ret)
 		clk_disable(&priv->clk);
-#endif
 
 	return ret;
 }
