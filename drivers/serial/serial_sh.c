@@ -257,7 +257,11 @@ static int sh_serial_of_to_plat(struct udevice *dev)
 	if (!ret) {
 		ret = clk_enable(&sh_serial_clk);
 		if (!ret)
+#if defined(CONFIG_RCAR_GEN5) && defined(CONFIG_RCAR_SCP_FIXUP)
+			plat->clk = 266666666;
+#else
 			plat->clk = clk_get_rate(&sh_serial_clk);
+#endif
 	} else {
 		plat->clk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					   "clock", 1);
