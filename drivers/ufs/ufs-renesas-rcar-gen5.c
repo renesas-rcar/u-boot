@@ -17,12 +17,105 @@
 #include <linux/iopoll.h>
 #include "ufs.h"
 
+/* Hardcoded for enable module clock */
+#define MDLC_BASE		0xC08F0000
+#define UFS_CLK_MASK(n)		GENMASK((n) + 1, n)
+#define UFS_CLK_SHIFT(n)	(n)
+
+#define MDLC_PKCPROT0		(MDLC_BASE + 0x0cf0)
+#define MDLC_PKCPROT1		(MDLC_BASE + 0x0cf4)
+
+#define _MDLC_MPDG(k)		(MDLC_BASE + 0x0200 + (k) * 4)
+#define _MDLC_MPDGS(k)		(MDLC_BASE + 0x0300 + (k) * 4)
+#define MDLC_MPIER0		(MDLC_BASE + 0x0110)
+#define MDLC_MPIMR0		(MDLC_BASE + 0x0120)
+
+#define MDLC_MSRES(i)		(MDLC_BASE + 0x0900 + (i) * 4)
+#define MDLC_MSRESS(i)		(MDLC_BASE + 0x0960 + (i) * 4)
+
 struct ufs_renesas_priv {
 	struct clk_bulk clks;
 	bool initialized;	/* The hardware needs initialization once */
 
 	fdt_addr_t phy_base;
 };
+
+#if CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+static void ufs_module_power_gating_set(u8 pdid, u8 mode)
+{
+	void __iomem *unlock = map_physmem(MDLC_PKCPROT0, 4, MAP_NOCACHE);
+	void __iomem *mpdg = map_physmem(_MDLC_MPDG(pdid), 4, MAP_NOCACHE);
+	void __iomem *mpdgs = map_physmem(_MDLC_MPDGS(pdid), 4, MAP_NOCACHE);
+	void __iomem *mpier0 = map_physmem(MDLC_MPIER0, 4, MAP_NOCACHE);
+	void __iomem *mpimr0 = map_physmem(MDLC_MPIMR0, 4, MAP_NOCACHE);
+
+	writel(0xA5A5A501, unlock);
+
+	if ((readl(mpdgs) & mode) == mode)
+		goto unmap;
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+	writel(0x00000000, mpier0);
+	writel(0xFFFFFFFF, mpimr0);
+
+	writel(0x1, mpdg);
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+	writel(0x00000000, mpier0);
+	writel(0xFFFFFFFF, mpimr0);
+
+	writel(mode, mpdg);
+
+	writel(0xA5A5A500, unlock);
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+unmap:
+	unmap_physmem(unlock, MAP_NOCACHE);
+	unmap_physmem(mpdg, MAP_NOCACHE);
+	unmap_physmem(mpdgs, MAP_NOCACHE);
+	unmap_physmem(mpier0, MAP_NOCACHE);
+	unmap_physmem(mpimr0, MAP_NOCACHE);
+}
+
+static void ufs_module_standy_set(u8 clk_reg_no, u8 pos, u8 mode)
+{
+	void __iomem *unlock = map_physmem(MDLC_PKCPROT1, 4, MAP_NOCACHE);
+	void __iomem *msress = map_physmem(MDLC_MSRESS(clk_reg_no), 4, MAP_NOCACHE);
+	void __iomem *msres = map_physmem(MDLC_MSRES(clk_reg_no), 4, MAP_NOCACHE);
+	u32 val;
+
+	writel(0xA5A5A501, unlock);
+
+	if ((readl(msress) & UFS_CLK_MASK(pos)) == (mode << UFS_CLK_SHIFT(pos)))
+		goto unmap;
+
+	while ((readl(msress) & UFS_CLK_MASK(pos)) != (readl(msres) & UFS_CLK_MASK(pos)))
+		udelay(1000);
+
+	val = readl(msres);
+	val &= ~UFS_CLK_MASK(pos);
+	val |= mode << UFS_CLK_SHIFT(pos);
+	writel(val, msres);
+
+	udelay(1000);
+
+	writel(0xA5A5A500, unlock);
+
+	while ((readl(msress) & UFS_CLK_MASK(pos)) != (readl(msres) & UFS_CLK_MASK(pos)))
+	udelay(1000);
+
+unmap:
+	unmap_physmem(unlock, MAP_NOCACHE);
+	unmap_physmem(msress, MAP_NOCACHE);
+	unmap_physmem(msres, MAP_NOCACHE);
+}
+#endif
 
 static void ufs_dme_command(struct ufs_hba *hba, u32 cmd,
 			    u32 arg1, u32 arg2, u32 arg3)
@@ -226,14 +319,26 @@ static int ufs_renesas_pltfm_bind(struct udevice *dev)
 {
 	struct udevice *scsi_dev;
 
+#if CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+	ufs_module_power_gating_set(0, 0x03);
+	ufs_module_power_gating_set(1, 0x03);
+	ufs_module_standy_set(6, 0, 0x01);
+	ufs_module_standy_set(6, 0, 0x03);
+	ufs_module_standy_set(6, 2, 0x01);
+	ufs_module_standy_set(6, 2, 0x03);
+#endif
+
 	return ufs_scsi_bind(dev, &scsi_dev);
 }
 
 static int ufs_renesas_pltfm_probe(struct udevice *dev)
 {
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
 	struct ufs_renesas_priv *priv = dev_get_priv(dev);
+#endif
 	int err;
 
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
 	err = clk_get_bulk(dev, &priv->clks);
 	if (err < 0)
 		return err;
@@ -241,6 +346,7 @@ static int ufs_renesas_pltfm_probe(struct udevice *dev)
 	err = clk_enable_bulk(&priv->clks);
 	if (err)
 		goto err_clk_enable;
+#endif
 
 	err = ufshcd_probe(dev, &ufs_renesas_vops);
 	if (err) {
@@ -251,9 +357,11 @@ static int ufs_renesas_pltfm_probe(struct udevice *dev)
 	return 0;
 
 err_ufshcd_probe:
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
 	clk_disable_bulk(&priv->clks);
 err_clk_enable:
 	clk_release_bulk(&priv->clks);
+#endif
 	return err;
 }
 
