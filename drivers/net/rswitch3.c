@@ -311,7 +311,7 @@ struct rsw3_port_priv {
 
 struct rsw3_priv {
 	void __iomem		*addr;
-	struct clk			*rsw_clk;
+	struct clk_bulk		rsw_clk;
 };
 
 static inline void rsw3_flush_dcache(u32 addr, u32 len)
@@ -1167,6 +1167,7 @@ static int rsw3_probe(struct udevice *dev)
 	struct rsw3_priv *priv = dev_get_plat(dev);
 	fdt_addr_t secure_base;
 	fdt_size_t size;
+	int err;
 
 	secure_base = dev_read_addr_size_name(dev, "secure_base", &size);
 	if (!secure_base)
@@ -1176,33 +1177,27 @@ static int rsw3_probe(struct udevice *dev)
 	if (!priv->addr)
 		return -EINVAL;
 
-        /*
-         * TODO: Enable RSW3 clock once supported by hardware or device tree.
-         *
-         * Currently disabled because the required clock is not yet defined or
-         * provided in the DTS. When available, the following should be enabled:
-         */
-	//priv->rsw_clk = devm_clk_get(dev, NULL);
-	//if (ret)
-	//	goto err_map;
+	err = clk_get_bulk(dev, &priv->rsw_clk);
+	if (err < 0)
+		return err;
 
-	//ret = clk_prepare_enable(priv->rsw_clk);
-	//if (ret)
-	//	goto err_map;
+	err = clk_enable_bulk(&priv->rsw_clk);
+	if (err)
+		goto err_map;
+
 
 	return 0;
 
-/* TODO: Add when error handling for clock init is needed */
-//err_map:
-//	unmap_physmem(priv->addr, MAP_NOCACHE);
-//	return ret;
+err_map:
+	unmap_physmem(priv->addr, MAP_NOCACHE);
+	return err;
 }
 
 static int rsw3_remove(struct udevice *dev)
 {
 	struct rsw3_priv *priv = dev_get_plat(dev);
 
-	clk_disable_unprepare(priv->rsw_clk);
+	clk_disable_bulk(&priv->rsw_clk);
 	unmap_physmem(priv->addr, MAP_NOCACHE);
 
 	return 0;
