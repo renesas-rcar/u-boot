@@ -46,6 +46,7 @@ struct r8a78000_eth_pcs_drv_data {
 	struct reset_ctl *reset;
 	struct phy mpphy;
 	struct r8a78000_eth_pcs_channel channel[R8A78000_ETH_PCS_NUM];
+	struct clk_bulk clks;
 };
 
 /*
@@ -396,6 +397,14 @@ static int r8a78000_eth_pcs_probe(struct udevice *dev)
 	//reset_assert(dd->reset);
 	//reset_deassert(dd->reset);
 
+	ret = clk_get_bulk(dev, &dd->clks);
+	if (ret < 0)
+		return ret;
+
+	ret = clk_enable_bulk(&dd->clks);
+	if (ret)
+		goto err_clk_enable;
+
 	ret = generic_phy_get_by_index(dev, 0, &dd->mpphy);
 	if (ret)
 		return ret;
@@ -410,6 +419,11 @@ static int r8a78000_eth_pcs_probe(struct udevice *dev)
 	}
 
 	return 0;
+
+err_clk_enable:
+	clk_release_bulk(&dd->clks);
+	return ret;
+
 }
 
 U_BOOT_DRIVER(r8a78000_eth_pcs_driver_platform) = {
