@@ -21,6 +21,123 @@
  #include <reset.h>
  #include <syscon.h>
 
+ /* Hardcoded for enable module clock */
+#define MDLC_BASE		0xc9c90000
+#define MPPHY_PDID		(0)
+#define MPPHY_CLK_MASK(n)	GENMASK((n) + 1, n)
+#define MPPHY_CLK_SHIFT(n)	(n)
+
+#define MDLC_PKCPROT0		(MDLC_BASE + 0x0cf0)
+#define MDLC_PKCPROT1		(MDLC_BASE + 0x0cf4)
+
+#define _MDLC_MPDG(k)		(MDLC_BASE + 0x0200 + (k) * 4)
+#define _MDLC_MPDGS(k)		(MDLC_BASE + 0x0300 + (k) * 4)
+#define MDLC_MPIER0		(MDLC_BASE + 0x0110)
+#define MDLC_MPIMR0		(MDLC_BASE + 0x0120)
+
+#define MDLC_MPDG		_MDLC_MPDG(MPPHY_PDID)
+#define MDLC_MPDGS		_MDLC_MPDGS(MPPHY_PDID)
+
+#define MDLC_MSRES(i)		(MDLC_BASE + 0x0900 + (i) * 4)
+#define MDLC_MSRESS(i)	(	MDLC_BASE + 0x0960 + (i) * 4)
+
+#if CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+static void mp_phy_module_power_gating_set(u8 pdid, u8 mode)
+{
+	void __iomem *unlock = map_physmem(MDLC_PKCPROT0, 4, MAP_NOCACHE);
+	void __iomem *mpdg = map_physmem(_MDLC_MPDG(pdid), 4, MAP_NOCACHE);
+	void __iomem *mpdgs = map_physmem(_MDLC_MPDGS(pdid), 4, MAP_NOCACHE);
+	void __iomem *mpier0 = map_physmem(MDLC_MPIER0, 4, MAP_NOCACHE);
+	void __iomem *mpimr0 = map_physmem(MDLC_MPIMR0, 4, MAP_NOCACHE);
+
+	writel(0xA5A5A501, unlock);
+
+	if ((readl(mpdgs) & 0x3) == mode)
+		goto unmap;
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+	writel(0, mpier0);
+	writel(0x1, mpimr0);
+
+	writel(0x1, mpdg);
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+	writel(mode, mpdg);
+
+	while (readl(mpdgs) != readl(mpdg))
+		udelay(1000);
+
+unmap:
+	unmap_physmem(unlock, MAP_NOCACHE);
+	unmap_physmem(mpdg, MAP_NOCACHE);
+	unmap_physmem(mpdgs, MAP_NOCACHE);
+	unmap_physmem(mpier0, MAP_NOCACHE);
+	unmap_physmem(mpimr0, MAP_NOCACHE);
+}
+
+static void mp_phy_module_standy_set(u8 clk_reg_no, u8 pos, u8 mode)
+{
+	void __iomem *unlock = map_physmem(MDLC_PKCPROT1, 4, MAP_NOCACHE);
+	void __iomem *msress = map_physmem(MDLC_MSRESS(clk_reg_no), 4, MAP_NOCACHE);
+	void __iomem *msres = map_physmem(MDLC_MSRES(clk_reg_no), 4, MAP_NOCACHE);
+	u32 val;
+
+	writel(0xA5A5A501, unlock);
+
+	if ((readl(msress) & MPPHY_CLK_MASK(pos)) == (mode << MPPHY_CLK_SHIFT(pos)))
+		goto unmap;
+
+	while ((readl(msress) & MPPHY_CLK_MASK(pos)) != (readl(msres) & MPPHY_CLK_MASK(pos)))
+		udelay(1000);
+
+	val = readl(msres);
+	val &= ~MPPHY_CLK_MASK(pos);
+	val |= mode << MPPHY_CLK_SHIFT(pos);
+	writel(val, msres);
+
+	while ((readl(msress) & MPPHY_CLK_MASK(pos)) != (readl(msres) & MPPHY_CLK_MASK(pos)))
+		udelay(1000);
+
+unmap:
+	unmap_physmem(unlock, MAP_NOCACHE);
+	unmap_physmem(msress, MAP_NOCACHE);
+	unmap_physmem(msres, MAP_NOCACHE);
+}
+
+static void mp_phy_module_power_reset(void)
+{
+	mp_phy_module_power_gating_set(3, 0x03);
+	mp_phy_module_power_gating_set(4, 0x03);
+	mp_phy_module_power_gating_set(5, 0x03);
+	mp_phy_module_power_gating_set(6, 0x03);
+
+	mp_phy_module_standy_set(6, 8, 0x01);
+	mp_phy_module_standy_set(6, 10, 0x01);
+	mp_phy_module_standy_set(6, 12, 0x01);
+	mp_phy_module_standy_set(6, 14, 0x01);
+	mp_phy_module_standy_set(6, 16, 0x01);
+}
+
+static void mp_phy_module_power_on(void)
+{
+	mp_phy_module_power_gating_set(3, 0x03);
+	mp_phy_module_power_gating_set(4, 0x03);
+	mp_phy_module_power_gating_set(5, 0x03);
+	mp_phy_module_power_gating_set(6, 0x03);
+
+	mp_phy_module_standy_set(6, 8, 0x03);
+	mp_phy_module_standy_set(6, 10, 0x03);
+	mp_phy_module_standy_set(6, 12, 0x03);
+	mp_phy_module_standy_set(6, 14, 0x03);
+	mp_phy_module_standy_set(6, 16, 0x03);
+}
+#endif
+/*-----------------------------------------------------------------------------*/
+
 /* Common registers */
 #define MPPHY_CMNCNT1        0x80000
 #define MPPHY_CMNCNT2        0x80004
@@ -96,7 +213,7 @@ struct mp_phy_priv {
 	struct device *dev;
 	struct phy *phy;
 	struct reset_ctl *reset_ctl;
-	struct clk *clk;
+	struct clk_bulk clks;
 	int lane_id;
 };
 
@@ -221,17 +338,40 @@ static int mp_phy_probe(struct udevice *dev)
 {
 	struct mp_phy_priv *priv = dev_get_priv(dev);
 	struct phy phy;
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+	int err;
+#endif
 
 	/* Get base address from device tree */
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+	err = clk_get_bulk(dev, &priv->clks);
+	if (err < 0)
+		return err;
+
+	err = clk_enable_bulk(&priv->clks);
+	if (err)
+		goto err_clk_enable;
+#endif
+
+#if CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+	mp_phy_module_power_reset();
+	mp_phy_module_power_on();
+#endif
 	memset(&phy, 0, sizeof(phy));
 	phy.dev = dev;
 
 	printf("Multi-Protocol PHY driver probed\n");
 	return 0;
+
+#if !CONFIG_IS_ENABLED(RCAR_SCP_FIXUP)
+err_clk_enable:
+	clk_release_bulk(&priv->clks);
+	return err;
+#endif
 }
 
 static const struct udevice_id mp_phy_ids[] = {
