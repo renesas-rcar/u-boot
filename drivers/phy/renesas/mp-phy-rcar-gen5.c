@@ -95,8 +95,8 @@ struct mp_phy_priv {
 	void __iomem *base;
 	struct device *dev;
 	struct phy *phy;
-	struct reset_ctl *reset_ctl;
-	struct clk *clk;
+	struct clk_bulk clks;
+	struct reset_ctl_bulk resets;
 	int lane_id;
 };
 
@@ -221,17 +221,47 @@ static int mp_phy_probe(struct udevice *dev)
 {
 	struct mp_phy_priv *priv = dev_get_priv(dev);
 	struct phy phy;
+	int err;
 
 	/* Get base address from device tree */
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
+	err = clk_get_bulk(dev, &priv->clks);
+	if (err < 0)
+		return err;
+
+	err = clk_enable_bulk(&priv->clks);
+	if (err)
+		goto err_clk_enable;
+
+	err = reset_get_bulk(dev, &priv->resets);
+	if (err) {
+		printf("%s[%d] failed to get reset bulk\r\n",
+				__func__, __LINE__);
+		goto err_clk_enable;
+	}
+
+	err = reset_assert_bulk(&priv->resets);
+	if (err) {
+		printf("%s[%d] err: %d\r\n",
+				__func__, __LINE__, err);
+	}
+	err = reset_deassert_bulk(&priv->resets);
+	if (err) {
+		goto err_clk_enable;
+	}
+
 	memset(&phy, 0, sizeof(phy));
 	phy.dev = dev;
 
 	printf("Multi-Protocol PHY driver probed\n");
 	return 0;
+
+err_clk_enable:
+	clk_release_bulk(&priv->clks);
+	return err;
 }
 
 static const struct udevice_id mp_phy_ids[] = {
