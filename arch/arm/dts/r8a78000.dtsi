@@ -69,7 +69,10 @@
 				#clock-cells = <1>;
 			};
 
-			/* TODO: scmi_reset */
+			scmi_reset: protocol@16 {
+				reg = <0x16>;
+				#reset-cells = <1>;
+			};
 		};
 	};
 
