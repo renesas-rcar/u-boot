@@ -410,6 +410,11 @@
 					 <&scmi_clk SCP_CLOCK_ID_MDLC_MPPHY02>;
 			clock-names = "mpphy01", "mpphy11", "mpphy21",
 						  "mpphy31", "mpphy02";
+			resets = <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY01>,
+				     <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY11>,
+					 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY21>,
+					 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY31>,
+					 <&scmi_reset SCP_RESET_DOMAIN_ID_MPPHY02>;
 			status = "disabled";
 		};
 
