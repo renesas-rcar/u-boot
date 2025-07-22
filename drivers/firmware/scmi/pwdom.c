@@ -13,34 +13,6 @@
 #include <string.h>
 #include <asm/types.h>
 
-#if defined(CONFIG_RCAR_GEN5) && defined(CONFIG_RCAR_SCP_FIXUP)
-enum pwdom_cmd {
-    GET_SET
-};
-
-static bool is_pwdomid_ng(int pwdomcmd, int pwdomid)
-{
-    switch (pwdomcmd) {
-        case GET_SET:
-            if ((8 <= pwdomid && 10 >= pwdomid) ||
-				(26 == pwdomid) || (28 == pwdomid) ||
-				(30 == pwdomid) || (32 == pwdomid) ||
-				(34 == pwdomid) || (36 == pwdomid) ||
-				(38 <= pwdomid && 39 >= pwdomid) ||
-                (41 <= pwdomid && 59 >= pwdomid) ||
-                (61 <= pwdomid && 75 >= pwdomid) ||
-                (126 <= pwdomid && 168 >= pwdomid))
-                return true;
-            break;
-
-        default:
-            break;
-    }
-
-    return false;
-}
-#endif /* CONFIG_RCAR_GEN5 && CONFIG_RCAR_SCP_FIXUP */
-
 int scmi_pwd_protocol_attrs(struct udevice *dev, int *num_pwdoms,
 			    u64 *stats_addr, size_t *stats_len)
 {
@@ -147,11 +119,6 @@ int scmi_pwd_state_set(struct udevice *dev, u32 flags, u32 domain_id,
 	if (!dev)
 		return -EINVAL;
 
-#if defined(CONFIG_RCAR_GEN5) && defined(CONFIG_RCAR_SCP_FIXUP)
-	if (is_pwdomid_ng(GET_SET, domain_id))
-		return -1;
-#endif /* CONFIG_RCAR_GEN5 && CONFIG_RCAR_SCP_FIXUP */
-
 	in.flags = flags;
 	in.domain_id = domain_id;
 	in.pstate = pstate;
@@ -179,11 +146,6 @@ int scmi_pwd_state_get(struct udevice *dev, u32 domain_id, u32 *pstate)
 
 	if (!dev || !pstate)
 		return -EINVAL;
-
-#if defined(CONFIG_RCAR_GEN5) && defined(CONFIG_RCAR_SCP_FIXUP)
-	if (is_pwdomid_ng(GET_SET, domain_id))
-		return -1;
-#endif /* CONFIG_RCAR_GEN5 && CONFIG_RCAR_SCP_FIXUP */
 
 	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret)
