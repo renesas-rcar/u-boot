@@ -271,3 +271,8 @@
 &extal_clk {
 	clock-frequency = <16666666>;
 };
+
+&i2c_dvfs {
+	clock-frequency = <400000>;
+	status = "okay";
+};
