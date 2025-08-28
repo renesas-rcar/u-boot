@@ -77,6 +77,52 @@
 		reg = <0x1e 0x00000000 0x1 0x00000000>;
 	};
 
+	reserved-memory {
+                #address-cells = <2>;
+                #size-cells = <2>;
+                ranges;
+
+                ecc_data_region@10cccc0000 {
+			no-map;
+			reg = <0x10 0xcccc0000 0x0 0x33340000>;
+		};
+
+                ecc_data_region@12cccc0000 {
+			no-map;
+			reg = <0x12 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@14cccc0000 {
+			no-map;
+			reg = <0x14 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@16cccc0000 {
+			no-map;
+			reg = <0x16 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@18cccc0000 {
+			no-map;
+			reg = <0x18 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@1acccc0000 {
+			no-map;
+			reg = <0x1a 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@1ccccc0000 {
+			no-map;
+			reg = <0x1c 0xcccc0000 0x0 0x33340000>;
+		};
+
+		ecc_data_region@1ecccc0000 {
+			no-map;
+			reg = <0x1e 0xcccc0000 0x0 0x33340000>;
+		};
+        };
+
 	reg_1p8v: regulator-1p8v {
 		compatible = "regulator-fixed";
 		regulator-name = "fixed-1.8V";
