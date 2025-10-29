@@ -67,4 +67,13 @@ config RCAR_RGID
 	int "RGID"
 	default 0
 
+config RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2
+	bool "Enable RGID Bus Domain Protection (Domain 2)"
+	default y
+	help
+	  Select the valid RGID Bus Domain Protection for modules
+	  like SYSC, Reset, PFC, CPG. Default Domain 2 for
+	  WhiteHawk/Grayhawk board to avoid conflict.
+	  Disable for Domain 0.
+
 endif
