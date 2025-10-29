@@ -86,7 +86,8 @@
 			status = "disabled";
 		};
 
-		pfc: pin-controller@20e6050000 {
+#ifdef CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2
+		pfc: pin-controller@20e6054000 {
 			compatible = "renesas,pfc-r8a779g0";
 			reg = <0x20 0xe6054000 0 0x16c>, <0x20 0xe6054800 0 0x16c>,
 			      <0x20 0xe605c000 0 0x16c>, <0x20 0xe605c800 0 0x16c>,
@@ -94,6 +95,16 @@
 			      <0x20 0xe6065000 0 0x16c>, <0x20 0xe6065800 0 0x16c>,
 			      <0x20 0xe606c000 0 0x16c>;
 		};
+#else /* !CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2 (Domain 0) */
+		pfc: pin-controller@20e6050000 {
+			compatible = "renesas,pfc-r8a779g0";
+			reg = <0x20 0xe6050000 0 0x16c>, <0x20 0xe6050800 0 0x16c>,
+			      <0x20 0xe6058000 0 0x16c>, <0x20 0xe6058800 0 0x16c>,
+			      <0x20 0xe6060000 0 0x16c>, <0x20 0xe6060800 0 0x16c>,
+			      <0x20 0xe6061000 0 0x16c>, <0x20 0xe6061800 0 0x16c>,
+			      <0x20 0xe6068000 0 0x16c>;
+		};
+#endif /* CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2 */
 
 		gpio0: gpio@20e6050180 {
 			compatible = "renesas,gpio-r8a779g0",
@@ -230,6 +241,7 @@
 			resets = <&cpg 918>;
 		};
 
+#ifdef CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2
 		cpg: clock-controller@20e6158000 {
 			compatible = "renesas,r8a779g0-cpg-mssr";
 			reg = <0x20 0xe6158000 0 0x4000>;
@@ -245,11 +257,33 @@
 			reg = <0x20 0xe6168000 0 0x4000>;
 		};
 
-		sysc: system-controller@e6180000 {
+		sysc: system-controller@e6188000 {
 			compatible = "renesas,r8a779g0-sysc";
 			reg = <0x20 0xe6188000 0 0x4000>;
 			#power-domain-cells = <1>;
 		};
+#else /* !CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2 (Domain 0) */
+		cpg: clock-controller@20e6150000 {
+			compatible = "renesas,r8a779g0-cpg-mssr";
+			reg = <0x20 0xe6150000 0 0x4000>;
+			clocks = <&extal_clk>, <&extalr_clk>;
+			clock-names = "extal", "extalr";
+			#clock-cells = <2>;
+			#power-domain-cells = <0>;
+			#reset-cells = <1>;
+		};
+
+		rst: reset-controller@20e6160000 {
+			compatible = "renesas,r8a779g0-rst";
+			reg = <0x20 0xe6160000 0 0x4000>;
+		};
+
+		sysc: system-controller@e6180000 {
+			compatible = "renesas,r8a779g0-sysc";
+			reg = <0x20 0xe6180000 0 0x4000>;
+			#power-domain-cells = <1>;
+		};
+#endif /* CONFIG_RCAR_RGID_BUS_DOMAIN_PROTECTION_DOMAIN2 */
 
 		i2c0: i2c@20e6500000 {
 			compatible = "renesas,i2c-r8a779g0",
