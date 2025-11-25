@@ -19,14 +19,14 @@
                 #size-cells = <2>;
                 ranges;
 
-		ecc_data_region@4cccc0000 {
+		ecc_data_region@4d0000000 {
 			no-map;
-			reg = <0x4 0xcccc0000 0x0 0x33340000>;
+			reg = <0x4 0xd0000000 0x0 0x30000000>;
 		};
 
-		ecc_data_region@5cccc0000 {
+		ecc_data_region@5b0000000 {
 			no-map;
-			reg = <0x5 0xcccc0000 0x0 0x33340000>;
+			reg = <0x5 0xb0000000 0x0 0x50000000>;
 		};
 	};
 };
