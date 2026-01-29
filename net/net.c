@@ -739,7 +739,7 @@ restart:
 
 			eth_set_last_protocol(protocol);
 
-			ret = net_boot_file_size;
+			ret = !!net_boot_file_size;
 			debug_cond(DEBUG_INT_STATE, "--- net_loop Success!\n");
 			goto done;
 
