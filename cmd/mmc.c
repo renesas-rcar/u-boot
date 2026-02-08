@@ -29,12 +29,12 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Manufacturer ID: %x\n", mmc->cid[0] >> 24);
 	if (IS_SD(mmc)) {
 		printf("OEM: %x\n", (mmc->cid[0] >> 8) & 0xffff);
-		printf("Name: %c%c%c%c%c \n", mmc->cid[0] & 0xff,
+		printf("Name: %c%c%c%c%c\n", mmc->cid[0] & 0xff,
 		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
 		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
 	} else {
 		printf("OEM: %x\n", (mmc->cid[0] >> 8) & 0xff);
-		printf("Name: %c%c%c%c%c%c \n", mmc->cid[0] & 0xff,
+		printf("Name: %c%c%c%c%c%c\n", mmc->cid[0] & 0xff,
 		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
 		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff,
 		(mmc->cid[2] >> 24));
