@@ -45,7 +45,7 @@ config REMOTEPROC_RENESAS_APMU
 	select REMOTEPROC
 	depends on ARCH_RENESAS && RCAR_GEN4 && DM && OF_CONTROL
 	help
-	  Say 'y' here to add support for Renesas R-Car Gen4 Cortex-A52
+	  Say 'y' here to add support for Renesas R-Car Gen4 Cortex-R52
 	  processor via the remoteproc framework.
 
 config REMOTEPROC_SANDBOX
