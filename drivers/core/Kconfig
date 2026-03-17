@@ -195,7 +195,7 @@ config DM_DMA
 	  the physical address space.
 
 config REGMAP
-	bool "Support register maps"
+	bool
 	depends on DM
 	help
 	  Hardware peripherals tend to have one or more sets of registers
@@ -205,7 +205,7 @@ config REGMAP
 	  direct memory access.
 
 config SPL_REGMAP
-	bool "Support register maps in SPL"
+	bool
 	depends on SPL_DM
 	help
 	  Hardware peripherals tend to have one or more sets of registers
@@ -215,7 +215,7 @@ config SPL_REGMAP
 	  direct memory access.
 
 config TPL_REGMAP
-	bool "Support register maps in TPL"
+	bool
 	depends on TPL_DM
 	help
 	  Hardware peripherals tend to have one or more sets of registers
@@ -225,7 +225,7 @@ config TPL_REGMAP
 	  direct memory access.
 
 config VPL_REGMAP
-	bool "Support register maps in VPL"
+	bool
 	depends on VPL_DM
 	help
 	  Hardware peripherals tend to have one or more sets of registers
@@ -236,7 +236,7 @@ config VPL_REGMAP
 
 config SYSCON
 	bool "Support system controllers"
-	depends on REGMAP
+	select REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided
@@ -245,7 +245,8 @@ config SYSCON
 
 config SPL_SYSCON
 	bool "Support system controllers in SPL"
-	depends on SPL_REGMAP
+	depends on SPL_DM
+	select SPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided
@@ -254,7 +255,8 @@ config SPL_SYSCON
 
 config TPL_SYSCON
 	bool "Support system controllers in TPL"
-	depends on TPL_REGMAP
+	depends on TPL_DM
+	select TPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided
@@ -263,7 +265,8 @@ config TPL_SYSCON
 
 config VPL_SYSCON
 	bool "Support system controllers in VPL"
-	depends on VPL_REGMAP
+	depends on VPL_DM
+	select VPL_REGMAP
 	help
 	  Many SoCs have a number of system controllers which are dealt with
 	  as a group by a single driver. Some common functionality is provided

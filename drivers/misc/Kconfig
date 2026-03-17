@@ -350,7 +350,8 @@ config MXS_OCOTP
 
 config NPCM_HOST
 	bool "Enable support espi or LPC for Host"
-	depends on REGMAP && SYSCON
+	depends on SYSCON
+	select REGMAP
 	help
 	  Enable NPCM BMC espi or LPC support for Host reading and writing.
 
