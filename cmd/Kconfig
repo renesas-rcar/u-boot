@@ -1388,6 +1388,7 @@ config CMD_LOADM
 
 config CMD_LOADS
 	bool "loads - Load a file over serial in S-Record format"
+	depends on LMB
 	default y
 	help
 	  Load an S-Record file over serial line
