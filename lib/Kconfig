@@ -1250,9 +1250,8 @@ config SPL_LMB
 	  the data structures needed for maintaining the LMB memory map.
 
 config LMB_ARCH_MEM_MAP
-	bool "Add an architecture specific memory map"
+	bool
 	depends on LMB
-	depends on !COMPILE_TEST
 	default y if FSL_LAYERSCAPE || X86
 	help
 	  Some architectures have special or unique aspects which need
