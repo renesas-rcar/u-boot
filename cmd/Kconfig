@@ -2171,6 +2171,7 @@ endif  # if NET
 config CMD_DHCP
 	bool "dhcp"
 	select PROT_DHCP_LWIP if NET_LWIP
+	select CMD_BOOTP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
