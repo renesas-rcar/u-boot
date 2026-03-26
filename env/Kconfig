@@ -752,7 +752,7 @@ config ENV_MMC_USE_DT
 	  The 2 defines CONFIG_ENV_OFFSET, CONFIG_ENV_OFFSET_REDUND
 	  are not used as fallback.
 
-config SCSI_ENV_PART_UUID
+config ENV_SCSI_PART_UUID
 	string "SCSI partition UUID for saving environment"
 	depends on ENV_IS_IN_SCSI
 	help
