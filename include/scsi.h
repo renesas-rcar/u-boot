@@ -356,6 +356,8 @@ int scsi_scan_dev(struct udevice *dev, bool verbose);
 /**
  * scsi_get_blk_by_uuid() - Provides SCSI partition information.
  *
+ * scsi_scan() must have been called before calling this function.
+ *
  * @uuid:		UUID of the partition for fetching its info
  * @blk_desc_ptr:	Provides the blk descriptor
  * @part_info_ptr:	Provides partition info

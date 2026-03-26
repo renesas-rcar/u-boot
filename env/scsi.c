@@ -33,7 +33,13 @@ static struct env_scsi_info env_part;
 
 static inline struct env_scsi_info *env_scsi_get_part(void)
 {
+	static bool is_scsi_scanned;
 	struct env_scsi_info *ep = &env_part;
+
+	if (!is_scsi_scanned) {
+		scsi_scan(false /* no verbose */);
+		is_scsi_scanned = true;
+	}
 
 	if (scsi_get_blk_by_uuid(CONFIG_ENV_SCSI_PART_UUID, &ep->blk, &ep->part))
 		return NULL;
