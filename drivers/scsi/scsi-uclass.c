@@ -50,7 +50,7 @@ int scsi_get_blk_by_uuid(const char *uuid,
 		}
 	}
 
-	return -1;
+	return -ENODEV;
 }
 
 int scsi_bus_reset(struct udevice *dev)
