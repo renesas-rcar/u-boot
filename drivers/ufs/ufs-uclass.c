@@ -1751,7 +1751,15 @@ static int ufshcd_read_string_desc(struct ufs_hba *hba, int desc_index,
 			goto out;
 		}
 
-		buff_ascii = kmalloc(ascii_len, GFP_KERNEL);
+		/*
+		 * utf-8 is encoded using up to 4-Bytes per character,
+		 * however, we only allocate such a buffer because the
+		 * utf16_to_utf8() converts the entire $ascii_len worth
+		 * of input characters into up to 4-Byte long utf-8
+		 * characters. The rest of the function uses only up to
+		 * $ascii_len bytes of that utf-8 string.
+		 */
+		buff_ascii = kmalloc(ascii_len * 4, GFP_KERNEL);
 		if (!buff_ascii) {
 			err = -ENOMEM;
 			goto out;
