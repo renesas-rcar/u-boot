@@ -145,12 +145,12 @@ static int ufs_get_max_pwr_mode(struct ufs_hba *hba,
 {
 	max_pwr_info->info.gear_rx = UFS_HS_G5;
 	max_pwr_info->info.gear_tx = UFS_HS_G5;
-	max_pwr_info->info.pwr_tx = FASTAUTO_MODE;
-	max_pwr_info->info.pwr_rx = FASTAUTO_MODE;
-	max_pwr_info->info.hs_rate = PA_HS_MODE_A;
+	max_pwr_info->info.pwr_tx = FAST_MODE;
+	max_pwr_info->info.pwr_rx = FAST_MODE;
+	max_pwr_info->info.hs_rate = PA_HS_MODE_B;
 
-	max_pwr_info->info.lane_rx = 1;
-	max_pwr_info->info.lane_tx = 1;
+	max_pwr_info->info.lane_rx = 2;
+	max_pwr_info->info.lane_tx = 2;
 
 	dev_info(hba->dev, "Max HS Gear: %d\n", max_pwr_info->info.gear_rx);
 
@@ -196,7 +196,9 @@ static void ufs_renesas_pre_init(struct ufs_hba *hba)
 	if (ret)
 		return;
 
-	writew(0x0000, priv->phy_base + 0x20000);		/* 19 */
+	val = readw(priv->phy_base + 0x20000);
+
+	writew(val & ~BIT(0), priv->phy_base + 0x20000);	/* 19 */
 
 	ufshcd_writel(hba, BIT(0), REG_CONTROLLER_ENABLE);	/* 20 */
 
@@ -218,6 +220,13 @@ static void ufs_renesas_pre_init(struct ufs_hba *hba)
 		udelay(1);
 	} while (timeout--);
 
+	val32 = ufshcd_readl(hba, 0x000000C0);
+	val32 &= ~0xE000;
+	ufshcd_writel(hba, val32, 0x000000C0);
+	val32 = ufshcd_readl(hba, 0x000000C0);
+	val32 |=  0x5000;
+	ufshcd_writel(hba, val32, 0x000000C0);
+
 	/* 26: Skip IE because we cannot handle interrupts here */
 	/* 27 */
 	ufs_dme_command(hba, 0x00000002, 0x81010000, 0x00000000, 0x00000005);
@@ -226,25 +235,26 @@ static void ufs_renesas_pre_init(struct ufs_hba *hba)
 	/* 29 */
 	ufs_dme_command(hba, 0x00000002, 0x81180000, 0x00000000, 0x00000001);
 	/* 30 */
-	ufs_dme_command(hba, 0x00000002, 0x80090000, 0x00000000, 0x00000000);
+	ufs_dme_command(hba, 0x00000002, 0x80090000, 0x00000000, 0x0000000C);
 	/* 31 */
-	ufs_dme_command(hba, 0x00000002, 0x800a0000, 0x00000000, 0x000000c8);
+	ufs_dme_command(hba, 0x00000002, 0x800a0000, 0x00000000, 0x00000080);
 	/* 32 */
-	ufs_dme_command(hba, 0x00000002, 0x80090001, 0x00000000, 0x00000000);
+	ufs_dme_command(hba, 0x00000002, 0x80090001, 0x00000000, 0x0000000C);
 	/* 33 */
-	ufs_dme_command(hba, 0x00000002, 0x800a0001, 0x00000000, 0x000000c8);
+	ufs_dme_command(hba, 0x00000002, 0x800a0001, 0x00000000, 0x00000080);
 	/* 34 */
-	ufs_dme_command(hba, 0x00000002, 0x800a0004, 0x00000000, 0x00000000);
+	ufs_dme_command(hba, 0x00000002, 0x800a0004, 0x00000000, 0x00000003);
 	/* 35 */
-	ufs_dme_command(hba, 0x00000002, 0x800b0004, 0x00000000, 0x00000064);
+	ufs_dme_command(hba, 0x00000002, 0x800b0004, 0x00000000, 0x000000EA);
 	/* 36 */
-	ufs_dme_command(hba, 0x00000002, 0x800a0005, 0x00000000, 0x00000000);
+	ufs_dme_command(hba, 0x00000002, 0x800a0005, 0x00000000, 0x00000003);
 	/* 37 */
-	ufs_dme_command(hba, 0x00000002, 0x800b0005, 0x00000000, 0x00000064);
+	ufs_dme_command(hba, 0x00000002, 0x800b0005, 0x00000000, 0x000000EA);
 	/* 38 */
 	ufs_dme_command(hba, 0x00000002, 0xd0850000, 0x00000000, 0x00000001);
 
-	writew(0x0001, priv->phy_base + 0x20000);	/* 39 */
+	val = readw(priv->phy_base + 0x20000);
+	writew(val | BIT(0), priv->phy_base + 0x20000);	/* 39 */
 
 	/* 40 */
 	val = readw(priv->phy_base + 0x20022);
@@ -272,6 +282,11 @@ static void ufs_renesas_pre_init(struct ufs_hba *hba)
 	ret = readw_poll_timeout(priv->phy_base + 0x201f0, val, (val & BIT(11)) == 0, 100000);
 	if (ret)
 		return;
+
+	val = readw(priv->phy_base + 0x20000);
+	writew(val & ~BIT(0), priv->phy_base + 0x20000);
+
+	ufs_dme_command(hba, 0x00000002, 0xd0890000, 0x00000000, 0x00000001);
 
 	priv->initialized = true;
 }
@@ -303,7 +318,7 @@ static int ufs_renesas_init(struct ufs_hba *hba)
 		return 1;
 	}
 
-	hba->quirks |= UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS | UFSHCD_QUIRK_HIBERN_FASTAUTO;
+	hba->quirks |= UFSHCD_QUIRK_HIBERN_FASTAUTO;
 
 	return 0;
 }
