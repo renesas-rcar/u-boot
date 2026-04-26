@@ -15,6 +15,7 @@
 #include <linux/err.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
+#include <reset.h>
 #include <usb.h>
 
 #include "common.h"
@@ -290,6 +291,9 @@ struct usbhs_priv_otg_data {
 	void __iomem		*base;
 	void __iomem		*phybase;
 
+	struct clk_bulk clk_bulk;
+	struct reset_ctl_bulk reset_bulk;
+
 	struct platform_device	usbhs_dev;
 	struct usbhs_priv	usbhs_priv;
 
@@ -355,8 +359,10 @@ static int usbhs_udc_otg_gadget_handle_interrupts(struct udevice *dev)
 	return 0;
 }
 
-static int usbhs_probe(struct usbhs_priv *priv)
+static int usbhs_probe(struct udevice *dev)
 {
+	struct usbhs_priv_otg_data *otg_priv = dev_get_priv(dev);
+	struct usbhs_priv *priv = &otg_priv->usbhs_priv;
 	int ret;
 
 	priv->dparam.type = USBHS_TYPE_RCAR_GEN3;
@@ -396,34 +402,41 @@ static int usbhs_udc_otg_probe(struct udevice *dev)
 {
 	struct usbhs_priv_otg_data *priv = dev_get_priv(dev);
 	struct usb_gadget *gadget;
-	struct clk_bulk clk_bulk;
 	int ret = -EINVAL;
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
-	ret = clk_get_bulk(dev, &clk_bulk);
+	ret = clk_get_bulk(dev, &priv->clk_bulk);
 	if (ret)
 		return ret;
 
-	ret = clk_enable_bulk(&clk_bulk);
+	ret = clk_enable_bulk(&priv->clk_bulk);
 	if (ret)
-		return ret;
+		goto err_clk_enable;
+
+	ret = reset_get_bulk(dev, &priv->reset_bulk);
+	if (ret)
+		goto err_clk;
+
+	ret = reset_deassert_bulk(&priv->reset_bulk);
+	if (ret)
+		goto err_reset_deassert;
 
 	clrsetbits_le32(priv->base + UGCTRL2, UGCTRL2_USB0SEL_MASK, UGCTRL2_USB0SEL_EHCI);
 	clrsetbits_le16(priv->base + LPSTS, LPSTS_SUSPM, LPSTS_SUSPM);
 
 	ret = generic_setup_phy(dev, &priv->phy, 0, PHY_MODE_USB_OTG, 1);
 	if (ret)
-		goto err_clk;
+		goto err_reset;
 
 	priv->phybase = dev_read_addr_ptr(priv->phy.dev);
 
 	priv->usbhs_priv.pdev = &priv->usbhs_dev;
 	priv->usbhs_priv.base = priv->base;
 	priv->usbhs_dev.dev.driver_data = &priv->usbhs_priv;
-	ret = usbhs_probe(&priv->usbhs_priv);
+	ret = usbhs_probe(dev);
 	if (ret < 0)
 		goto err_phy;
 
@@ -439,8 +452,15 @@ static int usbhs_udc_otg_probe(struct udevice *dev)
 
 err_phy:
 	generic_shutdown_phy(&priv->phy);
+err_reset:
+	reset_assert_bulk(&priv->reset_bulk);
+err_reset_deassert:
+	reset_release_bulk(&priv->reset_bulk);
 err_clk:
-	clk_disable_bulk(&clk_bulk);
+	clk_disable_bulk(&priv->clk_bulk);
+err_clk_enable:
+	clk_release_bulk(&priv->clk_bulk);
+
 	return ret;
 }
 
@@ -457,6 +477,12 @@ static int usbhs_udc_otg_remove(struct udevice *dev)
 	usbhs_pipe_remove(&priv->usbhs_priv);
 
 	generic_shutdown_phy(&priv->phy);
+
+	reset_assert_bulk(&priv->reset_bulk);
+	reset_release_bulk(&priv->reset_bulk);
+
+	clk_disable_bulk(&priv->clk_bulk);
+	clk_release_bulk(&priv->clk_bulk);
 
 	return dm_scan_fdt_dev(dev);
 }
