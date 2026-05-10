@@ -1,0 +1,38 @@
+
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source for Salvator-XS with R-Car H3Ne-1.7G (R8A779MB)
+ *
+ * Based on r8a77951-salvator-xs.dts
+ * Copyright (C) 2015-2026 Renesas Electronics Corp.
+ */
+
+/*
+ * Do not add /dts-v1/ here because r8a77951-salvator-xs.dts
+ * already contains /dts-v1/.
+ */
+#include "r8a77951-salvator-xs.dts"
+
+/ {
+    /delete-property/ model;
+    /delete-property/ compatible;
+
+    model = "Renesas Salvator-XS board based on R-Car H3Ne-1.7G (R8A779MB)";
+    compatible = "renesas,salvator-xs", "renesas,r8a779mb", "renesas,r8a7795";
+
+    /delete-node/ memory@48000000;
+    /delete-node/ memory@500000000;
+    /delete-node/ memory@600000000;
+    /delete-node/ memory@700000000;
+
+    memory@48000000 {
+        device_type = "memory";
+        /* first 128MB is reserved for secure area. */
+        reg = <0x0 0x48000000 0x0 0x78000000>;
+    };
+
+    memory@500000000 {
+        device_type = "memory";
+        reg = <0x5 0x00000000 0x0 0x80000000>;
+    };
+};

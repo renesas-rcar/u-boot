@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot on R-Car H3Ne (R8A779MB)
+ * Salvator-XS board
+ *
+ * Copyright (C) 2026 Renesas Electronics Corp.
+ */
+/dts-v1/;
+
+#include "r8a779mb-salvator-xs.dts"
+#include "r8a779mb-salvator-xs-u-boot.dtsi"
