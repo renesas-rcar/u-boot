@@ -19,8 +19,15 @@ config TARGET_IRONHIDE
 	help
 	  Support for Renesas R-Car Gen5 Ironhide platform
 
+config TARGET_PERCEPTOR
+	bool "Perceptor board"
+	imply R8A78000
+	help
+	  Support for Renesas R-Car Gen5 Perceptor platform
+
 endchoice
 
 source "board/renesas/ironhide/Kconfig"
+source "board/renesas/perceptor/Kconfig"
 
 endif
