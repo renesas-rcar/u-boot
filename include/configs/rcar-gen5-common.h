@@ -20,6 +20,7 @@
 
 /* Environment setting */
 #define CFG_EXTRA_ENV_SETTINGS		\
-	"bootm_size=0x80000000\0"
+	"bootm_size=0x80000000\0"	\
+	"fdt_high=0xA2400000\0"
 
 #endif	/* __RCAR_GEN5_COMMON_H */
