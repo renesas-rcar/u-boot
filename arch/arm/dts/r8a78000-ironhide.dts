@@ -81,6 +81,46 @@
 		#size-cells = <2>;
 		ranges;
 
+		ipl0: ipl0@40000000 {
+			no-map;
+			reg = <0x0 0x40000000 0x0 0xb800000>;
+		};
+
+		frtos_app: frtos_app@6b800000 {
+			no-map;
+			reg = <0x0 0x6b800000 0x0 0x1e800000>;
+		};
+
+		ipl1: ipl1@8b000000 {
+			no-map;
+			reg = <0x0 0x8b000000 0x0 0x3200000>;
+		};
+
+		ldr: ldr@8e200000 {
+			no-map;
+			reg = <0x0 0x8e200000 0x0 0x100000>;
+		};
+
+		cr52_ram0: cr52_ram0@96600000 {
+			no-map;
+			reg = <0x0 0x96600000 0x0 0x50000>;
+		};
+
+		cr52_ram1: cr52_ram1@96650000 {
+			no-map;
+			reg = <0x0 0x96650000 0x0 0x50000>;
+		};
+
+		cr52_ram2: cr52_ram2@966a0000 {
+			no-map;
+			reg = <0x0 0x966a0000 0x0 0x50000>;
+		};
+
+		cr52_ca720_share: cr52_ca720_share@966f0000 {
+			no-map;
+			reg = <0x0 0x966f0000 0x0 0x7f10000>;
+		};
+
 		ecc_data_region@10cccd0000 {
 			no-map;
 			reg = <0x10 0xcccd0000 0x0 0x33330000>;
