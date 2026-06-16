@@ -106,7 +106,8 @@ static void dwc3_frame_length_adjustment(struct dwc3 *dwc, u32 fladj)
 {
 	u32 reg;
 
-	if (dwc->revision < DWC3_REVISION_250A)
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_250A)
 		return;
 
 	if (fladj == 0)
@@ -149,7 +150,8 @@ static void dwc3_ref_clk_period(struct dwc3 *dwc)
 	reg |=  FIELD_PREP(DWC3_GUCTL_REFCLKPER_MASK, period);
 	dwc3_writel(dwc->regs, DWC3_GUCTL, reg);
 
-	if (dwc->revision <= DWC3_REVISION_250A)
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision <= DWC3_REVISION_250A)
 		return;
 
 	/*
@@ -591,11 +593,12 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	u32			hwparams4 = dwc->hwparams.hwparams4;
 	u32			reg;
 	int			ret;
+	unsigned int hw_mode = DWC3_GHWPARAMS0_MODE(dwc->hwparams.hwparams0);
 
 	reg = dwc3_readl(dwc->regs, DWC3_GSNPSID);
 	/* This should read as U3 followed by revision number */
 	if ((reg & DWC3_GSNPSID_MASK) != 0x55330000 &&
-	    (reg & DWC3_GSNPSID_MASK) != 0x33310000) {
+	    (reg & DWC3_GSNPSID_MASK) != DWC3_GSNPS_ID_DWC31) {
 		dev_err(dwc->dev, "this is not a DesignWare USB3 DRD Core\n");
 		ret = -ENODEV;
 		goto err0;
@@ -607,6 +610,14 @@ static int dwc3_core_init(struct dwc3 *dwc)
 			DWC3_GHWPARAMS3_SSPHY_IFC_DIS) {
 		if (dwc->maximum_speed == USB_SPEED_SUPER)
 			dwc->maximum_speed = USB_SPEED_HIGH;
+	}
+
+	if (hw_mode != DWC3_GHWPARAMS0_MODE_GADGET &&
+	    DWC3_IS_DWC31(dwc) &&
+	    dwc->maximum_speed == USB_SPEED_SUPER) {
+		reg = dwc3_readl(dwc->regs, DWC3_LLUCTL);
+		reg |= DWC3_LLUCTL_FORCE_GEN1;
+		dwc3_writel(dwc->regs, DWC3_LLUCTL, reg);
 	}
 
 	/* issue device SoftReset too */
@@ -645,6 +656,7 @@ static int dwc3_core_init(struct dwc3 *dwc)
 		 */
 		if ((dwc->dr_mode == USB_DR_MODE_HOST ||
 				dwc->dr_mode == USB_DR_MODE_OTG) &&
+				!DWC3_IS_DWC31(dwc) &&
 				(dwc->revision >= DWC3_REVISION_210A &&
 				dwc->revision <= DWC3_REVISION_250A))
 			reg |= DWC3_GCTL_DSBLCLKGTNG | DWC3_GCTL_SOFITPSYNC;
@@ -689,7 +701,8 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	 * and falls back to high-speed mode which causes
 	 * the device to enter a Connect/Disconnect loop
 	 */
-	if (dwc->revision < DWC3_REVISION_190A)
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_190A)
 		reg |= DWC3_GCTL_U2RSTECN;
 
 	dwc3_core_num_eps(dwc);
@@ -1170,14 +1183,16 @@ int dwc3_init(struct dwc3 *dwc)
 		goto event_fail;
 	}
 
-	if (dwc->revision >= DWC3_REVISION_250A) {
+	if (DWC3_IS_DWC31(dwc) ||
+	    dwc->revision >= DWC3_REVISION_250A) {
 		reg = dwc3_readl(dwc->regs, DWC3_GUCTL1);
 
 		/*
 		 * Enable hardware control of sending remote wakeup
 		 * in HS when the device is in the L1 state.
 		 */
-		if (dwc->revision >= DWC3_REVISION_290A)
+		if (DWC3_IS_DWC31(dwc) ||
+		    dwc->revision >= DWC3_REVISION_290A)
 			reg |= DWC3_GUCTL1_DEV_L1_EXIT_BY_HW;
 
 		if (dwc->dis_tx_ipgap_linecheck_quirk)

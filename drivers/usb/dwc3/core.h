@@ -23,6 +23,7 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/otg.h>
 #include <linux/usb/phy.h>
+#include <linux/usb/gadget.h>
 
 #define DWC3_MSG_MAX	500
 
@@ -56,6 +57,16 @@
 #define DWC3_GEVNTCOUNT_MASK	0xfffc
 #define DWC3_GSNPSID_MASK	0xffff0000
 #define DWC3_GSNPSREV_MASK	0xffff
+#define DWC3_GSNPS_ID(p)	(((p) & DWC3_GSNPSID_MASK) >> 16)
+
+/*
+ * DWC_usb31 cores use a separate revision-number space from the
+ * legacy DWC_usb3 family, so we need to check for that here
+ * The DWC_usb31 cores have a GSNPS ID
+ */
+#define DWC3_GSNPS_ID_DWC31	0x33310000
+#define DWC3_IS_DWC31(dwc)	\
+	(DWC3_GSNPS_ID((dwc)->revision) == DWC3_GSNPS_ID(DWC3_GSNPS_ID_DWC31))
 
 /* DWC3 registers memory space boundries */
 #define DWC3_XHCI_REGS_START		0x0
@@ -137,6 +148,8 @@
 #define DWC3_OEVTEN		0xcc0C
 #define DWC3_OSTS		0xcc10
 
+#define DWC3_LLUCTL		0xd024
+
 /* Bit fields */
 
 /* Global SoC Bus Configuration INCRx Register 0 */
@@ -216,6 +229,12 @@
 /* Global Event Size Registers */
 #define DWC3_GEVNTSIZ_INTMASK		(1 << 31)
 #define DWC3_GEVNTSIZ_SIZE(n)		((n) & 0xffff)
+
+/* Global HWPARAMS0 Register */
+#define DWC3_GHWPARAMS0_MODE(n)		((n) & 0x3)
+#define DWC3_GHWPARAMS0_MODE_GADGET	0
+#define DWC3_GHWPARAMS0_MODE_HOST	1
+#define DWC3_GHWPARAMS0_MODE_DRD	2
 
 /* Global HWPARAMS1 Register */
 #define DWC3_GHWPARAMS1_EN_PWROPT(n)	(((n) & (3 << 24)) >> 24)
@@ -414,6 +433,9 @@
 #define DWC3_DEPCMD_TYPE_ISOC		1
 #define DWC3_DEPCMD_TYPE_BULK		2
 #define DWC3_DEPCMD_TYPE_INTR		3
+
+/* Force Gen1 speed on Gen2 link */
+#define DWC3_LLUCTL_FORCE_GEN1		BIT(10)
 
 /* Structures */
 

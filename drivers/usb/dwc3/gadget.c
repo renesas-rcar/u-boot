@@ -100,7 +100,8 @@ int dwc3_gadget_set_link_state(struct dwc3 *dwc, enum dwc3_link_state state)
 	 * Wait until device controller is ready. Only applies to 1.94a and
 	 * later RTL.
 	 */
-	if (dwc->revision >= DWC3_REVISION_194A) {
+	if (DWC3_IS_DWC31(dwc) ||
+	    dwc->revision >= DWC3_REVISION_194A) {
 		while (--retries) {
 			reg = dwc3_readl(dwc->regs, DWC3_DSTS);
 			if (reg & DWC3_DSTS_DCNRD)
@@ -124,7 +125,8 @@ int dwc3_gadget_set_link_state(struct dwc3 *dwc, enum dwc3_link_state state)
 	 * The following code is racy when called from dwc3_gadget_wakeup,
 	 * and is not needed, at least on newer versions
 	 */
-	if (dwc->revision >= DWC3_REVISION_194A)
+	if (DWC3_IS_DWC31(dwc) ||
+	    dwc->revision >= DWC3_REVISION_194A)
 		return 0;
 
 	/* wait for a change in DSTS */
@@ -1351,7 +1353,8 @@ static int dwc3_gadget_wakeup(struct usb_gadget *g)
 	}
 
 	/* Recent versions do this automatically */
-	if (dwc->revision < DWC3_REVISION_194A) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_194A) {
 		/* write zeroes to Link Change Request */
 		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 		reg &= ~DWC3_DCTL_ULSTCHNGREQ_MASK;
@@ -1400,12 +1403,22 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
 
 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 	if (is_on) {
-		if (dwc->revision <= DWC3_REVISION_187A) {
+		/*
+		 * DWC3_REVISION_187A is a DWC_usb3-family
+		 * constant. Comparing dwc->revision <= it directly is always
+		 * true for a DWC_usb31 core (GSNPSID prefix 0x3331,
+		 * numerically "smaller" even though chronologically newer),
+		 * so this legacy-chip-only workaround was being applied
+		 * unconditionally on every soft-connect
+		 */
+		if (!DWC3_IS_DWC31(dwc) &&
+		    dwc->revision <= DWC3_REVISION_187A) {
 			reg &= ~DWC3_DCTL_TRGTULST_MASK;
 			reg |= DWC3_DCTL_TRGTULST_RX_DET;
 		}
 
-		if (dwc->revision >= DWC3_REVISION_194A)
+		if (DWC3_IS_DWC31(dwc) ||
+		    dwc->revision >= DWC3_REVISION_194A)
 			reg &= ~DWC3_DCTL_KEEP_CONNECT;
 		reg |= DWC3_DCTL_RUN_STOP;
 
@@ -1522,8 +1535,13 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 	 *
 	 * STAR#9000525659: Clock Domain Crossing on DCTL in
 	 * USB 2.0 Mode
+	 *
+	 * This legacy-chip-only workaround was incorrectly matching
+	 * DWC_usb31 cores, forcing DCFG.DEVSPD to SuperSpeed unconditionally
+	 * even for a HS/FS-only native USB2 instance with no SS PHY at all
 	 */
-	if (dwc->revision < DWC3_REVISION_220A) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_220A) {
 		reg |= DWC3_DCFG_SUPERSPEED;
 	} else {
 		switch (dwc->maximum_speed) {
@@ -1905,7 +1923,8 @@ static void dwc3_endpoint_transfer_complete(struct dwc3 *dwc,
 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 	 * See dwc3_gadget_linksts_change_interrupt() for 1st half.
 	 */
-	if (dwc->revision < DWC3_REVISION_183A) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_183A) {
 		u32		reg;
 		int		i;
 
@@ -2180,7 +2199,8 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
 	 * STAR#9000466709: RTL: Device : Disconnect event not
 	 * generated if setup packet pending in FIFO
 	 */
-	if (dwc->revision < DWC3_REVISION_188A) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_188A) {
 		if (dwc->setup_packet_pending)
 			dwc3_gadget_disconnect_interrupt(dwc);
 	}
@@ -2255,7 +2275,8 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 		 * STAR#9000483510: RTL: SS : USB3 reset event may
 		 * not be generated always when the link enters poll
 		 */
-		if (dwc->revision < DWC3_REVISION_190A)
+		if (!DWC3_IS_DWC31(dwc) &&
+		    dwc->revision < DWC3_REVISION_190A)
 			dwc3_gadget_reset_interrupt(dwc);
 
 		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(512);
@@ -2281,9 +2302,9 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 	}
 
 	/* Enable USB2 LPM Capability */
-
-	if ((dwc->revision > DWC3_REVISION_194A)
-			&& (speed != DWC3_DCFG_SUPERSPEED)) {
+	if ((DWC3_IS_DWC31(dwc) ||
+	     dwc->revision > DWC3_REVISION_194A) &&
+	    speed != DWC3_DCFG_SUPERSPEED) {
 		reg = dwc3_readl(dwc->regs, DWC3_DCFG);
 		reg |= DWC3_DCFG_LPM_CAP;
 		dwc3_writel(dwc->regs, DWC3_DCFG, reg);
@@ -2299,10 +2320,13 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 		 * BESL value in the LPM token is less than or equal to LPM
 		 * NYET threshold.
 		 */
-		if (dwc->revision < DWC3_REVISION_240A	&& dwc->has_lpm_erratum)
+		if (!DWC3_IS_DWC31(dwc) &&
+		    dwc->revision < DWC3_REVISION_240A && dwc->has_lpm_erratum)
 			WARN(true, "LPM Erratum not available on dwc3 revisisions < 2.40a\n");
 
-		if (dwc->has_lpm_erratum && dwc->revision >= DWC3_REVISION_240A)
+		if (dwc->has_lpm_erratum &&
+		    (DWC3_IS_DWC31(dwc) ||
+		     dwc->revision >= DWC3_REVISION_240A))
 			reg |= DWC3_DCTL_LPM_ERRATA(dwc->lpm_nyet_threshold);
 
 		dwc3_writel(dwc->regs, DWC3_DCTL, reg);
@@ -2369,10 +2393,15 @@ static void dwc3_gadget_linksts_change_interrupt(struct dwc3 *dwc,
 	 *
 	 * STAR#9000570034 RTL: SS Resume event generated in non-Hibernation
 	 * operational mode
+	 *
+	 * This legacy-chip-only workaround was incorrectly matching
+	 * DWC_usb31 cores, causing a genuine U3->Resume transition to be
+	 * silently swallowed instead of being processed
 	 */
 	pwropt = DWC3_GHWPARAMS1_EN_PWROPT(dwc->hwparams.hwparams1);
-	if ((dwc->revision < DWC3_REVISION_250A) &&
-			(pwropt != DWC3_GHWPARAMS1_EN_PWROPT_HIB)) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_250A &&
+	    pwropt != DWC3_GHWPARAMS1_EN_PWROPT_HIB) {
 		if ((dwc->link_state == DWC3_LINK_STATE_U3) &&
 				(next == DWC3_LINK_STATE_RESUME)) {
 			dev_vdbg(dwc->dev, "ignoring transition U3 -> Resume\n");
@@ -2398,7 +2427,8 @@ static void dwc3_gadget_linksts_change_interrupt(struct dwc3 *dwc,
 	 * STAR#9000446952: RTL: Device SS : if U1/U2 ->U0 takes >128us
 	 * core send LGO_Ux entering U0
 	 */
-	if (dwc->revision < DWC3_REVISION_183A) {
+	if (!DWC3_IS_DWC31(dwc) &&
+	    dwc->revision < DWC3_REVISION_183A) {
 		if (next == DWC3_LINK_STATE_U0) {
 			u32	u1u2;
 			u32	reg;
