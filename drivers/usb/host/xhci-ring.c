@@ -657,6 +657,10 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	u64 buf_64 = xhci_dma_map(ctrl, buffer, length);
 	dma_addr_t last_transfer_trb_addr;
 	int available_length;
+	bool is_short = false;
+	int short_event_len = 0;
+	int trb_num = 0;
+	int first_trb_len = 0;
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d\n",
 		udev, pipe, buffer, length);
@@ -748,6 +752,9 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	do {
 		u32 remainder = 0;
 		field = 0;
+		trb_num++;
+		if (trb_num == 1)
+			first_trb_len = trb_buff_len;
 		/* Don't change the cycle bit of the first TRB until later */
 		if (first_trb) {
 			first_trb = false;
@@ -813,6 +820,11 @@ again:
 
 	if ((uintptr_t)(le64_to_cpu(event->trans_event.buffer)) !=
 	    (uintptr_t)last_transfer_trb_addr) {
+		if (GET_COMP_CODE(le32_to_cpu(event->trans_event.transfer_len)) == COMP_SHORT_TX) {
+			is_short = true;
+			short_event_len =
+				(int)EVENT_TRB_LEN(le32_to_cpu(event->trans_event.transfer_len));
+		}
 		available_length -=
 			(int)EVENT_TRB_LEN(le32_to_cpu(event->trans_event.transfer_len));
 		xhci_acknowledge_event(ctrl);
@@ -823,7 +835,21 @@ again:
 	BUG_ON(TRB_TO_SLOT_ID(field) != slot_id);
 	BUG_ON(TRB_TO_EP_INDEX(field) != ep_index);
 
-	record_transfer_result(udev, event, available_length);
+	/*
+	 * If a Short Packet completes a multi-TRB TD, xHCI still emits a second
+	 * completion event for the final TRB to retire the TD (xHCI spec 4.10.1.1.2).
+	 * That event does not indicate any data was transferred by the final TRB;
+	 * it simply repeats the residual reported by the Short-Packet TRB.
+	 * Therefore, calculate actual_len from the Short-Packet TRB's length and residual,
+	 * not from available_length, which is based on the total request size.
+	 */
+	if (is_short &&
+	    GET_COMP_CODE(le32_to_cpu(event->trans_event.transfer_len)) == COMP_SHORT_TX) {
+		udev->act_len = first_trb_len - short_event_len;
+		udev->status = 0;
+	} else {
+		record_transfer_result(udev, event, available_length);
+	}
 	xhci_acknowledge_event(ctrl);
 	xhci_inval_cache((uintptr_t)buffer, length);
 	xhci_dma_unmap(ctrl, buf_64, length);
