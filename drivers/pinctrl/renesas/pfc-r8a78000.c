@@ -3413,6 +3413,82 @@ static const unsigned int ethes7_match_mux[] = {
 	ETHES7_MATCH_MARK,
 };
 
+/* - USB0 ------------------------------------------------ */
+static const unsigned int usb0_vbus_pins[] = {
+	/* USB0_VBUS_VALID */
+	RCAR_GP_PIN(10, 2),
+};
+
+static const unsigned int usb0_vbus_mux[] = {
+	USB0_VBUS_VALID_MARK,
+};
+
+static const unsigned int usb0_pins[] = {
+	/* USB0_PWEN, USB0_OVC */
+	RCAR_GP_PIN(10, 0), RCAR_GP_PIN(10, 1),
+};
+
+static const unsigned int usb0_mux[] = {
+	USB0_PWEN_MARK, USB0_OVC_MARK,
+};
+
+/* - USB1 ------------------------------------------------ */
+static const unsigned int usb1_vbus_pins[] = {
+	/* USB1_VBUS_VALID */
+	RCAR_GP_PIN(10, 5),
+};
+
+static const unsigned int usb1_vbus_mux[] = {
+	USB1_VBUS_VALID_MARK,
+};
+
+static const unsigned int usb1_pins[] = {
+	/* USB1_PWEN, USB1_OVC */
+	RCAR_GP_PIN(10, 3), RCAR_GP_PIN(10, 4),
+};
+
+static const unsigned int usb1_mux[] = {
+	USB1_PWEN_MARK, USB1_OVC_MARK,
+};
+
+/* - USB2 ------------------------------------------------ */
+static const unsigned int usb2_vbus_pins[] = {
+	/* USB2_VBUS_VALID */
+	RCAR_GP_PIN(10, 8),
+};
+
+static const unsigned int usb2_vbus_mux[] = {
+	USB2_VBUS_VALID_MARK,
+};
+
+static const unsigned int usb2_pins[] = {
+	/* USB2_PWEN, USB2_OVC */
+	RCAR_GP_PIN(10, 6), RCAR_GP_PIN(10, 7),
+};
+
+static const unsigned int usb2_mux[] = {
+	USB2_PWEN_MARK, USB2_OVC_MARK,
+};
+
+/* - USB3 ------------------------------------------------ */
+static const unsigned int usb3_vbus_pins[] = {
+	/* USB3_VBUS_VALID */
+	RCAR_GP_PIN(10, 11),
+};
+
+static const unsigned int usb3_vbus_mux[] = {
+	USB3_VBUS_VALID_MARK,
+};
+
+static const unsigned int usb3_pins[] = {
+	/* USB3_PWEN, USB3_OVC */
+	RCAR_GP_PIN(10, 9), RCAR_GP_PIN(10, 10),
+};
+
+static const unsigned int usb3_mux[] = {
+	USB3_PWEN_MARK, USB3_OVC_MARK,
+};
+
 static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(hscif0_data),
 	SH_PFC_PIN_GROUP(hscif0_clk),
@@ -3528,6 +3604,15 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
 	SH_PFC_PIN_GROUP(ethes7_pps),
 	SH_PFC_PIN_GROUP(ethes7_capture),
 	SH_PFC_PIN_GROUP(ethes7_match),
+
+	SH_PFC_PIN_GROUP(usb0_vbus),
+	SH_PFC_PIN_GROUP(usb0),
+	SH_PFC_PIN_GROUP(usb1_vbus),
+	SH_PFC_PIN_GROUP(usb1),
+	SH_PFC_PIN_GROUP(usb2_vbus),
+	SH_PFC_PIN_GROUP(usb2),
+	SH_PFC_PIN_GROUP(usb3_vbus),
+	SH_PFC_PIN_GROUP(usb3),
 };
 
 static const char * const hscif0_groups[] = {
@@ -3747,6 +3832,26 @@ static const char * const ethes7_groups[] = {
 	"ethes7_match",
 };
 
+static const char * const usb0_groups[] = {
+	"usb0_vbus",
+	"usb0",
+};
+
+static const char * const usb1_groups[] = {
+	"usb1_vbus",
+	"usb1",
+};
+
+static const char * const usb2_groups[] = {
+	"usb2_vbus",
+	"usb2",
+};
+
+static const char * const usb3_groups[] = {
+	"usb3_vbus",
+	"usb3",
+};
+
 static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(hscif0),
 	SH_PFC_FUNCTION(hscif1),
@@ -3795,6 +3900,11 @@ static const struct sh_pfc_function pinmux_functions[] = {
 	SH_PFC_FUNCTION(ethes5),
 	SH_PFC_FUNCTION(ethes6),
 	SH_PFC_FUNCTION(ethes7),
+
+	SH_PFC_FUNCTION(usb0),
+	SH_PFC_FUNCTION(usb1),
+	SH_PFC_FUNCTION(usb2),
+	SH_PFC_FUNCTION(usb3),
 };
 
 static const struct pinmux_cfg_reg pinmux_config_regs[] = {
