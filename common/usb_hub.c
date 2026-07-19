@@ -248,6 +248,8 @@ static struct usb_hub_device *usb_hub_allocate(void)
 static inline const char *portspeed(int portstatus)
 {
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
+	case USB_PORT_STAT_SUPER_SPEED_PLUS:
+		return "10 Gb/s";
 	case USB_PORT_STAT_SUPER_SPEED:
 		return "5 Gb/s";
 	case USB_PORT_STAT_HIGH_SPEED:
@@ -384,6 +386,9 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	}
 
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
+	case USB_PORT_STAT_SUPER_SPEED_PLUS:
+		speed = USB_SPEED_SUPER_PLUS;
+		break;
 	case USB_PORT_STAT_SUPER_SPEED:
 		speed = USB_SPEED_SUPER;
 		break;
