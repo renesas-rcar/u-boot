@@ -317,6 +317,8 @@ static struct usb_device *usb_find_device(int devnum)
 static inline const char *portspeed(int speed)
 {
 	switch (speed) {
+	case USB_SPEED_SUPER_PLUS:
+		return "10 Gb/s";
 	case USB_SPEED_SUPER:
 		return "5 Gb/s";
 	case USB_SPEED_HIGH:
