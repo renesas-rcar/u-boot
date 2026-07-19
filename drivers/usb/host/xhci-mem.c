@@ -793,6 +793,9 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	slot_ctx->dev_info |= cpu_to_le32(route);
 
 	switch (speed) {
+	case USB_SPEED_SUPER_PLUS:
+		slot_ctx->dev_info |= cpu_to_le32(SLOT_SPEED_SSP);
+		break;
 	case USB_SPEED_SUPER:
 		slot_ctx->dev_info |= cpu_to_le32(SLOT_SPEED_SS);
 		break;
@@ -847,6 +850,7 @@ void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl,
 	debug("SPEED = %d\n", speed);
 
 	switch (speed) {
+	case USB_SPEED_SUPER_PLUS:
 	case USB_SPEED_SUPER:
 		ep0_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(512));
 		debug("Setting Packet size = 512bytes\n");

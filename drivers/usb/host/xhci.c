@@ -333,6 +333,7 @@ static unsigned int xhci_get_endpoint_interval(struct usb_device *udev,
 		}
 		/* Fall through - SS and HS isoc/int have same decoding */
 
+	case USB_SPEED_SUPER_PLUS:
 	case USB_SPEED_SUPER:
 		if (usb_endpoint_xfer_int(endpt_desc) ||
 		    usb_endpoint_xfer_isoc(endpt_desc)) {
@@ -1027,6 +1028,10 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 			case XDEV_SS:
 				debug("SPEED = SUPERSPEED\n");
 				tmpbuf[1] |= USB_PORT_STAT_SUPER_SPEED >> 8;
+				break;
+			case XDEV_SSP:
+				debug("SPEED = SUPERSPEED+\n");
+				tmpbuf[1] |= USB_PORT_STAT_SUPER_SPEED_PLUS >> 8;
 				break;
 			}
 		}
