@@ -1148,8 +1148,8 @@ static int rswitch_port_probe(struct udevice *dev)
 	etha->enetaddr = pdata->enetaddr;
 	etha->speed = SPEED_1000;
 
-	etha->mii.index = dev_read_u32_default(dev, "reg", 0);
-	etha->serdes.index = priv->serdes.id;
+	etha->mii.index = dev_read_u32_default(dev, "renesas,etha-mii-chan", 0);
+	etha->serdes.index = dev_read_u32_default(dev, "reg", 0);
 	etha->mii.addr = priv->addr + priv->drv_data->etha_offset +
 			 etha->mii.index * RSWITCH_ETHA_SIZE;
 	etha->serdes.addr = priv->addr + priv->drv_data->etha_offset +
