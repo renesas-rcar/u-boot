@@ -128,6 +128,8 @@
 #define MPIC_LSC_100		(0x01 << 3)
 #define MPIC_LSC_1000		(0x02 << 3)
 #define MPIC_LSC_2500		(0x03 << 3)
+#define MPIC_LSC_5000		(0x04 << 3)
+#define MPIC_LSC_10000		(0x05 << 3)
 #define MLVC_PLV		BIT(16)
 #define MLVC_LVT		0x09
 #define MMIS0_LVSS		0x02
@@ -200,6 +202,7 @@ struct rswitch_etha {
 	struct phy_device	*phydev;
 	struct mii_dev		*bus;
 	unsigned char		*enetaddr;
+	int			speed;
 	bool			xpcs;
 };
 
@@ -717,6 +720,7 @@ static void rswitch_rmac_init(struct rswitch_etha *etha)
 {
 	struct rswitch_etha_io *etha_serdes = &etha->serdes;
 	unsigned char *mac = etha->enetaddr;
+	u32 lsc;
 
 	/* Set MAC address */
 	writel((mac[0] << 8) | mac[1], etha_serdes->addr + MRMAC0);
@@ -725,7 +729,28 @@ static void rswitch_rmac_init(struct rswitch_etha *etha)
 	       etha_serdes->addr + MRMAC1);
 
 	/* Set MIIx */
-	writel(MPIC_PIS_GMII | MPIC_LSC_1000, etha_serdes->addr + MPIC);
+	switch (etha->speed) {
+	case SPEED_100:
+		lsc = MPIC_LSC_100;
+		break;
+	case SPEED_1000:
+		lsc = MPIC_LSC_1000;
+		break;
+	case SPEED_2500:
+		lsc = MPIC_LSC_2500;
+		break;
+	case 5000:
+		lsc = MPIC_LSC_5000;
+		break;
+	case SPEED_10000:
+		lsc = MPIC_LSC_10000;
+		break;
+	default:
+		lsc = readl(etha_serdes->addr + MPIC) & MPIC_LSC_MASK;
+		break;
+	}
+
+	writel(MPIC_PIS_GMII | lsc, etha_serdes->addr + MPIC);
 
 	writel(0x07E707E7, etha_serdes->addr + MRAFC);
 }
@@ -859,6 +884,53 @@ static int rswitch_etha_init(struct rswitch_port_priv *priv)
 	return 0;
 }
 
+static int rswitch_speed_reconfigure(struct rswitch_port_priv *priv, int speed)
+{
+	struct rswitch_etha *etha = &priv->etha;
+	int ret;
+
+	ret = rswitch_reset(priv);
+	if (ret)
+		return ret;
+
+	ret = generic_phy_set_speed(&priv->serdes, speed);
+	if (ret)
+		return ret;
+
+	etha->speed = speed;
+
+	return 0;
+}
+
+static int rswitch_adjust_link(struct rswitch_port_priv *priv)
+{
+	struct rswitch_etha *etha = &priv->etha;
+	struct phy_device *phydev = etha->phydev;
+	int ret;
+
+	if (!phydev->link || phydev->speed == etha->speed)
+		return 0;
+
+	if (!etha->xpcs) {
+		ret = generic_phy_set_speed(&priv->serdes, phydev->speed);
+		if (ret)
+			return ret;
+	}
+
+	/* Retrain the SerDes */
+	generic_phy_power_off(&priv->serdes);
+	ret = generic_phy_power_on(&priv->serdes);
+	if (ret)
+		return ret;
+
+	if (etha->xpcs)
+		return rswitch_speed_reconfigure(priv, phydev->speed);
+
+	etha->speed = phydev->speed;
+
+	return 0;
+}
+
 static int rswitch_start(struct udevice *dev)
 {
 	struct rswitch_port_priv *priv = dev_get_priv(dev);
@@ -874,7 +946,7 @@ static int rswitch_start(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = generic_phy_set_speed(&priv->serdes, etha->phydev->speed);
+	ret = generic_phy_set_speed(&priv->serdes, etha->speed);
 	if (ret)
 		return ret;
 
@@ -887,6 +959,10 @@ static int rswitch_start(struct udevice *dev)
 		return ret;
 
 	ret = phy_startup(etha->phydev);
+	if (ret)
+		return ret;
+
+	ret = rswitch_adjust_link(priv);
 	if (ret)
 		return ret;
 
@@ -1070,6 +1146,7 @@ static int rswitch_port_probe(struct udevice *dev)
 	}
 
 	etha->enetaddr = pdata->enetaddr;
+	etha->speed = SPEED_1000;
 
 	etha->mii.index = dev_read_u32_default(dev, "reg", 0);
 	etha->serdes.index = priv->serdes.id;
