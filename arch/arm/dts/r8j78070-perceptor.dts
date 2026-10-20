@@ -26,6 +26,7 @@
 		i2c8 = &i2c8;
 		mmc0 = &mmc0;
 		serial0 = &hscif0;
+		ethernet0 = &port5;
 	};
 
 	chosen {
@@ -368,12 +369,13 @@
 		#size-cells = <0>;
 
 		/*
-		 * NOTE: Only port@4 is configured for R-Car X5H board.
-		 * Other ports (0-3, 5-12) are currently unused or not
+		 * NOTE: Only port@5 is configured for R-Car X5HAIH board.
+		 * Other ports (0-4, 6-12) are currently unused or not
 		 * connected.
 		 */
-		port@4 {
-			reg = <4>;
+		port5: port@5 {
+			reg = <5>;
+			renesas,etha-mii-chan = <4>;
 			renesas,connect_to_xpcs;
 			phy-handle = <&dp83869_phy>;
 			phy-mode = "sgmii";
