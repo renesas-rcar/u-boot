@@ -25,7 +25,7 @@
 		i2c8 = &i2c8;
 		mmc0 = &mmc0;
 		serial0 = &hscif0;
-		ethernet5 = &port5;
+		ethernet0 = &port5;
 	};
 
 	chosen {
